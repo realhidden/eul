@@ -66,6 +66,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             appearanceCancellable = preferenceStore.$appearanceMode.sink { mode in
                 DispatchQueue.main.async {
                     self.window.appearance = mode.nsAppearance
+                    NSApp.appearance = mode.nsAppearance
                 }
             }
         }

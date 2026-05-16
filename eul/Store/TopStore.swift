@@ -57,13 +57,26 @@ class TopStore: ObservableObject {
                         return nil
                     }
 
-                    let usage = 100 * (ram / self.memorySizeMB)
+                    // top's rsize: no suffix = KB, suffix K/M/G = that unit
+                    let ramInMB: Double
+                    if let suffix = rawRamString.last, suffix.isLetter {
+                        switch suffix {
+                        case "K": ramInMB = ram / 1024
+                        case "M": ramInMB = ram
+                        case "G": ramInMB = ram * 1024
+                        default:  ramInMB = ram / 1024 // treat unknown as KB
+                        }
+                    } else {
+                        ramInMB = ram / 1024 // older macOS: raw KB
+                    }
+
+                    let usage = 100 * (ramInMB / self.memorySizeMB)
 
                     return RamUsage(
                         pid: pid,
                         command: Info.getProcessCommand(pid: pid)!,
                         value: usage,
-                        usageAmount: ram,
+                        usageAmount: ramInMB,
                         runningApp: runningApps.first(where: { $0.processIdentifier == pid })
                     )
                 }

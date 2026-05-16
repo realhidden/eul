@@ -197,7 +197,7 @@ class PreferenceStore: ObservableObject {
     }
 
     func writeToContainer() {
-        Container.set(PreferenceEntry(temperatureUnit: temperatureUnit))
+        Container.set(PreferenceEntry(temperatureUnit: temperatureUnit, appearanceMode: appearanceMode.rawValue))
         if #available(OSX 11, *) {
             WidgetCenter.shared.reloadAllTimelines()
         }

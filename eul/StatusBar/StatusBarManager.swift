@@ -66,11 +66,19 @@ class StatusBarManager {
         }
     }
 
-    func render(components _: [EulComponent]) {
-        item.isVisible = false
+    func render(components: [EulComponent]) {
+        let shouldShow = !components.isEmpty
 
-        DispatchQueue.main.async {
-            self.item.isVisible = true
+        guard item.isVisible != shouldShow else {
+            return
+        }
+
+        item.isVisible = shouldShow
+
+        if shouldShow {
+            DispatchQueue.main.async {
+                self.refresh()
+            }
         }
     }
 }

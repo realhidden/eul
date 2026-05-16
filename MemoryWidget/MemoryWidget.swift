@@ -57,6 +57,7 @@ struct MemoryWidgetEntryView: View {
                 WidgetNotAvailbleView(text: "widget.not_available".localized())
             }
         }
+        .preferredColorScheme(preferenceEntry.colorScheme)
     }
 }
 

@@ -51,14 +51,16 @@ class NetworkStore: ObservableObject, Refreshable {
         Info.getNetworkUsage(forDevice: config.networkPortSelection.nilIfEmpty) { [self] current, ports, currentActivePort in
             let time = Date().timeIntervalSince1970
 
-            if networkUsage.inBytes > 0, current.inBytes >= networkUsage.inBytes {
-                inSpeedInByte = Double(current.inBytes - networkUsage.inBytes) / (time - lastTimestamp)
+            if networkUsage.inBytes > 0 {
+                let delta = current.inBytes >= networkUsage.inBytes ? current.inBytes - networkUsage.inBytes : 0
+                inSpeedInByte = Double(delta) / (time - lastTimestamp)
             } else {
                 inSpeedInByte = 0
             }
 
-            if networkUsage.outBytes > 0, current.outBytes >= networkUsage.outBytes {
-                outSpeedInByte = Double(current.outBytes - networkUsage.outBytes) / (time - lastTimestamp)
+            if networkUsage.outBytes > 0 {
+                let delta = current.outBytes >= networkUsage.outBytes ? current.outBytes - networkUsage.outBytes : 0
+                outSpeedInByte = Double(delta) / (time - lastTimestamp)
             } else {
                 outSpeedInByte = 0
             }

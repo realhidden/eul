@@ -113,6 +113,8 @@ class StatusBarItem: NSObject, NSMenuDelegate {
         statusBarMenu.delegate = self
         item.autosaveName = named
         item.isVisible = false
+        // Keep the item allocated so button is available on all macOS versions
+        item.length = 0
 
         if let menuBuilder = config.menuBuilder {
             let customItem = NSMenuItem()

@@ -17,6 +17,7 @@ struct Provider: StandardProvider {
 }
 
 struct NetworkWidgetEntryView: View {
+    var preferenceEntry = Container.get(PreferenceEntry.self) ?? PreferenceEntry()
     var entry: Provider.Entry
 
     var body: some View {
@@ -55,6 +56,7 @@ struct NetworkWidgetEntryView: View {
                 WidgetNotAvailbleView(text: "widget.not_available".localized())
             }
         }
+        .preferredColorScheme(preferenceEntry.colorScheme)
     }
 }
 
