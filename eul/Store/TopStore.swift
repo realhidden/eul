@@ -64,7 +64,7 @@ class TopStore: ObservableObject {
                         case "K": ramInMB = ram / 1024
                         case "M": ramInMB = ram
                         case "G": ramInMB = ram * 1024
-                        default:  ramInMB = ram / 1024 // treat unknown as KB
+                        default: ramInMB = ram / 1024 // treat unknown as KB
                         }
                     } else {
                         ramInMB = ram / 1024 // older macOS: raw KB

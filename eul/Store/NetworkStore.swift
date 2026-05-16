@@ -48,6 +48,11 @@ class NetworkStore: ObservableObject, Refreshable {
 
         networkUsageHasBeenSet = false
 
+        // Reset the guard after 10s in case the async command never completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [self] in
+            networkUsageHasBeenSet = true
+        }
+
         Info.getNetworkUsage(forDevice: config.networkPortSelection.nilIfEmpty) { [self] current, ports, currentActivePort in
             let time = Date().timeIntervalSince1970
 

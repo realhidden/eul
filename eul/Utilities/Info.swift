@@ -146,7 +146,10 @@ enum Info {
     }
 
     static func getActiveInterfaces() -> [String] {
-        shell("ifconfig")?.split(separator: "\n").map { String($0) }.reduce([InterfaceStatus]()) {
+        let physicalInterfacePrefixes = ["en", "ap"]
+        let excludedInterfaces = ["lo0", "awdl", "llw", "utun"]
+
+        return shell("ifconfig")?.split(separator: "\n").map { String($0) }.reduce([InterfaceStatus]()) {
             // new interface
             if !$1.hasPrefix("\t") {
                 guard let colonIndex = $1.firstIndex(of: ":") else {
@@ -162,8 +165,8 @@ enum Info {
             }
 
             return $0.dropLast().appending(InterfaceStatus(name: lastInterface.name, status: splitted[1]))
-        }.compactMap {
-            $0.status == "active" ? $0.name : nil
+        }.compactMap { iface in
+            iface.status == "active" && (physicalInterfacePrefixes.contains { iface.name.hasPrefix($0) }) ? iface.name : nil
         } ?? []
     }
 
