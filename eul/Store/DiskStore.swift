@@ -29,12 +29,29 @@ class DiskStore: ObservableObject, Refreshable {
         return list?.disks.filter { $0.name == config.diskSelection }.first
     }
 
+    private var rootAttributes: (size: UInt64, free: UInt64)? {
+        guard
+            let attrs = try? FileManager.default.attributesOfFileSystem(forPath: "/"),
+            let size = attrs[.systemSize] as? UInt64,
+            let free = attrs[.systemFreeSize] as? UInt64
+        else {
+            return nil
+        }
+        return (size, free)
+    }
+
     var ceilingBytes: UInt64? {
-        selectedDisk?.size ?? list?.disks.reduce(0) { $0 + $1.size }
+        if let selected = selectedDisk {
+            return selected.size
+        }
+        return rootAttributes?.size
     }
 
     var freeBytes: UInt64? {
-        selectedDisk?.freeSize ?? list?.disks.reduce(0) { $0 + $1.freeSize }
+        if let selected = selectedDisk {
+            return selected.freeSize
+        }
+        return rootAttributes?.free
     }
 
     var usageString: String {
