@@ -52,15 +52,11 @@ class PreferenceStore: ObservableObject {
         }
     }
 
-    @Published var textDisplay = Preference.TextDisplay.compact
-    @Published var fontDesign: Preference.FontDesign = .default
     @Published var smcRefreshRate = 3
     @Published var networkRefreshRate = 3
+    /// no longer user-facing — kept persisted because the one-time
+    /// ComponentConfigStore.convertIfNeeded() migration reads it
     @Published var showIcon = true
-    @Published var showCPUTopActivities = true
-    @Published var showRAMTopActivities = false
-    @Published var showNetworkTopActivities = false
-    @Published var cpuMenuDisplay: Preference.CpuMenuDisplay = .usagePercentage
     @Published var checkStatusItemVisibility = true
     @Published var upgradeMethod = UpgradeMethod.showInStatusBar
     @Published var isUpdateAvailable: Bool? = false
@@ -71,15 +67,9 @@ class PreferenceStore: ObservableObject {
         JSON([
             "temperatureUnit": temperatureUnit.rawValue,
             "language": language,
-            "textDisplay": textDisplay.rawValue,
-            "fontDesign": fontDesign.rawValue,
             "smcRefreshRate": smcRefreshRate,
             "networkRefreshRate": networkRefreshRate,
             "showIcon": showIcon,
-            "showCPUTopActivities": showCPUTopActivities,
-            "showRAMTopActivities": showRAMTopActivities,
-            "showNetworkTopActivities": showNetworkTopActivities,
-            "cpuMenuDisplay": cpuMenuDisplay.rawValue,
             "checkStatusItemVisibility": checkStatusItemVisibility,
             "appearance": appearanceMode.rawValue,
             "upgradeMethod": upgradeMethod.rawValue,
@@ -145,32 +135,14 @@ class PreferenceStore: ObservableObject {
                 if let value = data["language"].string {
                     language = value
                 }
-                if let raw = data["textDisplay"].string, let value = Preference.TextDisplay(rawValue: raw) {
-                    textDisplay = value
-                }
                 if let value = data["showIcon"].bool {
                     showIcon = value
-                }
-                if let raw = data["fontDesign"].string, let value = Preference.FontDesign(rawValue: raw) {
-                    fontDesign = value
                 }
                 if let value = data["smcRefreshRate"].int {
                     smcRefreshRate = value
                 }
                 if let value = data["networkRefreshRate"].int {
                     networkRefreshRate = value
-                }
-                if let value = data["showCPUTopActivities"].bool {
-                    showCPUTopActivities = value
-                }
-                if let value = data["showRAMTopActivities"].bool {
-                    showRAMTopActivities = value
-                }
-                if let value = data["showNetworkTopActivities"].bool {
-                    showNetworkTopActivities = value
-                }
-                if let raw = data["cpuMenuDisplay"].string, let value = Preference.CpuMenuDisplay(rawValue: raw) {
-                    cpuMenuDisplay = value
                 }
                 if let value = data["checkStatusItemVisibility"].bool {
                     checkStatusItemVisibility = value

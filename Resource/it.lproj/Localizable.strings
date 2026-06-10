@@ -254,3 +254,9 @@
 "panel.self_usage" = "eul is using %@ CPU";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
+"ui.menu_bar" = "Menu Bar";
+"menu_bar.priority_note" = "Drag to set priority. When space is tight, the last monitor drops first — the eyes never disappear.";
+"ui.notify_when_hidden" = "Notify me when macOS hides eul";
+"ui.refresh_energy_note" = "Faster refresh uses more energy.";
+"ui.data_sources" = "Data Sources";
+"disk.boot_volume" = "Boot Volume";

@@ -27,35 +27,7 @@ enum SharedStore {
         defaultComponents: EulComponent.defaultComponents,
         onDidChange: visibilityCheckClosure
     )
-    static let menuComponents = ComponentsStore<EulMenuComponent>(defaultComponents: EulMenuComponent.defaultComponents)
     static let componentConfig = ComponentConfigStore(onDidChange: visibilityCheckClosure)
-    static let cpuTextComponents = ComponentsStore<CpuTextComponent>(
-        defaultComponents: CpuTextComponent.defaultComponents,
-        onDidChange: visibilityCheckClosure
-    )
-    static let gpuTextComponents = ComponentsStore<GpuTextComponent>(
-        defaultComponents: GpuTextComponent.defaultComponents,
-        onDidChange: visibilityCheckClosure
-    )
-    static let memoryTextComponents = ComponentsStore<MemoryTextComponent>(
-        defaultComponents: MemoryTextComponent.defaultComponents,
-        onDidChange: visibilityCheckClosure
-    )
-    static let networkTextComponents = ComponentsStore<NetworkTextComponent>(
-        onDidChange: visibilityCheckClosure
-    )
-    static let batteryTextComponents = ComponentsStore<BatteryTextComponent>(
-        defaultComponents: BatteryTextComponent.defaultComponents,
-        onDidChange: visibilityCheckClosure
-    )
-    static let diskTextComponents = ComponentsStore<DiskTextComponent>(
-        defaultComponents: DiskTextComponent.defaultComponents,
-        onDidChange: visibilityCheckClosure
-    )
-    static let fanTextComponents = ComponentsStore<FanTextComponent>(
-        defaultComponents: FanTextComponent.defaultComponents,
-        onDidChange: visibilityCheckClosure
-    )
 }
 
 extension View {
@@ -72,15 +44,7 @@ extension View {
             .environmentObject(SharedStore.bluetooth)
             .environmentObject(SharedStore.preference)
             .environmentObject(SharedStore.components)
-            .environmentObject(SharedStore.menuComponents)
             .environmentObject(SharedStore.componentConfig)
-            .environmentObject(SharedStore.cpuTextComponents)
-            .environmentObject(SharedStore.gpuTextComponents)
-            .environmentObject(SharedStore.memoryTextComponents)
-            .environmentObject(SharedStore.networkTextComponents)
-            .environmentObject(SharedStore.batteryTextComponents)
-            .environmentObject(SharedStore.diskTextComponents)
-            .environmentObject(SharedStore.fanTextComponents)
             .environmentObject(SharedStore.topStore)
             .environmentObject(SharedStore.health)
     }

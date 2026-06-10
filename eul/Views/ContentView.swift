@@ -11,7 +11,6 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var preferenceStore: PreferenceStore
-    @EnvironmentObject var componentsStore: ComponentsStore<EulComponent>
     @EnvironmentObject var uiStore: UIStore
 
     var body: some View {
@@ -35,30 +34,17 @@ struct ContentView: View {
                         SectionView(title: "ui.display".localized()) {
                             Preference.DisplayView()
                         }
-                        SectionView(title: "ui.refresh_rate".localized()) {
-                            Preference.RefreshRateView()
-                        }
                     }
                     if uiStore.activeSection == .components {
-                        SectionView(title: "ui.display".localized()) {
+                        SectionView(title: "ui.menu_bar".localized()) {
                             Preference
                                 .ComponentsView()
                                 .padding(.top, 8)
-                        }
-                        if componentsStore.showComponents {
-                            ForEach(EulComponent.allCases) {
-                                Preference.ComponentConfigView(component: $0)
-                            }
                         }
                     }
                     if uiStore.activeSection == .health {
                         SectionView(title: "ui.health".localized()) {
                             Preference.HealthView()
-                        }
-                    }
-                    if uiStore.activeSection == .menuView {
-                        SectionView(title: "ui.display".localized()) {
-                            Preference.PreferenceMenuViewView()
                         }
                     }
                     Spacer()

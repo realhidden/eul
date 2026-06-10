@@ -14,7 +14,6 @@ class GpuStore: ObservableObject, Refreshable {
     private var activeCancellable: AnyCancellable?
 
     @ObservedObject var componentsStore = SharedStore.components
-    @ObservedObject var menuComponentsStore = SharedStore.menuComponents
 
     @Published var gpus = [GPU]()
     @Published var gpuStatistics = [GPU.Statistic]()
@@ -72,8 +71,7 @@ class GpuStore: ObservableObject, Refreshable {
         gpus = GPU.getGPUs() ?? []
         initObserver(for: .StoreShouldRefresh)
         // refresh immediately to prevent "N/A"
-        activeCancellable = Publishers
-            .CombineLatest(componentsStore.$activeComponents, menuComponentsStore.$activeComponents)
+        activeCancellable = componentsStore.$activeComponents
             .sink { _ in
                 DispatchQueue.main.async {
                     self.refresh()
@@ -84,7 +82,6 @@ class GpuStore: ObservableObject, Refreshable {
     @objc func refresh() {
         guard
             componentsStore.activeComponents.contains(.GPU)
-            || menuComponentsStore.activeComponents.contains(.GPU)
             // the panel reads this store regardless of pinned components
             || SharedStore.ui.menuOpened
         else {

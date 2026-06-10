@@ -77,8 +77,10 @@ extension Preference {
                     Text("ui.launch_at_login".localized())
                         .inlineSection()
                 }
+                // gates only the hidden-by-system notification; the width
+                // governor itself always runs (recovery is not optional)
                 Toggle(isOn: $preference.checkStatusItemVisibility) {
-                    Text("ui.check_status_item_visibility".localized())
+                    Text("ui.notify_when_hidden".localized())
                         .inlineSection()
                 }
             }

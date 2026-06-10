@@ -9,11 +9,12 @@
 import SwiftUI
 
 extension Preference {
+    /// the three panes of the settings rebuild (design §4.4): General /
+    /// Menu Bar / Health — rare decisions, no assembly
     enum Section: String, Identifiable, CaseIterable {
         case general
         case components
         case health
-        case menuView
 
         var id: String {
             rawValue
@@ -24,11 +25,9 @@ extension Preference {
             case .general:
                 return "ui.general".localized()
             case .components:
-                return "ui.components".localized()
+                return "ui.menu_bar".localized()
             case .health:
                 return "ui.health".localized()
-            case .menuView:
-                return "ui.menu_view".localized()
             }
         }
     }

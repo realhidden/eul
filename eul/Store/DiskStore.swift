@@ -15,7 +15,6 @@ class DiskStore: ObservableObject, Refreshable {
     private var activeCancellable: AnyCancellable?
 
     @ObservedObject var componentsStore = SharedStore.components
-    @ObservedObject var menuComponentsStore = SharedStore.menuComponents
     var config: EulComponentConfig {
         SharedStore.componentConfig[EulComponent.Disk]
     }
@@ -86,7 +85,6 @@ class DiskStore: ObservableObject, Refreshable {
     @objc func refresh() {
         guard
             componentsStore.activeComponents.contains(.Disk)
-            || menuComponentsStore.activeComponents.contains(.Disk)
             // the panel reads this store regardless of pinned components
             || SharedStore.ui.menuOpened
         else {
@@ -94,7 +92,12 @@ class DiskStore: ObservableObject, Refreshable {
         }
 
         rootVolume = Self.readRootVolume()
+        loadDisks()
+    }
 
+    /// ungated volume enumeration — the settings Data Sources picker needs
+    /// the list even when no Disk component is pinned and the panel is closed
+    func loadDisks() {
         guard let volumes = (try? FileManager.default.contentsOfDirectory(atPath: DiskList.volumesPath)) else {
             list = nil
             return
@@ -128,8 +131,7 @@ class DiskStore: ObservableObject, Refreshable {
     init() {
         initObserver(for: .StoreShouldRefresh)
         // refresh immediately to prevent "N/A"
-        activeCancellable = Publishers
-            .CombineLatest(componentsStore.$activeComponents, menuComponentsStore.$activeComponents)
+        activeCancellable = componentsStore.$activeComponents
             .sink { _ in
                 DispatchQueue.main.async {
                     self.refresh()

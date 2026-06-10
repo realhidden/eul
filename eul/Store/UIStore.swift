@@ -26,8 +26,6 @@ class UIStore: ObservableObject {
         }
     }
 
-    @Published var hoveringID: String?
-    @Published var menuWidth: CGFloat?
     /// historically "menu open"; now means "panel open" — the expensive
     /// collectors and gated stores key off it unchanged
     @Published var menuOpened = false
