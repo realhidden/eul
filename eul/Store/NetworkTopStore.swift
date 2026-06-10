@@ -40,6 +40,10 @@ class NetworkTopStore: ObservableObject {
 
     private var timer: Timer?
     private var activeCancellable: AnyCancellable?
+    /// confines lastInBytes/lastOutBytes/lastTimestamp: run() executes here,
+    /// and the reset in update(shouldStart:) hops here too, so a lens toggle
+    /// can't race an in-flight nettop sample
+    private let sampleQueue = DispatchQueue(label: "eul.networkTop")
     private var lastTimestamp: TimeInterval = Date().timeIntervalSince1970
     private var lastInBytes: [Int: Double] = [:]
     private var lastOutBytes: [Int: Double] = [:]
@@ -150,14 +154,17 @@ class NetworkTopStore: ObservableObject {
             return
         }
 
-        lastInBytes.removeAll()
-        lastOutBytes.removeAll()
-        lastTimestamp = Date().timeIntervalSince1970
+        sampleQueue.async { [weak self] in
+            self?.lastInBytes.removeAll()
+            self?.lastOutBytes.removeAll()
+            self?.lastTimestamp = Date().timeIntervalSince1970
+        }
         processes = []
 
         let timer = Timer.scheduledTimer(withTimeInterval: Double(interval), repeats: true) { [weak self] _ in
-            // Run on a background thread — shell("nettop ...") is blocking
-            DispatchQueue.global(qos: .utility).async {
+            // Run off-main — shell("nettop ...") is blocking; the serial
+            // queue also prevents overlapping samples
+            self?.sampleQueue.async {
                 self?.run()
             }
         }
@@ -166,14 +173,15 @@ class NetworkTopStore: ObservableObject {
     }
 
     init() {
+        // open-only contract, lens-refined: nettop polls only while the
+        // panel is open with the network lens selected (design §2.6)
         activeCancellable = Publishers
-            .CombineLatest3(
-                preferenceStore.$showNetworkTopActivities,
-                SharedStore.menuComponents.$activeComponents,
+            .CombineLatest(
+                SharedStore.ui.$panelLens,
                 SharedStore.ui.$menuOpened
             )
             .map {
-                $0 && $1.contains(.Network) && $2
+                $0 == .network && $1
             }
             .sink { [self] in
                 update(shouldStart: $0)

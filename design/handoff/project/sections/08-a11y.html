@@ -1,0 +1,17 @@
+<section id="a11y" data-screen-label="8 Accessibility">
+  <span class="sec-no">08</span>
+  <h2>Accessibility</h2>
+  <p class="sec-lede">A data-dense bar is only dense visually — semantically it is one sentence.</p>
+
+  <h3>8.1 VoiceOver</h3>
+  <p>The anchor is a single button whose label is the verdict plus the headline figures: <em>"eul — all systems normal. CPU 12 percent, network down 2.4 megabytes per second."</em> The strip's slots are not separate stops — the anchor speaks for the bar, so a VoiceOver pass over the menu bar costs one stop, not five. State changes are <em>not</em> announced unprompted (P3 applies to audio too). Inside the panel: tiles are grouped elements ("CPU, 47 percent, 62 degrees, elevated — expanded, 12 cores"), process rows read name-then-value, and sparklines expose Audio Graph descriptions <span class="tag tag-infra">new infra</span> <span class="tag tag-14">14+</span>.</p>
+
+  <h3>8.2 Reduce Motion &amp; Transparency</h3>
+  <p>Reduce Motion removes the panel's two animations (open, expand) — the only motion in the product. Reduce Transparency swaps the popover material for an opaque equivalent; tokens are defined against both. Nothing else exists to degrade: forbidding motion at the design level (§5.5) makes this section short on purpose.</p>
+
+  <h3>8.3 Color vision</h3>
+  <p>Elevated/amber and critical/red are separated by lightness, paired with shape (one eye fills vs. both), and never read against green. Memory/disk segments use opacity, not hue. Verified against deuteranopia and protanopia simulation as a release gate, not a hope.</p>
+
+  <h3>8.4 Text scaling</h3>
+  <p>macOS has no Dynamic Type, so eul defines its own two steps: default and Large (≈1.15×), following the system's menu-bar size where the OS exposes it. Slots re-reserve worst-case widths per step — stability law survives scaling. The panel grows vertically, never horizontally, and may scroll the process list only.</p>
+</section>

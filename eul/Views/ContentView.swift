@@ -51,6 +51,11 @@ struct ContentView: View {
                             }
                         }
                     }
+                    if uiStore.activeSection == .health {
+                        SectionView(title: "ui.health".localized()) {
+                            Preference.HealthView()
+                        }
+                    }
                     if uiStore.activeSection == .menuView {
                         SectionView(title: "ui.display".localized()) {
                             Preference.PreferenceMenuViewView()

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>eul 2.0 — Design Direction</title>
+<link rel="stylesheet" href="direction.css">
+<link rel="stylesheet" href="mockups.css">
+</head>
+<body>
+<nav id="toc" aria-label="Contents">
+  <div class="toc-mark">
+    <svg viewBox="0 0 20 12" width="22" height="13" aria-hidden="true"><circle cx="6" cy="6" r="4.2" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="14" cy="6" r="4.2" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="6" cy="6" r="1.5" fill="currentColor"></circle><circle cx="14" cy="6" r="1.5"></circle></svg>
+    <span>eul&nbsp;2.0</span>
+  </div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<main id="doc">
+  <header class="doc-header" data-screen-label="Cover">
+    <div class="doc-mark">
+      <svg viewBox="0 0 20 12" width="44" height="26" aria-hidden="true"><circle cx="6" cy="6" r="4.2" fill="none" stroke="currentColor" stroke-width="1.4"></circle><circle cx="14" cy="6" r="4.2" fill="none" stroke="currentColor" stroke-width="1.4"></circle><circle cx="6" cy="6" r="1.5" fill="currentColor"></circle><circle cx="14" cy="6" r="1.5" fill="currentColor"></circle></svg>
+    </div>
+    <h1>eul 2.0 <span class="thin">— design direction</span></h1>
+    <p class="doc-sub">Total product revamp · for engineering review &amp; gap analysis</p>
+    <div class="doc-meta">
+      <span class="chip">v2 draft · fan-control addendum + prototypes folded in</span>
+      <span class="chip">June 10, 2026</span>
+      <span class="chip chip-os">designed against macOS 14 — see §10 for retreat costs</span>
+    </div>
+    <p class="doc-abstract">This document is the decision record: principles → information architecture → feature map → flows → visual language → engineering asks. The two priority surfaces ship as a first-class <a href="eul 2.0 Prototype.html">interactive prototype</a> — the menu-bar item under live width pressure and the investigation panel, clickable end-to-end including the fan-control ceremony — embedded below as Exhibits B and C. Design tokens are named constants in <code class="mono">prototype.js</code>; web-freedom assumptions are flagged <code class="mono">WEB-FREEDOM</code> in the prototype code. Every capability the design needs beyond today's engine is tagged <code class="tag tag-data">new data</code> <code class="tag tag-infra">new infra</code> <code class="tag tag-risk">uncertain feasibility</code> inline and consolidated in §10.</p>
+  </header>
+
+  <div id="sections" aria-busy="true"></div>
+  <div id="load-error" hidden>A section failed to load. Reload the page; if it persists, the partials in <code>sections/</code> are missing.</div>
+
+  <footer class="doc-footer">
+    <p>eul 2.0 design direction · prepared for the eul maintainers · all thresholds, defaults and version floors are recommendations to ratify at review.</p>
+  </footer>
+</main>
+
+<script>
+(async function () {
+  const parts = [
+    '01-narrative', '02-ia', '03-moscow', '04-flows', '05-visual',
+    '06-widgets', '07-components', '08-a11y', '09-phasing', '10-asks'
+  ];
+  const host = document.getElementById('sections');
+  try {
+    const htmls = await Promise.all(parts.map(function (p) {
+      return fetch('sections/' + p + '.html').then(function (r) {
+        if (!r.ok) throw new Error(p);
+        return r.text();
+      });
+    }));
+    host.innerHTML = htmls.join('\n');
+    host.setAttribute('aria-busy', 'false');
+  } catch (e) {
+    document.getElementById('load-error').hidden = false;
+    return;
+  }
+  // Build TOC from section h2s
+  const list = document.getElementById('toc-list');
+  document.querySelectorAll('#sections section[id] > h2').forEach(function (h) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#' + h.parentElement.id;
+    a.textContent = h.textContent;
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+  if (window.initMockups) window.initMockups();
+})();
+</script>
+<script src="mockups.js"></script>
+</body>
+</html>

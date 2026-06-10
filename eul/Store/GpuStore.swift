@@ -85,6 +85,8 @@ class GpuStore: ObservableObject, Refreshable {
         guard
             componentsStore.activeComponents.contains(.GPU)
             || menuComponentsStore.activeComponents.contains(.GPU)
+            // the panel reads this store regardless of pinned components
+            || SharedStore.ui.menuOpened
         else {
             usageHistory = []
             return

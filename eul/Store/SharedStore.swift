@@ -22,6 +22,7 @@ enum SharedStore {
     static let bluetooth = BluetoothStore()
     static let preference = PreferenceStore()
     static let ui = UIStore()
+    static let health = HealthStore()
     static let components = ComponentsStore<EulComponent>(
         defaultComponents: EulComponent.defaultComponents,
         onDidChange: visibilityCheckClosure
@@ -81,5 +82,6 @@ extension View {
             .environmentObject(SharedStore.diskTextComponents)
             .environmentObject(SharedStore.fanTextComponents)
             .environmentObject(SharedStore.topStore)
+            .environmentObject(SharedStore.health)
     }
 }

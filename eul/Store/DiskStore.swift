@@ -87,6 +87,8 @@ class DiskStore: ObservableObject, Refreshable {
         guard
             componentsStore.activeComponents.contains(.Disk)
             || menuComponentsStore.activeComponents.contains(.Disk)
+            // the panel reads this store regardless of pinned components
+            || SharedStore.ui.menuOpened
         else {
             return
         }

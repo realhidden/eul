@@ -146,27 +146,28 @@ class TopStore: ObservableObject {
     }
 
     init() {
+        // the open-only contract, lens-refined (design §2.6): a collector
+        // runs only while the panel is open AND its lens is selected, so at
+        // most one `top` subprocess exists at a time
         cpuActiveCancellable = Publishers
-            .CombineLatest3(
-                preferenceStore.$showCPUTopActivities,
-                SharedStore.menuComponents.$activeComponents,
+            .CombineLatest(
+                SharedStore.ui.$panelLens,
                 SharedStore.ui.$menuOpened
             )
             .map {
-                $0 && $1.contains(.CPU) && $2
+                $0 == .cpu && $1
             }
             .sink { [self] in
                 updateCPU(shouldStart: $0)
             }
 
         ramActiveCancellable = Publishers
-            .CombineLatest3(
-                preferenceStore.$showRAMTopActivities,
-                SharedStore.menuComponents.$activeComponents,
+            .CombineLatest(
+                SharedStore.ui.$panelLens,
                 SharedStore.ui.$menuOpened
             )
             .map {
-                $0 && $1.contains(.Memory) && $2
+                $0 == .memory && $1
             }
             .sink { [self] in
                 updateRAM(shouldStart: $0)

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>eul 2.0 — Interactive Prototype</title>
+<link rel="stylesheet" href="direction.css">
+<link rel="stylesheet" href="mockups.css">
+<link rel="stylesheet" href="prototype.css">
+<style>
+  /* page chrome for standalone viewing */
+  .proto-head { max-width: 1040px; margin: 0 auto; padding: 22px 24px 14px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .proto-head h1 { font-size: 17px; margin: 0; letter-spacing: -0.01em; }
+  .proto-head h1 .thin { font-weight: 400; color: #55555a; }
+  .proto-head a { font-size: 12px; color: #0a60c2; }
+  .proto-head .chip { margin-left: auto; }
+  body.mode-bar .proto-head, body.mode-panel .proto-head { display: none; }
+  body.mode-bar .rig, body.mode-panel .rig { padding-top: 10px; padding-bottom: 16px; }
+  body.mode-bar .rig-guide, body.mode-panel .rig-guide { display: none; }
+  #barHost { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  body.mode-bar #barHost, body.mode-full #barHost { padding-top: 14px; }
+  #barHost .display { border-radius: 10px; }
+</style>
+</head>
+<body class="proto" data-screen-label="Prototype">
+
+<header class="proto-head">
+  <h1>eul 2.0 <span class="thin">— interactive prototype</span></h1>
+  <a href="eul 2.0 Design Direction.html">← direction document</a>
+  <span class="chip">tokens in prototype.js · WEB-FREEDOM flags inline</span>
+</header>
+
+<div id="barHost"></div>
+<div id="panelHost" class="display" hidden></div>
+
+<div class="rig" data-screen-label="Prototype controls">
+  <div class="rig-row rig-width-row">
+    <span class="rig-label">Menu-bar pressure</span>
+    <input type="range" id="rigWidth" min="2" max="15" step="1" value="5">
+    <span class="rig-val" id="rigWidthVal">5 third-party items</span>
+  </div>
+  <div class="rig-row">
+    <span class="rig-label">Scenario</span>
+    <button class="rig-btn" id="rigScenario" aria-pressed="false">Why is my fan spinning? (thermal)</button>
+    <button class="rig-btn" id="rigMode" aria-pressed="false">Light appearance</button>
+  </div>
+  <hr>
+  <p class="rig-note rig-guide"><b>Try:</b> drag the pressure slider and watch the width governor respond — NET drops first (priority order), then CPU, then the strip is gone and the anchor holds the floor; past that, macOS hides eul entirely and the recovery notification fires (doc §2.5). Click the <b>anchor (the eyes)</b> to open the panel; click the CPU tile to expand per-core detail; click the FANS tile to expand it, then <b>Control fans…</b> walks the helper-install ceremony (doc §4.6). Set a fan to Manual or Boost and the FAN slot pins itself into the bar — the override you can't forget. Click any <b>unit</b> in the panel (MB/s, °C) to flip it everywhere — personalization at the point of use (doc §4.7). Esc or click-away dismisses the panel.</p>
+  <p class="rig-note rig-guide">The slider and these buttons are <code>doc chrome</code>, not product UI. Design tokens are named constants in <code>prototype.js</code> (<code>T</code>) and <code>prototype.css</code> (<code>--tk-*</code>); web-freedom assumptions are flagged with <code>WEB-FREEDOM</code> comments in both files.</p>
+</div>
+
+<script src="prototype.js"></script>
+<script>
+  /* unhide the right stage for the embed mode */
+  (function () {
+    var mode = new URLSearchParams(location.search).get('embed') || 'full';
+    if (mode === 'panel') {
+      document.getElementById('panelHost').hidden = false;
+      document.getElementById('barHost').hidden = true;
+    } else {
+      document.getElementById('panelHost').hidden = true;
+    }
+  })();
+</script>
+</body>
+</html>

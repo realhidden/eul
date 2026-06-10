@@ -1,0 +1,36 @@
+<section id="visual" data-screen-label="5 Visual language">
+  <span class="sec-no">05</span>
+  <h2>Visual language</h2>
+  <p class="sec-lede">Native macOS, current era: system type, system materials, SF Symbols. eul adds exactly one piece of identity (the eyes) and one rule Apple doesn't enforce (numeric stability as law). Quiet, honest data — no skeuomorphic gauges, no rainbow charts.</p>
+
+  <h3>5.1 Typography</h3>
+  <p>System fonts only — SF Pro Text for UI, SF Mono nowhere except exported CSV. Every numeral that can change is set with <span class="mono">monospacedDigit()</span> and a width reservation for its worst case. This is law, not preference: a value flapping between digit counts must never move its neighbors (shipped bug, 1.x). Localized numerals inherit the same treatment; layouts budget 1.5× for German-class expansion.</p>
+  <div class="specimen">
+    <div class="row"><span class="use">bar · slot value · SF Pro 12 medium</span><span style="font-size:12px; font-weight:500;" class="tnum">CPU 47%&nbsp;&nbsp;&nbsp;↓ 2.4 MB/s</span></div>
+    <div class="row"><span class="use">bar · slot label · SF Pro 9 semibold, +6% tracking</span><span style="font-size:9px; font-weight:600; letter-spacing:0.06em; color:var(--ink-2);">CPU&nbsp;&nbsp;NET&nbsp;&nbsp;MEM&nbsp;&nbsp;GPU</span></div>
+    <div class="row"><span class="use">panel · hero value · SF Pro 26 semibold</span><span style="font-size:26px; font-weight:600; letter-spacing:-0.01em;" class="tnum">47%</span></div>
+    <div class="row"><span class="use">panel · body · SF Pro 13 regular</span><span style="font-size:13px;">Memory pressure is normal</span></div>
+    <div class="row"><span class="use">panel · caption · SF Pro 11 regular, secondary</span><span style="font-size:11px; color:var(--ink-3);">swap 0 MB · 62°C · updated 2 s ago</span></div>
+  </div>
+
+  <h3>5.2 Color — one semantic palette, two modes</h3>
+  <p>Health is the only colored thing in the product. Normal state uses label colors (monochrome); <span class="mono">elevated</span> and <span class="mono">critical</span> are defined once in OKLCH, tuned per mode for contrast, and chosen to survive deuteranopia/protanopia: an amber–red pair separated by lightness as much as hue, never paired with green, and always accompanied by a shape change (right eye fills vs. both eyes fill). Charts are monochrome — data ink is label color at full strength, fills at 12% opacity. No chart ever encodes meaning in hue alone.</p>
+  <div class="tokens">
+    <div class="token"><div class="swatch"><i style="background:#7f7f84;"></i><i style="background:#98989d;"></i></div><div class="tmeta"><b>health.normal</b><span>label.secondary — light / dark</span></div></div>
+    <div class="token"><div class="swatch"><i style="background:oklch(0.70 0.145 75);"></i><i style="background:oklch(0.78 0.145 80);"></i></div><div class="tmeta"><b>health.elevated</b><span>oklch(.70 .145 75) / (.78 .145 80)</span></div></div>
+    <div class="token"><div class="swatch"><i style="background:oklch(0.55 0.19 27);"></i><i style="background:oklch(0.64 0.19 27);"></i></div><div class="tmeta"><b>health.critical</b><span>oklch(.55 .19 27) / (.64 .19 27)</span></div></div>
+    <div class="token"><div class="swatch"><i style="background:#1d1d1f;"></i><i style="background:#f2f2f4;"></i></div><div class="tmeta"><b>data.ink</b><span>label.primary — charts, values</span></div></div>
+    <div class="token"><div class="swatch"><i style="background:#e9e9ec;"></i><i style="background:#3a3a3e;"></i></div><div class="tmeta"><b>fill.track</b><span>quaternary — bar tracks, tiles</span></div></div>
+    <div class="token"><div class="swatch"><i style="background:linear-gradient(#fdfdfd,#f2f2f5);"></i><i style="background:linear-gradient(#2c2c30,#232327);"></i></div><div class="tmeta"><b>surface.panel</b><span>system popover material (blur)</span></div></div>
+  </div>
+  <p>Memory-breakdown segments (app / wired / compressed) are differentiated by <em>opacity steps of data.ink</em> (100 / 55 / 30%), not hues — legible in both modes and to all color vision types.</p>
+
+  <h3>5.3 Materials &amp; density</h3>
+  <p>The panel sits on the system popover material — translucency earns its place by anchoring the panel to the bar it came from; nowhere else. Tiles are flat quaternary fills, 10 pt radius, on an 8 pt spacing grid; panel width fixed at 360 pt. Density follows Control Center: generous enough to tap, dense enough that six tiles and a process list fit without scrolling at default text size.</p>
+
+  <h3>5.4 Iconography</h3>
+  <p>SF Symbols exclusively: <span class="mono">cpu, memorychip, network, internaldrive, battery.75, sensor.fill, fanblades</span> — plus the one custom mark, the eul eyes, drawn as a template glyph with filled variants for the two health states. No other custom icons exist; localization and weight-matching come free.</p>
+
+  <h3>5.5 Motion rules</h3>
+  <p>Motion is forbidden in any always-visible surface: the bar never animates — values are replaced at the cadence, the eye fills without transition. The panel is allowed exactly two animations: open (180 ms ease-out, system default) and tile expand (160 ms). Sparklines append points with no tweening. Reduce Motion removes both panel animations; nothing else exists to remove. Nothing in the product renders between refresh ticks — assume the user is checking eul's CPU% with eul.</p>
+</section>

@@ -1,0 +1,30 @@
+<section id="asks" data-screen-label="10 Engineering asks">
+  <span class="sec-no">10</span>
+  <h2>Engineering asks — consolidated</h2>
+  <p class="sec-lede">Everything the design needs that the engine doesn't provide today. This list is the input to the gap analysis; nothing elsewhere in the document asks for anything not on it.</p>
+
+  <table>
+    <thead><tr><th>#</th><th>Ask</th><th>Tags</th><th>Needed for</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>History ring buffers — CPU, GPU, MEM, NET; 10 min at cadence, in-memory only</td><td><span class="tag tag-data">new data</span></td><td>§2.6 sparklines, §6 Trends widget</td><td>No persistence in v2.0; CSV export (2.x) reads these same buffers.</td></tr>
+      <tr><td>2</td><td>Health engine: thresholds, sustained windows, hysteresis, culprit attribution</td><td><span class="tag tag-infra">new infra</span></td><td>§2.4, the entire signaling model</td><td>Defaults in §2.4's table; per-signal enable flags; no numeric config surface.</td></tr>
+      <tr><td>3</td><td>Status-item occlusion detection (window frame vs. notch / item area)</td><td><span class="tag tag-infra">new infra</span> <span class="tag tag-risk">uncertain feasibility</span></td><td>§2.3 width governor, §2.5 recovery</td><td>Fallback if undetectable: user-set slot budget + the recovery flow still works. Prototype first.</td></tr>
+      <tr><td>4</td><td>Two NSStatusItems with guaranteed relative order, anchor hidden last</td><td><span class="tag tag-infra">new infra</span> <span class="tag tag-risk">uncertain feasibility</span></td><td>§2.2 the committed model</td><td>Architecture gate. If ordering proves unholdable, the model degrades to C (priority collapse, single item) with the recovery flow carrying more weight — IA unchanged.</td></tr>
+      <tr><td>5</td><td>Panel host on <span class="mono">MenuBarExtra</span> (window style) with open-only collector lifecycle</td><td><span class="tag tag-infra">new infra</span> <span class="tag tag-14">14+</span></td><td>§2.6</td><td>Keeps the 1.x contract: per-process collectors run only while open.</td></tr>
+      <tr><td>6</td><td>Per-process core-equivalent normalization (for the runaway rule)</td><td><span class="tag tag-data">new data</span></td><td>§2.4 runaway threshold</td><td>Top-N exists; normalization against core count is the delta.</td></tr>
+      <tr><td>7</td><td>OS memory-pressure level (warn/critical) as a signal</td><td><span class="tag tag-data">new data</span></td><td>§2.4</td><td>Breakdown exists; the pressure level itself is the delta.</td></tr>
+      <tr><td>8</td><td>Relaunch-while-running → open panel as centered window; global hotkey registration</td><td><span class="tag tag-infra">new infra</span></td><td>§2.5 recovery</td><td>Replaces the deleted modal alert.</td></tr>
+      <tr><td>9</td><td>Widget timelines carrying capture timestamps; coalesced reload scheduler</td><td><span class="tag tag-infra">new infra</span></td><td>§6 staleness honesty</td><td>The stamp must render without waking the app.</td></tr>
+      <tr><td>10</td><td>Widget configurability via App Intents</td><td><span class="tag tag-infra">new infra</span> <span class="tag tag-14">14+</span></td><td>§6, deferred to 2.x</td><td>Design accommodates it; no v2.0 work.</td></tr>
+      <tr><td>11</td><td>SSID (Location permission), public/local IP monitors</td><td><span class="tag tag-data">new data</span> <span class="tag tag-risk">uncertain feasibility</span></td><td>§3 could, 2.x</td><td>Opt-in only; permission prompt must come from the settings row, never first run.</td></tr>
+      <tr><td>12</td><td>Disk I/O rates</td><td><span class="tag tag-data">new data</span></td><td>§3 could, 2.x</td><td>Only if a disk-activity tile earns a sparkline.</td></tr>
+      <tr><td>13</td><td>Audio Graph exposure for sparklines</td><td><span class="tag tag-infra">new infra</span> <span class="tag tag-14">14+</span></td><td>§8.1, 2.x</td><td>Delighter; not gating.</td></tr>
+      <tr><td>14</td><td>CSV export of ring buffers</td><td><span class="tag tag-infra">new infra</span></td><td>§3 could, 2.x</td><td>Reads ask 1's buffers; no new collection.</td></tr>
+      <tr><td>15</td><td>Privileged fan helper: daemon + XPC for SMC fan writes, with app-invokable uninstall</td><td><span class="tag tag-infra">new infra</span></td><td>§2.7, §4.6 fan control</td><td>Binding constraint restated: installed only at the moment the user first enables control — never at launch or onboarding. Direct-download build only; absent on fanless Macs. SMC read/write primitives already exist; privilege is the delta.</td></tr>
+      <tr><td>16</td><td>Revert-to-Auto watchdog in the helper</td><td><span class="tag tag-infra">new infra</span></td><td>§4.6 safety strip</td><td>Helper restores system fan management whenever its client disconnects (quit, crash, upgrade). The UI displays this as a promise; it must be mechanically true, not best-effort.</td></tr>
+      <tr><td>17</td><td>Override-state plumbing: auto-pinned FAN slot (collapse-exempt), panel header override line with duration</td><td><span class="tag tag-infra">new infra</span></td><td>§2.7 "unforgettable override"</td><td>Rides on the width governor (ask 3) and the strip renderer.</td></tr>
+      <tr><td>18</td><td>Display-preferences engine: units (bits/bytes, °C/°F), localized numeral formats, hardware-aware tile visibility + hide/restore persistence</td><td><span class="tag tag-infra">new infra</span></td><td>§4.7 personalization</td><td>One source of truth applied across bar, panel, widgets, and CSV; slot width reservations recomputed per unit/locale so the stability law (§5.1) survives every choice.</td></tr>
+    </tbody>
+  </table>
+  <p>Asks 3 and 4 are the only ones that can change the design's shape; both have stated fallbacks. Everything else is additive. Asks 15–17 stand or fall together — they exist only if fan control survives MoSCoW review (§3, Should).</p>
+</section>

@@ -37,6 +37,16 @@
 		6C1FA41224AA1DC100CA7F71 /* MemoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */; };
 		6C1FA4A124A712BB00CA7F71 /* AppleSiliconSensors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */; };
 		6C1FA4A324A712BB00CA7F71 /* WidgetReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */; };
+		6C1FA4B124A712BB00CA7F71 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B024A712BB00CA7F71 /* DesignTokens.swift */; };
+		6C1FA4B324A712BB00CA7F71 /* EyesGlyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B224A712BB00CA7F71 /* EyesGlyph.swift */; };
+		6C1FA4B524A712BB00CA7F71 /* Sparkline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B424A712BB00CA7F71 /* Sparkline.swift */; };
+		6C1FA4B724A712BB00CA7F71 /* HealthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B624A712BB00CA7F71 /* HealthStore.swift */; };
+		6C1FA4B924A712BB00CA7F71 /* StatSlotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B824A712BB00CA7F71 /* StatSlotView.swift */; };
+		6C1FA4BB24A712BB00CA7F71 /* StatusBarPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4BA24A712BB00CA7F71 /* StatusBarPanel.swift */; };
+		6C1FA4BD24A712BB00CA7F71 /* PanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4BC24A712BB00CA7F71 /* PanelView.swift */; };
+		6C1FA4BF24A712BB00CA7F71 /* PanelTiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4BE24A712BB00CA7F71 /* PanelTiles.swift */; };
+		6C1FA4C324A712BB00CA7F71 /* PreferenceHealthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4C224A712BB00CA7F71 /* PreferenceHealthView.swift */; };
+		6C1FA4C524A712BB00CA7F71 /* GlobalHotKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4C424A712BB00CA7F71 /* GlobalHotKey.swift */; };
 		6C2688F52556762B00FB7306 /* SharedLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C2688EE2556762B00FB7306 /* SharedLibrary.framework */; };
 		6C2688F62556762B00FB7306 /* SharedLibrary.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6C2688EE2556762B00FB7306 /* SharedLibrary.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6C2688FE2556763700FB7306 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CAEED5324A5DE4700C39597 /* Color.swift */; };
@@ -385,6 +395,16 @@
 		6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStore.swift; sourceTree = "<group>"; };
 		6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSiliconSensors.swift; sourceTree = "<group>"; };
 		6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetReloader.swift; sourceTree = "<group>"; };
+		6C1FA4B024A712BB00CA7F71 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		6C1FA4B224A712BB00CA7F71 /* EyesGlyph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EyesGlyph.swift; sourceTree = "<group>"; };
+		6C1FA4B424A712BB00CA7F71 /* Sparkline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkline.swift; sourceTree = "<group>"; };
+		6C1FA4B624A712BB00CA7F71 /* HealthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthStore.swift; sourceTree = "<group>"; };
+		6C1FA4B824A712BB00CA7F71 /* StatSlotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatSlotView.swift; sourceTree = "<group>"; };
+		6C1FA4BA24A712BB00CA7F71 /* StatusBarPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarPanel.swift; sourceTree = "<group>"; };
+		6C1FA4BC24A712BB00CA7F71 /* PanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelView.swift; sourceTree = "<group>"; };
+		6C1FA4BE24A712BB00CA7F71 /* PanelTiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelTiles.swift; sourceTree = "<group>"; };
+		6C1FA4C224A712BB00CA7F71 /* PreferenceHealthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceHealthView.swift; sourceTree = "<group>"; };
+		6C1FA4C424A712BB00CA7F71 /* GlobalHotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotKey.swift; sourceTree = "<group>"; };
 		6C2688EE2556762B00FB7306 /* SharedLibrary.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SharedLibrary.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2688F12556762B00FB7306 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6C2F1647255C1EAD0062F76F /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -640,6 +660,8 @@
 			isa = PBXGroup;
 			children = (
 				6C580539250CAEC3007F467A /* StatusBarTextView.swift */,
+				6C1FA4B224A712BB00CA7F71 /* EyesGlyph.swift */,
+				6C1FA4B424A712BB00CA7F71 /* Sparkline.swift */,
 				6C79AD372539F9030033845C /* MenuActionButtonView.swift */,
 				6C5FBD4F253C83520016F3A2 /* MenuActionTextView.swift */,
 				6C387DC2253AEF3600CBB81B /* ProcessRowView.swift */,
@@ -682,6 +704,7 @@
 				6C1FA40624AA127E00CA7F71 /* MemoryView.swift */,
 				6C7DB6D424E7A75E00133B06 /* NetworkView.swift */,
 				6CF28D0C251758EE00EBE9CB /* StatusBarView.swift */,
+				6C1FA4B824A712BB00CA7F71 /* StatSlotView.swift */,
 				6C572D7C254EFB4E00EF9904 /* DiskView.swift */,
 				6C02716825BD5719006C54E6 /* GpuView.swift */,
 			);
@@ -692,6 +715,7 @@
 			isa = PBXGroup;
 			children = (
 				6C321FC225BB12A600BFED76 /* BluetoothDevice.swift */,
+				6C1FA4B024A712BB00CA7F71 /* DesignTokens.swift */,
 				6CC7385D256BEABA003A15AC /* Dict.swift */,
 				6C572D80254EFD5B00EF9904 /* DiskList.swift */,
 				6CDE6C7724F112D700463114 /* EulComponent.swift */,
@@ -810,12 +834,22 @@
 			path = eul;
 			sourceTree = "<group>";
 		};
+		6C1FA4C024A712BB00CA7F71 /* Panel */ = {
+			isa = PBXGroup;
+			children = (
+				6C1FA4BC24A712BB00CA7F71 /* PanelView.swift */,
+				6C1FA4BE24A712BB00CA7F71 /* PanelTiles.swift */,
+			);
+			path = Panel;
+			sourceTree = "<group>";
+		};
 		6C5F855824A5D99600CF0EF8 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				6C7A8D8825578F7300FF52ED /* Chart */,
 				6C5F8540249FACE000CF0EF8 /* ContentView.swift */,
 				6CDE6C7924F2AA3200463114 /* Menu */,
+				6C1FA4C024A712BB00CA7F71 /* Panel */,
 				6C7DB6D824E7C85200133B06 /* Preference */,
 				6C1FA40524AA126400CA7F71 /* StatusBar */,
 			);
@@ -831,6 +865,7 @@
 				6C1FA3FF24A712AA00CA7F71 /* SmcControl.swift */,
 				6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */,
 				6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */,
+				6C1FA4C424A712BB00CA7F71 /* GlobalHotKey.swift */,
 				6C831368253DCF1F00914BB0 /* Print.swift */,
 				6CFAB80525BC526E002F5F48 /* GPU.swift */,
 				6CFAB80825BC55C6002F5F48 /* IOHelper.swift */,
@@ -866,6 +901,7 @@
 				6C7DB6E124E80F5100133B06 /* PreferenceComponentsView.swift */,
 				6C7DB6E324E80F9400133B06 /* PreferenceDisplayView.swift */,
 				6CC0798B250CD793000D7DAC /* PreferenceGeneralView.swift */,
+				6C1FA4C224A712BB00CA7F71 /* PreferenceHealthView.swift */,
 				6C5FBD4D253C7A060016F3A2 /* PreferenceMenuViewView.swift */,
 				6CE33C7E25260E3D00831857 /* PreferenceRefreshRateView.swift */,
 				6CDBB4C0254462B100D01EA0 /* PreferenceSectionView.swift */,
@@ -935,6 +971,7 @@
 				6C572D7E254EFD4700EF9904 /* DiskStore.swift */,
 				6C1FA40F24AA1D4400CA7F71 /* FanStore.swift */,
 				6CFAB80125BC4D9A002F5F48 /* GpuStore.swift */,
+				6C1FA4B624A712BB00CA7F71 /* HealthStore.swift */,
 				6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */,
 				6C7DB6D024E0300E00133B06 /* NetworkStore.swift */,
 				6C387DC6253B08F100CBB81B /* NetworkTopStore.swift */,
@@ -966,6 +1003,7 @@
 			children = (
 				6CDE6C7124F0007D00463114 /* StatusBarItem.swift */,
 				6CDE6C7524F10C8000463114 /* StatusBarManager.swift */,
+				6C1FA4BA24A712BB00CA7F71 /* StatusBarPanel.swift */,
 				6C387DC0253AEB1A00CBB81B /* StatusBarMenuHostingView.swift */,
 			);
 			path = StatusBar;
@@ -1478,6 +1516,16 @@
 				6C1FA40024A712AA00CA7F71 /* SmcControl.swift in Sources */,
 				6C1FA4A124A712BB00CA7F71 /* AppleSiliconSensors.swift in Sources */,
 				6C1FA4A324A712BB00CA7F71 /* WidgetReloader.swift in Sources */,
+				6C1FA4B124A712BB00CA7F71 /* DesignTokens.swift in Sources */,
+				6C1FA4B324A712BB00CA7F71 /* EyesGlyph.swift in Sources */,
+				6C1FA4B524A712BB00CA7F71 /* Sparkline.swift in Sources */,
+				6C1FA4B724A712BB00CA7F71 /* HealthStore.swift in Sources */,
+				6C1FA4B924A712BB00CA7F71 /* StatSlotView.swift in Sources */,
+				6C1FA4BB24A712BB00CA7F71 /* StatusBarPanel.swift in Sources */,
+				6C1FA4BD24A712BB00CA7F71 /* PanelView.swift in Sources */,
+				6C1FA4BF24A712BB00CA7F71 /* PanelTiles.swift in Sources */,
+				6C1FA4C324A712BB00CA7F71 /* PreferenceHealthView.swift in Sources */,
+				6C1FA4C524A712BB00CA7F71 /* GlobalHotKey.swift in Sources */,
 				6CC1EBBD25769E2400BC05CA /* FanTextComponent.swift in Sources */,
 				6C33CECD25177CE300345977 /* CpuMenuBlockView.swift in Sources */,
 				6CF28D0D251758EE00EBE9CB /* StatusBarView.swift in Sources */,
@@ -1760,7 +1808,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.MemoryWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1788,7 +1836,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.MemoryWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1816,7 +1864,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.NetworkWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1844,7 +1892,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.NetworkWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1998,7 +2046,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -2030,7 +2078,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -2058,7 +2106,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.BatteryWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -2086,7 +2134,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.BatteryWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -2114,7 +2162,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.CpuWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -2142,7 +2190,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.CpuWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;

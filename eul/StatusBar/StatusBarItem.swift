@@ -7,183 +7,194 @@
 //
 
 import Cocoa
+import Combine
 import SwiftUI
 
 extension Notification.Name {
     static let StatusBarMenuShouldClose = Notification.Name("StatusBarMenuShouldClose")
 }
 
-class StatusBarItem: NSObject, NSMenuDelegate {
-    static let launchTime = Date()
+/// Shared plumbing for the two status items of the anchor + strip model
+/// (design §2.2 D). Position is enforced by seeding the autosaved position
+/// before creation: macOS lays the status area out right-to-left from the
+/// clock and hides the leftmost items first, so the item seeded closest to
+/// the clock is hidden last.
+class BaseStatusItem: NSObject {
+    let item: NSStatusItem
+    let autosaveNameString: String
 
-    @ObservedObject var preferenceStore = SharedStore.preference
-    @ObservedObject var componentsStore = SharedStore.components
+    /// AppKit deletes "NSStatusItem Preferred Position" when an item is
+    /// hidden, so the user's dragged position is stashed across hide/show
+    /// cycles (#40, #113)
+    private var stashedPosition: Any?
 
-    let config: StatusBarConfig
-    private let statusBarMenu: NSMenu
-    private let item: NSStatusItem
-    private var statusView: NSHostingView<AnyView>?
-    private var menuView: NSHostingView<AnyView>?
-    private var shouldCloseObserver: NSObjectProtocol?
-    private var visibilityTimer: Timer?
-    private var statusBarSizeChanged = 0
-    /// the hidden-by-system alert is modal and steals focus; once per hidden
-    /// episode is plenty (re-armed when the item becomes visible again)
-    private var hasShownHiddenAlert = false
-
-    var isVisible: Bool {
-        get { item.isVisible }
-        set {
-            item.isVisible = newValue
-        }
+    private var positionKey: String {
+        "NSStatusItem Preferred Position \(autosaveNameString)"
     }
 
     /// True when the item exists but the system is not drawing it — hidden
     /// for lack of menu bar space (overflow/notch) while isVisible stays true
-    var isHiddenBySystem: Bool {
+    var isOccluded: Bool {
         item.button?.window?.occlusionState.contains(.visible) == false
     }
 
-    func onSizeChange(size: CGSize) {
-        let width = size.width + (Info.isBigSur ? 8 : 12) + (componentsStore.showComponents ? 0 : -8)
+    var isVisible: Bool {
+        item.isVisible
+    }
 
+    /// Show/hide while preserving the autosaved position: capture it before
+    /// hiding (AppKit removes it synchronously), restore it before showing
+    func setVisible(_ visible: Bool) {
+        if visible {
+            if let stashedPosition = stashedPosition {
+                UserDefaults.standard.set(stashedPosition, forKey: positionKey)
+                self.stashedPosition = nil
+            }
+            item.isVisible = true
+        } else {
+            if let current = UserDefaults.standard.object(forKey: positionKey) {
+                stashedPosition = current
+            }
+            item.isVisible = false
+        }
+    }
+
+    /// Seed "NSStatusItem Preferred Position <name>" only when absent —
+    /// smaller = closer to the clock; later user drags are respected
+    static func seedPreferredPosition(_ position: CGFloat, autosaveName: String) {
+        let key = "NSStatusItem Preferred Position \(autosaveName)"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            UserDefaults.standard.set(position, forKey: key)
+        }
+    }
+
+    init(autosaveName: String, length: CGFloat) {
+        autosaveNameString = autosaveName
+        item = NSStatusBar.system.statusItem(withLength: length)
+        super.init()
+        item.autosaveName = autosaveName
+    }
+}
+
+/// The anchor (design §2.2): a fixed-width eyes glyph carrying identity,
+/// health state, and the click target into the panel. It never grows and
+/// never disappears by eul's choice — the collapse floor is "anchor only".
+class AnchorStatusItem: BaseStatusItem {
+    static let autosaveName = "eul.anchor"
+    static let itemLength: CGFloat = 28
+    static let glyphWidth: CGFloat = 18
+
+    private var hostingView: NSHostingView<AnyView>?
+    private var healthCancellable: AnyCancellable?
+    private let contextMenu = NSMenu()
+
+    init() {
+        Self.seedPreferredPosition(0, autosaveName: Self.autosaveName)
+        super.init(autosaveName: Self.autosaveName, length: Self.itemLength)
+        item.isVisible = true
+
+        let preferencesItem = NSMenuItem(title: "menu.preferences".localized(), action: #selector(openPreferences), keyEquivalent: ",")
+        preferencesItem.target = self
+        contextMenu.addItem(preferencesItem)
+        contextMenu.addItem(NSMenuItem.separator())
+        let quitItem = NSMenuItem(title: "menu.quit".localized(), action: #selector(quit), keyEquivalent: "q")
+        quitItem.target = self
+        contextMenu.addItem(quitItem)
+
+        item.button?.target = self
+        item.button?.action = #selector(handleClick)
+        item.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+
+        render()
+        healthCancellable = SharedStore.health.$level.sink { [weak self] level in
+            DispatchQueue.main.async {
+                self?.render(level: level)
+            }
+        }
+    }
+
+    @objc private func handleClick() {
+        let event = NSApp.currentEvent
+        let isContextClick = event?.type == .rightMouseUp
+            || (event?.type == .leftMouseUp && event?.modifierFlags.contains(.control) == true)
+        if isContextClick {
+            // titles are snapshots — refresh in case the language changed
+            contextMenu.items.first?.title = "menu.preferences".localized()
+            contextMenu.items.last?.title = "menu.quit".localized()
+            // a permanently-assigned menu would own left-click too, so assign
+            // it only for the duration of this click
+            item.menu = contextMenu
+            item.button?.performClick(nil)
+            item.menu = nil
+        } else {
+            PanelManager.shared.toggle()
+        }
+    }
+
+    @objc private func openPreferences() {
+        AppDelegate.openPreferences()
+    }
+
+    @objc private func quit() {
+        AppDelegate.quit()
+    }
+
+    private func render(level: HealthLevel = SharedStore.health.level) {
+        let view = NSHostingView(rootView: AnyView(
+            EyesGlyph(state: level.glyphState, width: Self.glyphWidth)
+                .frame(width: Self.itemLength, height: AppDelegate.statusBarHeight)
+                .allowsHitTesting(false)
+        ))
+        view.setFrameSize(NSSize(width: Self.itemLength, height: AppDelegate.statusBarHeight))
+        item.button?.subviews.forEach { $0.removeFromSuperview() }
+        item.button?.addSubview(view)
+        hostingView = view
+    }
+}
+
+/// The strip (design §2.2): one adaptive item holding the pinned slots,
+/// collapsing slot-by-slot under width pressure before macOS hides anything.
+/// Keeps the legacy "eul" autosaveName so existing users' saved position
+/// survives the upgrade.
+class StripStatusItem: BaseStatusItem {
+    static let autosaveName = "eul"
+
+    private var statusView: NSHostingView<AnyView>?
+    private(set) var slotLimit = Int.max
+
+    init() {
+        Self.seedPreferredPosition(1, autosaveName: Self.autosaveName)
+        super.init(autosaveName: Self.autosaveName, length: 0)
+        item.button?.target = self
+        item.button?.action = #selector(handleClick)
+        item.button?.sendAction(on: [.leftMouseUp])
+        // start hidden (position-preserving) so an ungoverned full-width
+        // strip never flashes at launch; the manager's first renderStrip
+        // decides visibility ~0.5 s later
+        setVisible(false)
+    }
+
+    @objc private func handleClick() {
+        PanelManager.shared.toggle()
+    }
+
+    private func onSizeChange(size: CGSize) {
         DispatchQueue.main.async { [self] in
-            statusBarSizeChanged += 1
+            let width = size.width + 8
             item.length = width
             statusView?.setFrameSize(NSSize(width: width, height: AppDelegate.statusBarHeight))
         }
     }
 
-    func onMenuSizeChange(size: CGSize) {
-        menuView?.setFrameSize(NSSize(width: size.width, height: size.height))
-    }
-
-    func refresh() {
-        let view = NSHostingView(rootView: config.viewBuilder(onSizeChange))
+    func render(slotLimit: Int) {
+        self.slotLimit = slotLimit
+        let view = NSHostingView(rootView: AnyView(
+            StripView(onSizeChange: { [weak self] in self?.onSizeChange(size: $0) }, slotLimit: slotLimit)
+                .withGlobalEnvironmentObjects()
+        ))
         view.setFrameSize(NSSize(width: 0, height: AppDelegate.statusBarHeight))
         item.button?.subviews.forEach { $0.removeFromSuperview() }
         item.button?.addSubview(view)
         statusView = view
-    }
-
-    func menuWillOpen(_ menu: NSMenu) {
-        SharedStore.ui.menuWidth = menu.size.width
-        SharedStore.ui.menuOpened = true
-    }
-
-    func menuDidClose(_: NSMenu) {
-        SharedStore.ui.menuOpened = false
-    }
-
-    func checkVisibilityIfNeeded() {
-        guard preferenceStore.checkStatusItemVisibility else {
-            return
-        }
-
-        // add delay on launch due to potential false alarm
-        let interval = max(15 + StatusBarItem.launchTime.timeIntervalSinceNow, 1.5)
-        visibilityTimer?.invalidate()
-        visibilityTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false, block: { _ in
-            self.checkStatusItemVisibility()
-        })
-    }
-
-    func setAppearance(_ appearance: NSAppearance?) {
-        statusBarMenu.appearance = appearance
-    }
-
-    /// The occlusion check false-positives whenever the menu bar itself is
-    /// hidden — a fullscreen app or the auto-hide setting (#149, #119, #95).
-    /// Fullscreen is reported through the system presentation options. The
-    /// visibleFrame fallback must subtract the camera-housing inset: AppKit
-    /// reserves that row permanently on notched Macs, so visibleFrame.maxY
-    /// never reaches frame.maxY there even with the menu bar hidden.
-    var isMenuBarLikelyHidden: Bool {
-        let options = NSApplication.shared.currentSystemPresentationOptions
-        if options.contains(.hideMenuBar) || options.contains(.autoHideMenuBar) {
-            return true
-        }
-
-        guard let screen = item.button?.window?.screen ?? NSScreen.main else {
-            return false
-        }
-        var reservedTop: CGFloat = 0
-        if #available(macOS 12.0, *) {
-            reservedTop = screen.safeAreaInsets.top
-        }
-        return screen.visibleFrame.maxY >= screen.frame.maxY - reservedTop
-    }
-
-    private func checkStatusItemVisibility() {
-        if isHiddenBySystem {
-            guard !isMenuBarLikelyHidden else {
-                Print("menu bar is hidden (fullscreen/auto-hide), skipping visibility alert")
-                return
-            }
-            guard !hasShownHiddenAlert else {
-                return
-            }
-            hasShownHiddenAlert = true
-            print("⚠️ status item hidden by system")
-            let alert = NSAlert()
-            alert.messageText = "ui.hidden_by_system.title".localized()
-            alert.informativeText = "ui.hidden_by_system.message".localized()
-            alert.alertStyle = .warning
-            alert.addButton(withTitle: "ui.hidden_by_system.open".localized())
-            alert.addButton(withTitle: "ui.hidden_by_system.dismiss".localized())
-            NSApp.activate(ignoringOtherApps: true)
-
-            let result = alert.runModal()
-            if result == .alertFirstButtonReturn {
-                SharedStore.ui.activeSection = .components
-                AppDelegate.openPreferences()
-            }
-        } else {
-            hasShownHiddenAlert = false
-            Print("✅ status item is visible")
-        }
-    }
-
-    init(named: String = "eul") {
-        config = getStatusBarConfig()
-        statusBarMenu = NSMenu()
-        item = NSStatusBar.system.statusItem(withLength: 0)
-        super.init()
-
-        statusBarMenu.delegate = self
-        item.autosaveName = named
-        item.isVisible = false
-
-        if let menuBuilder = config.menuBuilder {
-            let customItem = NSMenuItem()
-            menuView = StatusBarMenuHostingView(rootView: menuBuilder(onMenuSizeChange))
-            menuView?.translatesAutoresizingMaskIntoConstraints = false
-            menuView?.setFrameSize(NSSize(width: 1, height: 1))
-            customItem.view = menuView
-            statusBarMenu.addItem(customItem)
-        }
-
-        item.menu = statusBarMenu
-
-        shouldCloseObserver = NotificationCenter.default.addObserver(forName: .StatusBarMenuShouldClose, object: nil, queue: nil) { _ in
-            self.statusBarMenu.cancelTracking()
-        }
-
-        refresh()
-
-        // Small trick to forcely trigger re-render
-        // Prevent wrong icon position when not showing status bar components
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
-            guard statusBarSizeChanged <= 1 else {
-                return
-            }
-            componentsStore.showComponents = componentsStore.showComponents
-        }
-    }
-
-    deinit {
-        if let observer = shouldCloseObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
     }
 }

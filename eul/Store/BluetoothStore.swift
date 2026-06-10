@@ -10,11 +10,39 @@ import Foundation
 
 class BluetoothStore: ObservableObject {
     @Published var devices: [BluetoothDevice] = []
+    private var isFetching = false
+    private var lastFetchedAt: Date?
+    /// each fetch spawns a ~1-2 s system_profiler subprocess — rapid panel
+    /// reopens shouldn't pay that repeatedly
+    private static let fetchInterval: TimeInterval = 60
+
+    /// system_profiler blocks for up to ~2 s — never run it on the main
+    /// thread; the panel triggers this on open
+    func fetchAsync() {
+        guard !isFetching else {
+            return
+        }
+        if let lastFetchedAt = lastFetchedAt, Date().timeIntervalSince(lastFetchedAt) < Self.fetchInterval {
+            return
+        }
+        isFetching = true
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let result = Self.read()
+            DispatchQueue.main.async {
+                self?.devices = result
+                self?.isFetching = false
+                self?.lastFetchedAt = Date()
+            }
+        }
+    }
 
     func fetch() {
+        devices = Self.read()
+    }
+
+    private static func read() -> [BluetoothDevice] {
         guard let data = shellData(["system_profiler SPBluetoothDataType -json"]) else {
-            devices = []
-            return
+            return []
         }
 
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -22,11 +50,10 @@ class BluetoothStore: ObservableObject {
               let first = btArray.first,
               let connected = first["device_connected"] as? [[String: Any]]
         else {
-            devices = []
-            return
+            return []
         }
 
-        devices = connected.compactMap { dict -> BluetoothDevice? in
+        return connected.compactMap { dict -> BluetoothDevice? in
             guard let entry = dict.first,
                   let props = entry.value as? [String: String]
             else { return nil }

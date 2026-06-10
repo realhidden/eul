@@ -12,6 +12,7 @@ extension Preference {
     enum Section: String, Identifiable, CaseIterable {
         case general
         case components
+        case health
         case menuView
 
         var id: String {
@@ -24,6 +25,8 @@ extension Preference {
                 return "ui.general".localized()
             case .components:
                 return "ui.components".localized()
+            case .health:
+                return "ui.health".localized()
             case .menuView:
                 return "ui.menu_view".localized()
             }

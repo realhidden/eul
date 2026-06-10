@@ -1,0 +1,24 @@
+<section id="components" data-screen-label="7 Component inventory">
+  <span class="sec-no">07</span>
+  <h2>Component inventory</h2>
+  <p class="sec-lede">Twelve primitives cover every surface. Few and strong, so a small community can keep them healthy; each maps directly onto data the engine already produces (exceptions tagged).</p>
+
+  <table>
+    <thead><tr><th>Primitive</th><th>Definition</th><th>Feeds on</th><th>Appears in</th></tr></thead>
+    <tbody>
+      <tr><td>HealthGlyph</td><td>The eyes; template / elevated / critical variants. Sized 22 pt (bar), 16 pt (panel header), scalable (widget)</td><td>health engine <span class="tag tag-infra">new infra</span></td><td>anchor, panel, widget</td></tr>
+      <tr><td>StatSlot</td><td>Label (9 pt caps) + tabular value with worst-case width reservation; single- or two-row (network) layouts</td><td>any monitor's headline figure</td><td>strip</td></tr>
+      <tr><td>Tile</td><td>Panel module: label, hero value, one auxiliary element, expandable; abnormal variant carries the surface's only color</td><td>per-monitor summaries</td><td>panel</td></tr>
+      <tr><td>Sparkline</td><td>10-min ring buffer, ~120 samples max, monochrome line + 12% fill, no tweening, truncates at last real sample</td><td>history buffers <span class="tag tag-data">new data</span></td><td>panel tiles, Trends widget</td></tr>
+      <tr><td>SegmentBar</td><td>Stacked horizontal bar; segments differentiated by opacity steps, never hue</td><td>memory breakdown, disk capacity</td><td>panel, widget</td></tr>
+      <tr><td>CoreGrid</td><td>Per-core micro-columns grouped and labeled E / P</td><td>per-core usage (exists)</td><td>CPU tile expanded</td></tr>
+      <tr><td>ProcessRow</td><td>App icon (NSRunningApplication) + name + tabular value; culprit variant pins to top with duration ("3 m above threshold")</td><td>top-N by CPU / MEM / NET (exists)</td><td>panel</td></tr>
+      <tr><td>DeltaPair</td><td>↓/↑ stacked rates, arrows semantic (RTL-safe), fixed-width units (K / M / G)</td><td>per-interface throughput (exists)</td><td>strip, network tile</td></tr>
+      <tr><td>Badge</td><td>Small capsule: staleness stamp, battery condition, build note. Never colored unless health-semantic</td><td>misc</td><td>panel, widgets, settings</td></tr>
+      <tr><td>ModeSwitch</td><td>Auto / Manual / Boost segmented control with a hardware-clamped slider; always shows target <em>vs.</em> actual; ships welded to the safety strip (§4.6)</td><td>per-fan RPM + min/max (exists) via helper <span class="tag tag-infra">new infra</span></td><td>fans tile expanded</td></tr>
+      <tr><td>UnitText</td><td>The unit suffix on any value, clickable in the panel: flips bits ↔ bytes or °C ↔ °F once, everywhere (bar, panel, widgets, CSV); mirrored in Settings · General</td><td>display-preferences engine <span class="tag tag-infra">new infra</span></td><td>panel tiles (§4.7)</td></tr>
+      <tr><td>ThresholdRow</td><td>Settings row: toggle + plain-language trigger description; no numeric editors in v2.0</td><td>health engine config</td><td>settings · Health</td></tr>
+    </tbody>
+  </table>
+  <p>Explicitly absent: gauges, dials, rings, multi-series rainbow charts, and any chart with text baked in. If a future feature cannot be expressed with these twelve, the feature — not the system — gets questioned first.</p>
+</section>

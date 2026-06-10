@@ -1,0 +1,87 @@
+<section id="ia" data-screen-label="2 Information architecture">
+  <span class="sec-no">02</span>
+  <h2>Information architecture</h2>
+  <p class="sec-lede">Five surfaces, each with one job. The menu bar carries presence and the glance; the panel carries investigation; settings carry rare decisions; widgets carry ambient, stale-tolerant context; notifications carry exactly one message, ever.</p>
+
+  <h3>2.1 Surface map</h3>
+  <table>
+    <thead><tr><th>Surface</th><th>Job</th><th>Contents</th><th>Why it lives here</th></tr></thead>
+    <tbody>
+      <tr><td>Anchor (bar)</td><td>Presence + health</td><td>eul glyph; monochrome when normal, amber/red when a threshold trips</td><td>The 22 pt floor that survives any bar. Identity, alert channel, and the entry point are one object.</td></tr>
+      <tr><td>Strip (bar)</td><td>The chosen glance</td><td>0–4 pinned monitors as fixed-width slots, priority-ordered; plus the auto-pinned FAN slot while a manual override is active (§2.7)</td><td>Numbers the user decided to always see. Sacrificial by design — drops slot-by-slot before macOS hides anything.</td></tr>
+      <tr><td>Panel</td><td>Investigation</td><td>All monitors as tiles, history sparklines, top processes, the culprit when abnormal; fan controls, where they exist (§2.7)</td><td>One click from anything. Heavy collectors run only while it is open — the closed state costs nothing.</td></tr>
+      <tr><td>Settings</td><td>Rare decisions</td><td>Pinned monitors &amp; priority, cadence, health toggles, login item, language</td><td>Visited twice a year. Three panes, no assembly required (§4.4).</td></tr>
+      <tr><td>Widgets</td><td>Ambient context</td><td>Health summary + trends, honest about freshness (§6)</td><td>For spaces eul doesn't own; tolerant of 15–60 s staleness by design.</td></tr>
+      <tr><td>Notification</td><td>One message</td><td>"eul is hidden — your menu bar is full," once, silent</td><td>The only event where eul itself becomes unreachable. Everything else is the glyph's job (§4.5).</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.2 The notch: four approaches, one winner</h3>
+  <p><strong>A — One adaptive wide item</strong> <em>(the status quo, evolved)</em>. The app guesses what fits and renders one item. Loses: macOS hides a too-wide item <em>whole</em>, and the system never tells you the available width — "adaptive" degrades to guessing, and one wrong guess is total disappearance. The unit of failure remains the entire product. This is the 1.x architecture with better manners; it cannot be made safe.</p>
+  <p><strong>B — One item per monitor</strong>. macOS hides overflowing items individually, so degradation comes free. Loses: relative order is not guaranteed (users ⌘-drag, other apps interleave), so the set reads as scattered fragments rather than one product; the system decides <em>which</em> monitor survives, which may be the least important one; and N items means N status windows for an outcome we still don't control. Maximum architectural cost for delegated, incoherent degradation.</p>
+  <p><strong>C — Priority collapse inside one item</strong>. The app drops monitors by priority as space tightens. Wins on coherence and gives the user a meaningful knob (priority order). But as a <em>complete</em> answer it inherits A's fatal flaw: the final collapsed item can still be hidden whole, and detecting "space is tight" is the hard, unreliable part. Essential as a mechanism; insufficient as an architecture.</p>
+  <p><strong>D — Anchor + strip (committed)</strong>. Exactly two status items. The <strong>anchor</strong>: a fixed-width glyph carrying identity, health, and the click target — it never grows, so it is the cheapest item in the bar to keep. The <strong>strip</strong>: one adaptive item holding the pinned slots, collapsing by C's priority mechanism down to removal. The sacrifice order is therefore designed, not delegated: slots drop first, the strip vanishes second, the anchor last — and "anchor only" is still a working product (health + entry point + panel). Cost: a two-item architecture and an ordering guarantee that the anchor sits on the system side of the strip so it is hidden last <span class="tag tag-infra">new infra</span> <span class="tag tag-risk">uncertain feasibility</span>. That cost buys the only model where every degradation step is a decision we made.</p>
+
+  <div class="callout"><b>Verdict: D, with C as its internal mechanism.</b> B is rejected for cost-without-control; A is rejected as the documented failure mode. No hedging — everything below is built on anchor + strip.</div>
+
+  <h3>2.3 The bar, hi-fi: every state, both modes</h3>
+  <p>Anatomy: slots are fixed-width by their monitor's worst case (<span class="mono">CPU 100%</span> reserves the width of <span class="mono">100%</span>), values are tabular — a value changing digit count never moves its neighbors. Labels are 9 pt uppercase secondary; values 12 pt medium. The strip never animates; it re-renders at the refresh cadence.</p>
+
+  <div class="exhibit" data-screen-label="Exhibit A — menu bar states">
+    <div class="exhibit-bar"><b>Exhibit A</b><small>menu bar item · all states · dark &amp; light · 1× scale</small></div>
+    <div class="exhibit-body">
+      <div class="mbstates" id="mbStates"></div>
+    </div>
+  </div>
+  <p class="exhibit-note">States are produced by the health engine (§2.4) and the width governor (§10, ask 3). The strip is identical in elevated/critical states — color is reserved for the anchor so the alert reads at any width, including anchor-only.</p>
+
+  <div class="exhibit" data-screen-label="Exhibit B — width-pressure rig">
+    <div class="exhibit-bar"><b>Exhibit B</b><small>live prototype · 14″ notched bar · drag the pressure slider, click the anchor</small>
+      <div class="spacer"></div>
+      <a href="eul 2.0 Prototype.html" style="font-size:12px;">Open standalone ↗</a>
+    </div>
+    <iframe src="eul 2.0 Prototype.html?embed=bar" title="eul menu bar prototype" style="display:block;width:100%;height:430px;border:none;" loading="lazy"></iframe>
+  </div>
+  <p class="exhibit-note">Worst-case context, live: as third-party items crowd the bar, the governor drops NET, then CPU, then holds the anchor; past the floor, macOS hides eul and the recovery notification fires (§2.5). In 1.x this exact bar made eul vanish silently. Clicking the anchor opens the panel in place.</p>
+
+  <h3>2.4 Health semantics — what "look at me" means</h3>
+  <p>The glyph has three states. <strong>Normal</strong>: monochrome template, both eyes outline. <strong>Elevated</strong> (amber, right eye fills): something deserves a look when convenient. <strong>Critical</strong> (red, both eyes fill): act soon. Every trigger requires a <em>sustained</em> condition — single samples never change the glyph — and clears only after the signal stays below threshold for twice its trip window (hysteresis), so the glyph cannot flap. All thresholds ship as defaults with per-signal on/off toggles; numeric tuning is deliberately not exposed in v2.0 (P5).</p>
+  <table>
+    <thead><tr><th>Signal</th><th>Elevated</th><th>Critical</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>Thermal pressure</td><td class="mono">moderate ≥ 30 s</td><td class="mono">heavy ≥ 10 s</td><td>OS thermal state (exists)</td></tr>
+      <tr><td>Runaway process</td><td class="mono">1 process &gt; 150% core-eq ≥ 120 s</td><td>—</td><td>top-N + core normalization <span class="tag tag-data">new data</span></td></tr>
+      <tr><td>Memory pressure</td><td class="mono">OS "warn" ≥ 30 s</td><td class="mono">OS "critical" ≥ 10 s</td><td>memory stats (exists) + pressure level <span class="tag tag-data">new data</span></td></tr>
+      <tr><td>Boot disk full</td><td class="mono">&lt; 10% or &lt; 15 GB free</td><td class="mono">&lt; 3% or &lt; 4 GB free</td><td>volume stats (exists)</td></tr>
+      <tr><td>Battery health</td><td colspan="2">never trips the glyph — surfaced as a badge inside the panel's battery tile only</td><td>battery condition (exists)</td></tr>
+    </tbody>
+  </table>
+  <p>The health engine itself — thresholds, windows, hysteresis, culprit attribution ("which process, which sensor") — is the largest single engineering ask of the revamp <span class="tag tag-infra">new infra</span>. In the sandboxed build the thermal row falls away with the SMC; the engine runs on the remaining signals (§3, App Store row).</p>
+
+  <h3>2.5 The recovery moment</h3>
+  <p>When macOS hides even the anchor (the bar truly is full), eul must remain reachable. Three layers, in order of preference:</p>
+  <div class="flow">
+    <div class="step"><div><b>Detect.</b><p>eul observes its status windows' frames; an anchor positioned under the notch or pushed off the item area is "occluded" <span class="tag tag-infra">new infra</span> <span class="tag tag-risk">uncertain feasibility</span>.</p></div></div>
+    <div class="step"><div><b>Tell, once, silently.</b><p>A single passive notification: "eul is hidden — your menu bar is full. Open eul to choose what to show." Posted at most once per occlusion episode, never focus-stealing. This is the only notification in the product.</p></div></div>
+    <div class="step"><div><b>Always-open escape hatch.</b><p>Launching eul while it is already running opens the panel as a centered window with a one-line banner and a button into Menu Bar settings <span class="tag tag-infra">new infra</span>. A global hotkey (default ⌃⌥E) opens the panel regardless of bar state. The 1.x modal alert is deleted.</p></div></div>
+  </div>
+
+  <h3>2.6 The panel — what replaces the dropdown</h3>
+  <p>A Control-Center-style panel anchored to the anchor: opens on click or hotkey, dismisses on click-away or Esc, system material throughout. It answers the glance's follow-up question in one click, and "why" in at most two. While closed it costs nothing; opening it lights up the expensive collectors (per-process CPU/memory/network), exactly as the 1.x menu did — the panel keeps that contract. It is deliberately <em>not</em> a window: no chrome, no tabs, no persistence. Hierarchy replaces the 1.x uniform stack: an abnormal tile gains the only color on the surface, auto-expands, and names its culprit.</p>
+
+  <div class="exhibit" data-screen-label="Exhibit C — investigation panel">
+    <div class="exhibit-bar"><b>Exhibit C</b><small>live prototype · 360 pt · clickable end-to-end, updates every 2 s</small>
+      <div class="spacer"></div>
+      <a href="eul 2.0 Prototype.html" style="font-size:12px;">Open standalone ↗</a>
+    </div>
+    <iframe src="eul 2.0 Prototype.html?embed=panel" title="eul investigation panel prototype" style="display:block;width:100%;height:980px;border:none;" loading="lazy"></iframe>
+  </div>
+  <p class="exhibit-note">Use the scenario button to trip the health engine, then read the panel top-down: verdict → colored tile → culprit. Click the CPU tile for per-core E/P detail; click the FANS tile and “Control fans…” to walk the helper ceremony (§4.6) — set Manual or Boost and the FAN slot pins itself into the bar rig above. Note the footer: eul reports its own footprint on every open — energy honesty as a feature. Fans and Bluetooth tiles exist only where their hardware and build do: on a MacBook Air or in the App Store build the grid simply has fewer tiles, never empty ones.</p>
+
+  <h3>2.7 Fan control — where the verb lives</h3>
+  <p>Readings and the verb live together. Fans are a panel tile (direct build, fan-equipped Macs only — on a MacBook Air the tile does not exist, rather than sitting empty). Collapsed, it answers the glance: per-fan RPM and the current mode. Expanded, it becomes the control surface (§4.6): per-fan <strong>Auto / Manual / Boost</strong>, with Manual exposing a slider clamped to the hardware's real min/max and reporting target <em>and</em> actual RPM. Boost is a one-click action inside the expanded tile — deliberately not a bar-level quick action: intervention happens next to the temperatures that justify it, and still lands within the two-interaction budget (anchor → tile).</p>
+  <p>An active override must be impossible to forget. While any fan is not in Auto: a <strong>FAN slot auto-pins to the strip</strong> showing live RPM — it is exempt from priority collapse for the duration and disappears the moment control returns to Auto; the panel header carries a second line (“Manual fan override · 23 min”); and “Revert to Auto” is one click in both places. The glyph stays health-only — an override is a choice, not a problem, so it never colors the eyes. State F in Exhibit A shows the bar during an override.</p>
+
+  <h3>2.8 Out-of-box configuration (14″ MBP)</h3>
+  <p>Default: <strong>anchor + CPU slot + network slot</strong> — ≈118 pt total. Defense: the two questions Mac users actually ask the bar are "is something eating my machine?" (CPU) and "is my network doing something?" (NET). Memory and thermals are folded into the glyph's health state, so they earn bar pixels only when abnormal — which is precisely when the user wants them. Battery is already in the system bar; duplicating it by default fails P5. Everything else is one click away. Priority order ships as CPU &gt; NET, so under pressure NET drops first.</p>
+</section>

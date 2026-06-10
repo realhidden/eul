@@ -11,6 +11,7 @@ import Combine
 import Localize_Swift
 import SharedLibrary
 import SwiftUI
+import UserNotifications
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -49,6 +50,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
         SmcControl.shared.subscribe()
         StatusBarManager.shared.checkVisibilityIfNeeded()
+        GlobalHotKey.register()
+        // clicking the "eul is hidden" notification must lead somewhere:
+        // it opens the panel centered, same as relaunch and the hotkey.
+        // Guarded like RecoveryNotifier — UN APIs throw for unbundled builds.
+        if Bundle.main.bundleURL.pathExtension == "app" {
+            UNUserNotificationCenter.current().delegate = self
+        }
         wakeUp()
 
         let notificationCenter = NSWorkspace.shared.notificationCenter
@@ -72,6 +80,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 DispatchQueue.main.async {
                     self.window.appearance = mode.nsAppearance
                     NSApp.appearance = mode.nsAppearance
+                    PanelManager.shared.setAppearance(mode.nsAppearance)
                 }
             }
         }
@@ -81,6 +90,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         print("🤚 should terminate")
         SmcControl.shared.close()
         return .terminateNow
+    }
+
+    /// Recovery flow (§2.5): launching eul while it is already running opens
+    /// the panel as a centered window — the path back in when the menu bar
+    /// is full and macOS hid even the anchor
+    func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+        PanelManager.shared.openCentered()
+        return false
     }
 
     func wakeUp() {
@@ -102,6 +119,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func applicationWillTerminate(_: Notification) {
         // Insert code here to tear down your application
+    }
+}
+
+// MARK: UNUserNotificationCenterDelegate
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_: UNUserNotificationCenter, didReceive _: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            PanelManager.shared.openCentered()
+        }
+        completionHandler()
     }
 }
 

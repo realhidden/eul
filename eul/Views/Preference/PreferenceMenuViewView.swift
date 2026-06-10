@@ -26,33 +26,12 @@ extension Preference {
             )
         }
 
+        /// NOTE: the menu-era top-activities toggles and CPU display picker
+        /// were removed with the dropdown — the panel's process collectors are
+        /// gated by lens selection while open (eul 2.0). The ordering below
+        /// still feeds GpuStore/DiskStore refresh gating.
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
-                Group {
-                    Toggle(isOn: $preference.showCPUTopActivities) {
-                        Text("menu.show_cpu_top_activities".localized())
-                            .inlineSection()
-                    }
-                    Toggle(isOn: $preference.showRAMTopActivities) {
-                        Text("menu.show_ram_top_activities".localized())
-                            .inlineSection()
-                    }
-                    Toggle(isOn: $preference.showNetworkTopActivities) {
-                        Text("menu.show_network_top_activities".localized())
-                            .inlineSection()
-                    }
-                }
-                .fixedSize()
-                HStack(spacing: 12) {
-                    Picker("cpu_display_mode".localized(), selection: $preference.cpuMenuDisplay) {
-                        ForEach(Preference.CpuMenuDisplay.allCases, id: \.self) {
-                            Text($0.description)
-                                .tag($0)
-                        }
-                    }
-                    .frame(width: 250)
-                }
-                .fixedSize()
                 HStack(alignment: .top, spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {

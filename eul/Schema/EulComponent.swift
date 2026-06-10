@@ -70,7 +70,9 @@ enum EulComponent: String, CaseIterable, Identifiable, Codable, JSONCodabble, Lo
     }
 
     static var defaultComponents: [EulComponent] {
-        allCases.filter { ![.Disk, .GPU].contains($0) }
+        // design §2.8 out-of-box: anchor + CPU + NET; everything else is one
+        // click away in the panel, and the glyph carries health
+        [.CPU, .Network]
     }
 }
 
