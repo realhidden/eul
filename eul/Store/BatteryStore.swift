@@ -35,6 +35,20 @@ class BatteryStore: ObservableObject, Refreshable {
         Double(maxCapacity) / Double(designCapacity)
     }
 
+    /// On Apple Silicon the generic capacity keys report percentages while
+    /// DesignCapacity stays in mAh, making health and the mAh display nonsense
+    /// (#249); the raw mAh values live in the battery service itself. One
+    /// registry read per refresh covers both.
+    private static func readRawCapacities() -> (current: Int?, max: Int?) {
+        guard let properties = IOHelper.getPropertyList(for: "AppleSmartBattery")?.first else {
+            return (nil, nil)
+        }
+        return (
+            properties["AppleRawCurrentCapacity"] as? Int,
+            properties["AppleRawMaxCapacity"] as? Int ?? properties["NominalChargeCapacity"] as? Int
+        )
+    }
+
     @objc func refresh() {
         io = Info.Battery()
 
@@ -48,8 +62,9 @@ class BatteryStore: ObservableObject, Refreshable {
         acPowered = battery.isACPowered()
         charged = battery.isCharged()
         charging = battery.isCharging()
-        capacity = battery.currentCapacity()
-        maxCapacity = battery.maxCapactiy()
+        let raw = Self.readRawCapacities()
+        capacity = raw.current ?? battery.currentCapacity()
+        maxCapacity = raw.max ?? battery.maxCapactiy()
         designCapacity = battery.designCapacity()
         cycleCount = battery.cycleCount()
         timeRemaining = io.powerSource == .battery ? battery.timeRemainingFormatted() : "∞"

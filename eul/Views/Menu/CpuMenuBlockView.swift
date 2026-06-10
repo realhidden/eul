@@ -50,6 +50,12 @@ struct CpuMenuBlockView: View {
                                 MiniSectionView(title: "cpu.temperature", value: SmcControl.shared.formatTemp(temp))
                             }
                         }
+                        cpuStore.upTimeString.map { upTimeString in
+                            Group {
+                                Spacer()
+                                MiniSectionView(title: "cpu.up_time", value: upTimeString)
+                            }
+                        }
                     }
                 }
             }

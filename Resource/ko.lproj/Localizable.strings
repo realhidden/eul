@@ -146,12 +146,13 @@ battery.timeRemaining = "Time Rem.";
 "language.es" = "Español";
 "language.pt" = "Português";
 "language.ja" = "日本語";
+"language.fa" = "فارسی";
 "language.fr" = "Français";
 "language.mn" = "Монгол";
 "language.ko" = "한국어";
-"language.dk" = "Dansk";
+"language.da" = "Dansk";
 "language.uk" = "Українська";
-"language.se" = "Svenska";
+"language.sv" = "Svenska";
 "language.cs" = "Čeština";
 "language.it" = "Italiano";
 "language.my" = "မြန်မာဘာသာ";
@@ -225,3 +226,9 @@ battery.timeRemaining = "Time Rem.";
 "widget.battery.description" = "배터리 정보를 표시합니다";
 "widget.network.title" = "네트워크 위젯";
 "widget.network.description" = "네트워크 정보를 표시합니다";
+
+/* Untranslated keys — English fallback values (Localize-Swift renders raw keys for missing entries). Translations welcome! */
+"battery.time_remaining" = "Time Rem.";
+"language.pl" = "Polski";
+"cpu.cores" = "CPU Cores";
+"memory.swap" = "Swap";

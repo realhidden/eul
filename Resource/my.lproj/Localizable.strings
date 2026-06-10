@@ -143,12 +143,13 @@
 "language.es" = "Español";
 "language.pt" = "Português";
 "language.ja" = "日本語";
+"language.fa" = "فارسی";
 "language.fr" = "Français";
 "language.mn" = "Монгол";
 "language.ko" = "한국어";
-"language.dk" = "Dansk";
+"language.da" = "Dansk";
 "language.uk" = "Українська";
-"language.se" = "Svenska";
+"language.sv" = "Svenska";
 "language.cs" = "Čeština";
 "language.it" = "Italiano";
 "language.my" = "မြန်မာဘာသာ";
@@ -221,3 +222,9 @@
 "widget.battery.description" = "ဘက်ထရီ အချက်အလက်များပြပါ";
 "widget.network.title" = "Network Widget";
 "widget.network.description" = "ကွန်ယက် အချက်အလက်များပြပါ";
+
+/* Untranslated keys — English fallback values (Localize-Swift renders raw keys for missing entries). Translations welcome! */
+"language.pl" = "Polski";
+"language.hu" = "Magyar";
+"cpu.cores" = "CPU Cores";
+"memory.swap" = "Swap";

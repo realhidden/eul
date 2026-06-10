@@ -143,12 +143,13 @@
 "language.es" = "Español";
 "language.pt" = "Português";
 "language.ja" = "日本語";
+"language.fa" = "فارسی";
 "language.fr" = "Français";
 "language.mn" = "Монгол";
 "language.ko" = "한국어";
-"language.dk" = "Dansk";
+"language.da" = "Dansk";
 "language.uk" = "Українська";
-"language.se" = "Svenska";
+"language.sv" = "Svenska";
 "language.cs" = "Čeština";
 "language.it" = "Italiano";
 "language.hu" = "Magyar";
@@ -222,3 +223,9 @@
 "widget.battery.description" = "Akku információ megjelenítése";
 "widget.network.title" = "Hálózat";
 "widget.network.description" = "Hálózati információ megjelenítése";
+
+/* Untranslated keys — English fallback values (Localize-Swift renders raw keys for missing entries). Translations welcome! */
+"language.pl" = "Polski";
+"language.my" = "မြန်မာဘာသာ";
+"cpu.cores" = "CPU Cores";
+"memory.swap" = "Swap";

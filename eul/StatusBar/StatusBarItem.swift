@@ -27,12 +27,21 @@ class StatusBarItem: NSObject, NSMenuDelegate {
     private var shouldCloseObserver: NSObjectProtocol?
     private var visibilityTimer: Timer?
     private var statusBarSizeChanged = 0
+    /// the hidden-by-system alert is modal and steals focus; once per hidden
+    /// episode is plenty (re-armed when the item becomes visible again)
+    private var hasShownHiddenAlert = false
 
     var isVisible: Bool {
         get { item.isVisible }
         set {
             item.isVisible = newValue
         }
+    }
+
+    /// True when the item exists but the system is not drawing it — hidden
+    /// for lack of menu bar space (overflow/notch) while isVisible stays true
+    var isHiddenBySystem: Bool {
+        item.button?.window?.occlusionState.contains(.visible) == false
     }
 
     func onSizeChange(size: CGSize) {
@@ -83,8 +92,38 @@ class StatusBarItem: NSObject, NSMenuDelegate {
         statusBarMenu.appearance = appearance
     }
 
+    /// The occlusion check false-positives whenever the menu bar itself is
+    /// hidden — a fullscreen app or the auto-hide setting (#149, #119, #95).
+    /// Fullscreen is reported through the system presentation options. The
+    /// visibleFrame fallback must subtract the camera-housing inset: AppKit
+    /// reserves that row permanently on notched Macs, so visibleFrame.maxY
+    /// never reaches frame.maxY there even with the menu bar hidden.
+    var isMenuBarLikelyHidden: Bool {
+        let options = NSApplication.shared.currentSystemPresentationOptions
+        if options.contains(.hideMenuBar) || options.contains(.autoHideMenuBar) {
+            return true
+        }
+
+        guard let screen = item.button?.window?.screen ?? NSScreen.main else {
+            return false
+        }
+        var reservedTop: CGFloat = 0
+        if #available(macOS 12.0, *) {
+            reservedTop = screen.safeAreaInsets.top
+        }
+        return screen.visibleFrame.maxY >= screen.frame.maxY - reservedTop
+    }
+
     private func checkStatusItemVisibility() {
-        if item.button?.window?.occlusionState.contains(.visible) == false {
+        if isHiddenBySystem {
+            guard !isMenuBarLikelyHidden else {
+                Print("menu bar is hidden (fullscreen/auto-hide), skipping visibility alert")
+                return
+            }
+            guard !hasShownHiddenAlert else {
+                return
+            }
+            hasShownHiddenAlert = true
             print("⚠️ status item hidden by system")
             let alert = NSAlert()
             alert.messageText = "ui.hidden_by_system.title".localized()
@@ -100,6 +139,7 @@ class StatusBarItem: NSObject, NSMenuDelegate {
                 AppDelegate.openPreferences()
             }
         } else {
+            hasShownHiddenAlert = false
             Print("✅ status item is visible")
         }
     }

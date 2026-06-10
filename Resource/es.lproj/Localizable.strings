@@ -143,12 +143,13 @@
 "language.es" = "Español";
 "language.pt" = "Português";
 "language.ja" = "日本語";
+"language.fa" = "فارسی";
 "language.fr" = "Français";
 "language.mn" = "Монгол";
 "language.ko" = "한국어";
-"language.dk" = "Dansk";
+"language.da" = "Dansk";
 "language.uk" = "Українська";
-"language.se" = "Svenska";
+"language.sv" = "Svenska";
 "language.cs" = "Čeština";
 "language.it" = "Italiano";
 "language.my" = "မြန်မာဘာသာ";
@@ -222,3 +223,8 @@
 "widget.battery.description" = "Mostrar Widget de batería";
 "widget.network.title" = "WIdget de red";
 "widget.network.description" = "Mostrar Widget de red";
+
+/* Untranslated keys — English fallback values (Localize-Swift renders raw keys for missing entries). Translations welcome! */
+"language.pl" = "Polski";
+"cpu.cores" = "CPU Cores";
+"memory.swap" = "Swap";

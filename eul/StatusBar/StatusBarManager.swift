@@ -67,12 +67,22 @@ class StatusBarManager {
     }
 
     func render(components _: [EulComponent]) {
-        // Re-render in place. Toggling isVisible off and on made the system
-        // forget the item's saved position, so the bar jumped to the right end
-        // after any component change or reboot (#40, #113). Never fully hide
-        // the item: it is the only way into Preferences.
-        if !item.isVisible {
-            item.isVisible = true
+        // Toggling isVisible off and on makes the system forget the item's
+        // saved position (#40, #113), so a plain in-place refresh is the
+        // default. But when the system itself has hidden the item for lack of
+        // menu bar space (#149 — wide item + notch), only an off/on toggle
+        // makes it re-evaluate; the position is already lost in that case, so
+        // the toggle is what lets "reduce component count" bring the item back.
+        // isMenuBarLikelyHidden filters occlusion caused by fullscreen or
+        // menu bar auto-hide — toggling there would lose the position for no
+        // gain (the item reappears by itself when the menu bar returns)
+        if !item.isVisible || (item.isHiddenBySystem && !item.isMenuBarLikelyHidden) {
+            item.isVisible = false
+            DispatchQueue.main.async {
+                self.item.isVisible = true
+                self.refresh()
+            }
+            return
         }
 
         DispatchQueue.main.async {

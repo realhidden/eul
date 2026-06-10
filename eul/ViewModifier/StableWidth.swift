@@ -58,7 +58,17 @@ struct StableWidth: ViewModifier {
         .frame(idealWidth: computedIdealWidth)
         .fixedSize()
         .onPreferenceChange(CGFloatPreferenceKey.self, perform: { value in
-            idealWidth = value.first
+            guard let measured = value.first else {
+                return
+            }
+            // Ratchet up so values flapping between digit counts don't shift
+            // neighboring items (#261) — but release the ratchet when content
+            // shrinks by more than a digit-flap (a text component was removed)
+            if let current = idealWidth, measured + 2 * factor < current {
+                idealWidth = measured
+            } else {
+                idealWidth = max(idealWidth ?? 0, measured)
+            }
         })
     }
 }

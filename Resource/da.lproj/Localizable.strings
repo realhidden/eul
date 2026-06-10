@@ -128,7 +128,7 @@
 "language.fr" = "Français";
 "language.mn" = "Монгол";
 "language.ko" = "한국어";
-"language.dk" = "Dansk";
+"language.da" = "Dansk";
 "language.hu" = "Magyar";
 
 // MARK: General UI
@@ -164,3 +164,58 @@
 "widget.battery.description" = "Vis batteri-oplysninger";
 "widget.network.title" = "Netværk Widget";
 "widget.network.description" = "Vis netværk-oplysninger";
+
+/* Untranslated keys — English fallback values (Localize-Swift renders raw keys for missing entries). Translations welcome! */
+"battery.time_remaining" = "Time Rem.";
+"network.port.auto" = "Auto-detect";
+"network.port.select" = "Port";
+"menu.show_ram_top_activities" = "Show RAM top activities";
+"appearance.mode" = "Appearance";
+"appearance.light" = "light";
+"appearance.dark" = "dark";
+"appearance.auto" = "auto";
+"component.gpu" = "GPU";
+"component.bluetooth" = "Bluetooth";
+"bluetooth" = "Bluetooth";
+"disk.eject" = "Eject";
+"disk.select" = "Select disk";
+"disk.all" = "All Disks";
+"language.fa" = "فارسی";
+"language.pl" = "Polski";
+"language.uk" = "Українська";
+"language.sv" = "Svenska";
+"language.cs" = "Čeština";
+"language.it" = "Italiano";
+"language.my" = "မြန်မာဘာသာ";
+"language.th" = "ไทย";
+"language.tr" = "Türkçe";
+"ui.check_status_item_visibility" = "Check status item visibility";
+"ui.upgrade_method" = "Upgrade";
+"ui.upgrade_method.none" = "none";
+"ui.upgrade_method.none.description" = "eul will not check upgrade";
+"ui.upgrade_method.showInStatusBar" = "show in status bar";
+"ui.upgrade_method.showInStatusBar.description" = "Show upgrade icon when new version available";
+"ui.upgrade_method.autoUpdate" = "auto update";
+"ui.upgrade_method.autoUpdate.description" = "Perform upgrade automatically";
+"component.show_icon" = "Show icon";
+"component.show_graph" = "Show graph";
+"component.show_text" = "Show text";
+"text_component.free" = "Free";
+"text_component.usage" = "Usage";
+"text_component.total" = "Total";
+"text_component.usagePercentage" = "Usage Percentage";
+"text_component.temperature" = "Temperature";
+"text_component.upload" = "Upload";
+"text_component.download" = "Download";
+"text_component.percentage" = "Percentage";
+"text_component.mah" = "mAh";
+"text_component.loadAverage1Min" = "Load Average (1 min)";
+"text_component.loadAverage5Min" = "Load Average (5 min)";
+"text_component.loadAverage15Min" = "Load Average (15 min)";
+"text_component.average" = "Average";
+"text_component.timeRemaining" = "Time Remaining";
+"cpu_display_mode" = "CPU Display Mode";
+"cpu_display_mode.usage_percentage" = "Usage %";
+"cpu_display_mode.load_average" = "Load Average";
+"cpu.cores" = "CPU Cores";
+"memory.swap" = "Swap";

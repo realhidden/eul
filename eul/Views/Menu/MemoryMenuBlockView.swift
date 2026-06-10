@@ -43,6 +43,10 @@ struct MemoryMenuBlockView: View {
                 MiniSectionView(title: "memory.wired", value: memoryStore.wired.memoryString)
                 Spacer()
                 MiniSectionView(title: "memory.compressed", value: memoryStore.compressed.memoryString)
+                if memoryStore.swapTotal > 0 {
+                    Spacer()
+                    MiniSectionView(title: "memory.swap", value: memoryStore.swapUsed.memoryString)
+                }
                 memoryStore.temp.map { temp in
                     Group {
                         Spacer()

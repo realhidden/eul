@@ -143,12 +143,14 @@
 "language.es" = "Español";
 "language.pt" = "Português";
 "language.ja" = "日本語";
+"language.fa" = "فارسی";
 "language.fr" = "Français";
 "language.mn" = "Монгол";
 "language.ko" = "한국어";
-"language.dk" = "Dansk";
+"language.da" = "Dansk";
+"language.pl" = "Polski";
 "language.uk" = "Українська";
-"language.se" = "Svenska";
+"language.sv" = "Svenska";
 "language.cs" = "Čeština";
 "language.it" = "Italiano";
 "language.my" = "မြန်မာဘာသာ";
@@ -224,3 +226,5 @@
 "widget.network.description" = "Display network information";
 
 "cpu.cores" = "CPU Cores";
+
+"memory.swap" = "Swap";

@@ -21,9 +21,9 @@ struct NetworkView: View {
         textStore.activeComponents.map {
             switch $0 {
             case .upload:
-                return networkStore.outSpeed
+                return "↑ " + networkStore.outSpeed
             case .download:
-                return networkStore.inSpeed
+                return "↓ " + networkStore.inSpeed
             }
         }
     }

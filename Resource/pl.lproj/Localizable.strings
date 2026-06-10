@@ -146,9 +146,9 @@
 "language.fr" = "Français";
 "language.mn" = "Монгол";
 "language.ko" = "한국어";
-"language.dk" = "Dansk";
+"language.da" = "Dansk";
 "language.uk" = "Українська";
-"language.se" = "Svenska";
+"language.sv" = "Svenska";
 "language.cs" = "Čeština";
 "language.it" = "Italiano";
 "language.my" = "မြန်မာဘာသာ";
@@ -223,3 +223,8 @@
 "widget.battery.description" = "Wyświetl informacje o baterii";
 "widget.network.title" = "Widget Sieci";
 "widget.network.description" = "Wyświetl informacje o sieci";
+
+/* Untranslated keys — English fallback values (Localize-Swift renders raw keys for missing entries). Translations welcome! */
+"language.fa" = "فارسی";
+"cpu.cores" = "CPU Cores";
+"memory.swap" = "Swap";

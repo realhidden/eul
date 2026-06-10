@@ -21,6 +21,8 @@ class MemoryStore: ObservableObject, Refreshable {
     @Published var cachedFiles: Double = 0
     @Published var temp: Double?
     @Published var usageHistory: [Double] = []
+    @Published var swapUsed: Double = 0
+    @Published var swapTotal: Double = 0
 
     var used: Double {
         appMemory + wired + compressed
@@ -58,7 +60,21 @@ class MemoryStore: ObservableObject, Refreshable {
         (free, active, inactive, wired, compressed, appMemory, cachedFiles) = System.memoryUsage()
         temp = SmcControl.shared.memoryProximityTemperature
         usageHistory = (usageHistory + [usedPercentage]).suffix(LineChart.defaultMaxPointCount)
+        getSwap()
         writeToContainer()
+    }
+
+    private func getSwap() {
+        var usage = xsw_usage()
+        var size = MemoryLayout<xsw_usage>.size
+        guard sysctlbyname("vm.swapusage", &usage, &size, nil, 0) == 0 else {
+            swapUsed = 0
+            swapTotal = 0
+            return
+        }
+        // bytes -> GB to match the other memory figures
+        swapUsed = Double(usage.xsu_used) / 1_073_741_824
+        swapTotal = Double(usage.xsu_total) / 1_073_741_824
     }
 
     func writeToContainer() {
