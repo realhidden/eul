@@ -38,6 +38,15 @@
 		6C1FA4BF24A712BB00CA7F71 /* PanelTiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4BE24A712BB00CA7F71 /* PanelTiles.swift */; };
 		6C1FA4C324A712BB00CA7F71 /* PreferenceHealthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4C224A712BB00CA7F71 /* PreferenceHealthView.swift */; };
 		6C1FA4C524A712BB00CA7F71 /* GlobalHotKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4C424A712BB00CA7F71 /* GlobalHotKey.swift */; };
+		7C1FA40624A712BB00CA7F71 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FA40224A712BB00CA7F71 /* main.swift */; };
+		7C1FA40724A712BB00CA7F71 /* FanHelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FA40324A712BB00CA7F71 /* FanHelperProtocol.swift */; };
+		7C1FA40824A712BB00CA7F71 /* SMC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CAEED6424A62DF800C39597 /* SMC.swift */; };
+		7C1FA41A24A712BB00CA7F71 /* SmcStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C68E083255664F500595F83 /* SmcStruct.swift */; };
+		7C1FA40924A712BB00CA7F71 /* FanHelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FA40324A712BB00CA7F71 /* FanHelperProtocol.swift */; };
+		7C1FA40A24A712BB00CA7F71 /* FanControlStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FA40B24A712BB00CA7F71 /* FanControlStore.swift */; };
+		7C1FA40C24A712BB00CA7F71 /* FanControlViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FA40D24A712BB00CA7F71 /* FanControlViews.swift */; };
+		7C1FA40E24A712BB00CA7F71 /* com.gaosun.eul.helper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7C1FA40124A712BB00CA7F71 /* com.gaosun.eul.helper */; };
+		7C1FA40F24A712BB00CA7F71 /* com.gaosun.eul.helper.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7C1FA40424A712BB00CA7F71 /* com.gaosun.eul.helper.plist */; };
 		6C2688F52556762B00FB7306 /* SharedLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C2688EE2556762B00FB7306 /* SharedLibrary.framework */; };
 		6C2688F62556762B00FB7306 /* SharedLibrary.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6C2688EE2556762B00FB7306 /* SharedLibrary.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6C2688FE2556763700FB7306 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CAEED5324A5DE4700C39597 /* Color.swift */; };
@@ -239,6 +248,13 @@
 			remoteGlobalIDString = 6CDEF06B25D69E8100B4C913;
 			remoteInfo = SelfUpdate;
 		};
+		7C1FA41924A712BB00CA7F71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6C5F8533249FACE000CF0EF8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7C1FA41024A712BB00CA7F71;
+			remoteInfo = FanHelper;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -320,6 +336,28 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7C1FA41624A712BB00CA7F71 /* Embed Fan Helper */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				7C1FA40E24A712BB00CA7F71 /* com.gaosun.eul.helper in CopyFiles */,
+			);
+			name = "Embed Fan Helper";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7C1FA41724A712BB00CA7F71 /* Embed Fan Helper Plist */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Contents/Library/LaunchDaemons";
+			dstSubfolderSpec = 1;
+			files = (
+				7C1FA40F24A712BB00CA7F71 /* com.gaosun.eul.helper.plist in CopyFiles */,
+			);
+			name = "Embed Fan Helper Plist";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -359,6 +397,12 @@
 		6C1FA4BE24A712BB00CA7F71 /* PanelTiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelTiles.swift; sourceTree = "<group>"; };
 		6C1FA4C224A712BB00CA7F71 /* PreferenceHealthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceHealthView.swift; sourceTree = "<group>"; };
 		6C1FA4C424A712BB00CA7F71 /* GlobalHotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotKey.swift; sourceTree = "<group>"; };
+		7C1FA40124A712BB00CA7F71 /* com.gaosun.eul.helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.gaosun.eul.helper; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C1FA40224A712BB00CA7F71 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		7C1FA40324A712BB00CA7F71 /* FanHelperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanHelperProtocol.swift; sourceTree = "<group>"; };
+		7C1FA40424A712BB00CA7F71 /* com.gaosun.eul.helper.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = com.gaosun.eul.helper.plist; sourceTree = "<group>"; };
+		7C1FA40B24A712BB00CA7F71 /* FanControlStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanControlStore.swift; sourceTree = "<group>"; };
+		7C1FA40D24A712BB00CA7F71 /* FanControlViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanControlViews.swift; sourceTree = "<group>"; };
 		6C2688EE2556762B00FB7306 /* SharedLibrary.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SharedLibrary.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2688F12556762B00FB7306 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6C2F1647255C1EAD0062F76F /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -557,6 +601,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7C1FA41524A712BB00CA7F71 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -684,6 +735,7 @@
 			children = (
 				6C2688EF2556762B00FB7306 /* SharedLibrary */,
 				6CDEF06D25D69E8100B4C913 /* SelfUpdate */,
+				7C1FA40524A712BB00CA7F71 /* FanHelper */,
 				6C16BEEB2552EC5800CCF5B7 /* Resource */,
 				6C5F853D249FACE000CF0EF8 /* eul */,
 				6C7E1F032552EB2600287D08 /* CpuWidget */,
@@ -706,6 +758,7 @@
 				6C7CF46E25569B8100CEC263 /* BatteryWidgetExtension.appex */,
 				6C5DACFE2556B2FE005F67C3 /* NetworkWidgetExtension.appex */,
 				6CDEF06C25D69E8100B4C913 /* SelfUpdate.app */,
+				7C1FA40124A712BB00CA7F71 /* com.gaosun.eul.helper */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -734,8 +787,19 @@
 			children = (
 				6C1FA4BC24A712BB00CA7F71 /* PanelView.swift */,
 				6C1FA4BE24A712BB00CA7F71 /* PanelTiles.swift */,
+				7C1FA40D24A712BB00CA7F71 /* FanControlViews.swift */,
 			);
 			path = Panel;
+			sourceTree = "<group>";
+		};
+		7C1FA40524A712BB00CA7F71 /* FanHelper */ = {
+			isa = PBXGroup;
+			children = (
+				7C1FA40224A712BB00CA7F71 /* main.swift */,
+				7C1FA40324A712BB00CA7F71 /* FanHelperProtocol.swift */,
+				7C1FA40424A712BB00CA7F71 /* com.gaosun.eul.helper.plist */,
+			);
+			path = FanHelper;
 			sourceTree = "<group>";
 		};
 		6C5F855824A5D99600CF0EF8 /* Views */ = {
@@ -861,6 +925,7 @@
 				6C1FA3F924A70E6700CA7F71 /* CpuStore.swift */,
 				6C572D7E254EFD4700EF9904 /* DiskStore.swift */,
 				6C1FA40F24AA1D4400CA7F71 /* FanStore.swift */,
+				7C1FA40B24A712BB00CA7F71 /* FanControlStore.swift */,
 				6CFAB80125BC4D9A002F5F48 /* GpuStore.swift */,
 				6C1FA4B624A712BB00CA7F71 /* HealthStore.swift */,
 				6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */,
@@ -1009,6 +1074,8 @@
 				6CC6D7A4250E2810000B03D4 /* Embed Frameworks */,
 				6CC0798D250CEE96000D7DAC /* Copy LaunchAtLogin helper */,
 				6C7E1F102552EB2700287D08 /* Embed Foundation Extensions */,
+				7C1FA41624A712BB00CA7F71 /* Embed Fan Helper */,
+				7C1FA41724A712BB00CA7F71 /* Embed Fan Helper Plist */,
 			);
 			buildRules = (
 			);
@@ -1019,6 +1086,7 @@
 				6C7CF47C25569B8200CEC263 /* PBXTargetDependency */,
 				6C5DAD0C2556B2FF005F67C3 /* PBXTargetDependency */,
 				6CB3D25625D69FFF008C6627 /* PBXTargetDependency */,
+				7C1FA41824A712BB00CA7F71 /* PBXTargetDependency */,
 			);
 			name = eul;
 			packageProductDependencies = (
@@ -1094,6 +1162,22 @@
 			productName = SelfUpdate;
 			productReference = 6CDEF06C25D69E8100B4C913 /* SelfUpdate.app */;
 			productType = "com.apple.product-type.application";
+		};
+		7C1FA41024A712BB00CA7F71 /* FanHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7C1FA41124A712BB00CA7F71 /* Build configuration list for PBXNativeTarget "FanHelper" */;
+			buildPhases = (
+				7C1FA41424A712BB00CA7F71 /* Sources */,
+				7C1FA41524A712BB00CA7F71 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FanHelper;
+			productName = FanHelper;
+			productReference = 7C1FA40124A712BB00CA7F71 /* com.gaosun.eul.helper */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -1178,6 +1262,7 @@
 				6C7CF46D25569B8100CEC263 /* BatteryWidgetExtension */,
 				6C5DACFD2556B2FE005F67C3 /* NetworkWidgetExtension */,
 				6CDEF06B25D69E8100B4C913 /* SelfUpdate */,
+				7C1FA41024A712BB00CA7F71 /* FanHelper */,
 			);
 		};
 /* End PBXProject section */
@@ -1380,6 +1465,9 @@
 				6C1FA4BF24A712BB00CA7F71 /* PanelTiles.swift in Sources */,
 				6C1FA4C324A712BB00CA7F71 /* PreferenceHealthView.swift in Sources */,
 				6C1FA4C524A712BB00CA7F71 /* GlobalHotKey.swift in Sources */,
+				7C1FA40924A712BB00CA7F71 /* FanHelperProtocol.swift in Sources */,
+				7C1FA40A24A712BB00CA7F71 /* FanControlStore.swift in Sources */,
+				7C1FA40C24A712BB00CA7F71 /* FanControlViews.swift in Sources */,
 				6C1FA3FA24A70E6700CA7F71 /* CpuStore.swift in Sources */,
 				6C19253F256FEBE5006B0D73 /* LocalizedStringConvertible.swift in Sources */,
 				6CDE6C7624F10C8000463114 /* StatusBarManager.swift in Sources */,
@@ -1452,6 +1540,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7C1FA41424A712BB00CA7F71 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C1FA40624A712BB00CA7F71 /* main.swift in Sources */,
+				7C1FA40724A712BB00CA7F71 /* FanHelperProtocol.swift in Sources */,
+				7C1FA40824A712BB00CA7F71 /* SMC.swift in Sources */,
+				7C1FA41A24A712BB00CA7F71 /* SmcStruct.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1504,6 +1603,11 @@
 			isa = PBXTargetDependency;
 			target = 6CDEF06B25D69E8100B4C913 /* SelfUpdate */;
 			targetProxy = 6CB3D25525D69FFF008C6627 /* PBXContainerItemProxy */;
+		};
+		7C1FA41824A712BB00CA7F71 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7C1FA41024A712BB00CA7F71 /* FanHelper */;
+			targetProxy = 7C1FA41924A712BB00CA7F71 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2085,6 +2189,36 @@
 			};
 			name = Release;
 		};
+		7C1FA41224A712BB00CA7F71 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = M8G2RFZVFV;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = EUL_FAN_HELPER;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.helper;
+				PRODUCT_NAME = com.gaosun.eul.helper;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7C1FA41324A712BB00CA7F71 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = M8G2RFZVFV;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = EUL_FAN_HELPER;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gaosun.eul.helper;
+				PRODUCT_NAME = com.gaosun.eul.helper;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2156,6 +2290,15 @@
 			buildConfigurations = (
 				6CDEF07D25D69E8100B4C913 /* Debug */,
 				6CDEF07E25D69E8100B4C913 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7C1FA41124A712BB00CA7F71 /* Build configuration list for PBXNativeTarget "FanHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C1FA41224A712BB00CA7F71 /* Debug */,
+				7C1FA41324A712BB00CA7F71 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

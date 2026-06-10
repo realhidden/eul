@@ -53,9 +53,11 @@ struct PanelView: View, SizeChangeView {
     @EnvironmentObject var topStore: TopStore
     @EnvironmentObject var networkTopStore: NetworkTopStore
     @EnvironmentObject var preferenceStore: PreferenceStore
+    @EnvironmentObject var fanControl: FanControlStore
 
     @StateObject private var selfUsage = SelfUsageSampler()
     @State private var cpuExpanded = false
+    @State private var fansExpanded = false
 
     var onSizeChange: ((CGSize) -> Void)?
 
@@ -116,6 +118,23 @@ struct PanelView: View, SizeChangeView {
                             .foregroundColor(Color.accentColor)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .padding(.top, 1)
+                }
+                // an active override must be impossible to forget (§2.7) —
+                // second header line with one-click revert
+                if fanControl.overrideActive {
+                    HStack(spacing: 6) {
+                        Text("\("fan.control.override".localized()) · \(fanControl.overrideMinutes)m")
+                        Button(action: {
+                            fanControl.revertAllToAuto()
+                        }) {
+                            Text("fan.control.revert".localized())
+                                .underline()
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .font(.system(size: 10.5))
+                    .foregroundColor(secondary)
                     .padding(.top, 1)
                 }
             }
@@ -277,22 +296,68 @@ struct PanelView: View, SizeChangeView {
         })
     }
 
+    private var fanModeText: String {
+        let modes = Set(fanControl.overrides.values.map { $0.mode })
+        if modes.isEmpty {
+            return "fan.mode.auto".localized()
+        }
+        if modes == [.boost] {
+            return "fan.mode.boost".localized()
+        }
+        return "fan.mode.manual".localized()
+    }
+
+    /// Readings always; the control surface lives in the expanded state —
+    /// intervention happens next to the temperatures that justify it (§2.7).
+    /// On macOS < 13 there is nothing to expand: plain readings, no tap
+    /// affordance, no teaser (absent, never gray).
     private func fansTile() -> AnyView {
-        AnyView(PanelTile(label: "component.fan".localized().uppercased(), aux: nil) {
-            ForEach(fanStore.fans) { fan in
-                HStack(spacing: 4) {
-                    Text("\(fan.id + 1)")
-                        .font(.system(size: 11))
-                        .foregroundColor(secondary)
-                    Text(fan.currentSpeedString)
-                        .font(DesignTokens.Typo.mid)
+        let controllable = fanControl.status != .unsupportedOS
+        let expanded = fansExpanded && controllable
+        let tile = PanelTile(label: "component.fan".localized().uppercased(), aux: fanModeText) {
+            if !expanded {
+                ForEach(fanStore.fans) { fan in
+                    HStack(spacing: 4) {
+                        Text("\(fan.id + 1)")
+                            .font(.system(size: 11))
+                            .foregroundColor(secondary)
+                        Text(fan.currentSpeedString)
+                            .font(DesignTokens.Typo.mid)
+                    }
                 }
+                Spacer(minLength: 0)
+                Text(fanControl.status == .enabled && fanControl.overrideActive
+                    ? "fan.control.override".localized()
+                    : "panel.fans.system_managed".localized())
+                    .font(DesignTokens.Typo.sub)
+                    .foregroundColor(secondary)
+            } else {
+                if fanControl.status != .enabled {
+                    ForEach(fanStore.fans) { fan in
+                        HStack(spacing: 4) {
+                            Text("\(fan.id + 1)")
+                                .font(.system(size: 11))
+                                .foregroundColor(secondary)
+                            Text(fan.currentSpeedString)
+                                .font(DesignTokens.Typo.mid)
+                        }
+                    }
+                }
+                tileDivider()
+                FanControlSurface()
+                    .padding(.top, 2)
             }
-            Spacer(minLength: 0)
-            Text("panel.fans.system_managed".localized())
-                .font(DesignTokens.Typo.sub)
-                .foregroundColor(secondary)
-        })
+        }
+        guard controllable else {
+            return AnyView(tile)
+        }
+        return AnyView(
+            tile
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    fansExpanded.toggle()
+                }
+        )
     }
 
     private func batteryTile() -> AnyView {
@@ -361,9 +426,22 @@ struct PanelView: View, SizeChangeView {
     }
 
     private var tileGrid: some View {
-        var rest: [AnyView] = [memoryTile(), networkTile(), gpuTile(), diskTile()]
+        // expanded tiles promote to full width (design: grid-column 1/-1)
+        var fullWidth: [AnyView] = []
+        var rest: [AnyView] = []
+
+        if cpuIsExpanded {
+            fullWidth.append(AnyView(cpuTile()))
+        } else {
+            rest.append(AnyView(cpuTile()))
+        }
+        rest.append(contentsOf: [memoryTile(), networkTile(), gpuTile(), diskTile()])
         if fanStore.fans.count > 0 {
-            rest.append(fansTile())
+            if fansExpanded, fanControl.status != .unsupportedOS {
+                fullWidth.append(fansTile())
+            } else {
+                rest.append(fansTile())
+            }
         }
         if batteryStore.isValid {
             rest.append(batteryTile())
@@ -374,12 +452,10 @@ struct PanelView: View, SizeChangeView {
         }
 
         return VStack(spacing: DesignTokens.Panel.spacing) {
-            if cpuIsExpanded {
-                cpuTile()
-                pairRows(rest)
-            } else {
-                pairRows([AnyView(cpuTile())] + rest)
+            ForEach(0..<fullWidth.count, id: \.self) { index in
+                fullWidth[index]
             }
+            pairRows(rest)
         }
     }
 
@@ -489,6 +565,7 @@ struct PanelView: View, SizeChangeView {
         .padding(DesignTokens.Panel.padding)
         .frame(width: DesignTokens.Panel.width)
         .fixedSize()
+        .overlay(FanCeremonyOverlay())
         .background(GeometryReader { self.reportSize($0) })
         .onPreferenceChange(SizePreferenceKey.self, perform: { value in
             if let size = value.first {

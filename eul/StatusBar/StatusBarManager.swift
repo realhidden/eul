@@ -86,6 +86,17 @@ class StatusBarManager {
             }
             .store(in: &cancellables)
 
+        // override start/stop changes what the strip must show (FAN auto-pin)
+        SharedStore.fanControl.$overrides
+            .map { !$0.isEmpty }
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.renderStrip()
+                }
+            }
+            .store(in: &cancellables)
+
         observeOcclusion()
         renderStrip()
     }
@@ -144,7 +155,11 @@ class StatusBarManager {
 
     private func renderStrip() {
         let count = visibleSlotCount
-        guard componentsStore.showComponents, count > 0 else {
+        // an active fan override keeps the strip alive even with zero
+        // governed slots or components off — the auto-pinned FAN slot must
+        // be impossible to forget (design §2.7)
+        let overrideActive = SharedStore.fanControl.overrideActive
+        guard componentsStore.showComponents || overrideActive, count > 0 || overrideActive else {
             strip.setVisible(false)
             return
         }

@@ -99,19 +99,30 @@ struct NetworkSlot: View {
 }
 
 /// The strip's whole content: the user's pinned monitors in priority order,
-/// truncated to what the width governor currently allows (design §2.2 D/C)
+/// truncated to what the width governor currently allows (design §2.2 D/C).
+/// While a manual fan override is active a FAN slot auto-pins ahead of the
+/// governed slots, exempt from collapse — an override must be impossible to
+/// forget (design §2.7, ask 17).
 struct StripView: View, SizeChangeView {
     @EnvironmentObject var componentsStore: ComponentsStore<EulComponent>
+    @EnvironmentObject var fanControl: FanControlStore
 
     var onSizeChange: ((CGSize) -> Void)?
     let slotLimit: Int
 
     var slots: [EulComponent] {
-        Array(componentsStore.activeComponents.prefix(slotLimit))
+        var pinned = Array(componentsStore.activeComponents.prefix(slotLimit))
+        if fanControl.overrideActive {
+            pinned.removeAll { $0 == .Fan }
+        }
+        return pinned
     }
 
     var body: some View {
         HStack(spacing: 10) {
+            if fanControl.overrideActive {
+                StatSlotView(component: .Fan)
+            }
             ForEach(slots) {
                 StatSlotView(component: $0)
             }

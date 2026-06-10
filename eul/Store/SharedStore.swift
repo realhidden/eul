@@ -23,6 +23,7 @@ enum SharedStore {
     static let preference = PreferenceStore()
     static let ui = UIStore()
     static let health = HealthStore()
+    static let fanControl = FanControlStore()
     static let components = ComponentsStore<EulComponent>(
         defaultComponents: EulComponent.defaultComponents,
         onDidChange: visibilityCheckClosure
@@ -47,5 +48,6 @@ extension View {
             .environmentObject(SharedStore.componentConfig)
             .environmentObject(SharedStore.topStore)
             .environmentObject(SharedStore.health)
+            .environmentObject(SharedStore.fanControl)
     }
 }

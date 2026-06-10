@@ -28,7 +28,13 @@
 
 import Foundation
 import IOKit
-import SharedLibrary
+
+// the FanHelper daemon compiles this file WITHOUT the framework (it must
+// stay a standalone binary — a root daemon can't resolve @rpath frameworks);
+// it gets TemperatureUnit from SmcStruct.swift compiled in directly
+#if !EUL_FAN_HELPER
+    import SharedLibrary
+#endif
 
 // ------------------------------------------------------------------------------
 
@@ -745,6 +751,94 @@ public extension SMCKit {
                          info: DataTypes.FPE2)
 
         try writeData(key, data: bytes)
+    }
+}
+
+// ------------------------------------------------------------------------------
+
+// MARK: Fan control writes (privileged — used by the fan helper daemon)
+
+// ------------------------------------------------------------------------------
+
+public extension SMCKit {
+    private static func makeBytes(_ array: [UInt8]) -> SMCBytes {
+        var bytes: SMCBytes = (UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
+                               UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
+                               UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
+                               UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
+                               UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0), UInt8(0),
+                               UInt8(0), UInt8(0))
+        withUnsafeMutableBytes(of: &bytes) { buffer in
+            for (index, byte) in array.prefix(32).enumerated() {
+                buffer[index] = byte
+            }
+        }
+        return bytes
+    }
+
+    /// Apple Silicon fan keys are IEEE-754 little-endian "flt " values
+    static func writeFloat(_ keyCode: String, value: Float) throws {
+        var bits = value.bitPattern.littleEndian
+        let array = withUnsafeBytes(of: &bits) { Array($0) }
+        try writeData(
+            SMCKey(code: FourCharCode(fromString: keyCode), info: DataTypes.FLT),
+            data: makeBytes(array)
+        )
+    }
+
+    static func writeUInt8(_ keyCode: String, value: UInt8) throws {
+        try writeData(
+            SMCKey(code: FourCharCode(fromString: keyCode), info: DataTypes.UInt8),
+            data: makeBytes([value])
+        )
+    }
+
+    static func writeUInt16(_ keyCode: String, value: UInt16) throws {
+        try writeData(
+            SMCKey(code: FourCharCode(fromString: keyCode), info: DataType(type: FourCharCode(fromString: "ui16"), size: 2)),
+            data: makeBytes([UInt8(value >> 8), UInt8(value & 0xFF)])
+        )
+    }
+
+    static func writeFPE2(_ keyCode: String, value: Int) throws {
+        let data = value.toFPE2()
+        try writeData(
+            SMCKey(code: FourCharCode(fromString: keyCode), info: DataTypes.FPE2),
+            data: makeBytes([data.0, data.1])
+        )
+    }
+
+    static func readUInt16(_ keyCode: String) throws -> UInt16 {
+        let bytes = try readData(SMCKey(code: FourCharCode(fromString: keyCode), info: DataType(type: FourCharCode(fromString: "ui16"), size: 2)))
+        return UInt16(bytes.0) << 8 | UInt16(bytes.1)
+    }
+
+    /// Force a fan to a target RPM or return it to system control.
+    ///
+    /// Apple Silicon (M1/M2): F{id}Md (ui8, 0 = auto / 1 = forced) + F{id}Tg
+    /// (flt target). M3+ is NOT supported — thermalmonitord re-asserts system
+    /// mode and silently overrides these writes. Intel: the FS! force bitmask
+    /// + F{id}Tg (fpe2). Requires root; the SMC clamps to hardware limits but
+    /// callers should clamp to F{id}Mn...F{id}Mx anyway.
+    static func fanSetForced(_ id: Int, targetSpeed: Int) throws {
+        #if arch(arm64)
+            try writeUInt8("F\(id)Md", value: 1)
+            try writeFloat("F\(id)Tg", value: Float(targetSpeed))
+        #else
+            let mask = try readUInt16("FS! ")
+            try writeUInt16("FS! ", value: mask | UInt16(1 << id))
+            try writeFPE2("F\(id)Tg", value: targetSpeed)
+        #endif
+    }
+
+    /// Return a fan to system (automatic) management
+    static func fanSetAuto(_ id: Int) throws {
+        #if arch(arm64)
+            try writeUInt8("F\(id)Md", value: 0)
+        #else
+            let mask = try readUInt16("FS! ")
+            try writeUInt16("FS! ", value: mask & ~UInt16(1 << id))
+        #endif
     }
 }
 

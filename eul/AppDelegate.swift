@@ -88,6 +88,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func applicationShouldTerminate(_: NSApplication) -> NSApplication.TerminateReply {
         print("🤚 should terminate")
+        // best-effort; the helper's watchdog covers crashes and force-quits
+        SharedStore.fanControl.revertAllOnQuit()
         SmcControl.shared.close()
         return .terminateNow
     }
