@@ -63,7 +63,9 @@ extension GPU {
         // Apple Silicon accelerators (AGXAccelerator) expose PerformanceStatistics
         // but no IOPCIMatch, hence the placeholder match and defaulted usage
         let statistics: [Statistic] = propertyList.compactMap {
-            guard let performance = $0["PerformanceStatistics"] as? [String: Any] else {
+            guard let performance = $0["PerformanceStatistics"] as? [String: Any]
+                ?? $0["IOAcceleratorStatistics2"] as? [String: Any]
+            else {
                 return nil
             }
 
@@ -71,7 +73,10 @@ extension GPU {
 
             return Statistic(
                 pciMatch: $0["IOPCIMatch"] as? String ?? $0["IOPCIPrimaryMatch"] as? String ?? "apple-silicon-gpu",
-                usagePercentage: performance["Device Utilization %"] as? Int ?? performance["GPU Activity(%)"] as? Int ?? 0,
+                usagePercentage: performance["Device Utilization %"] as? Int
+                    ?? performance["GPU Activity(%)"] as? Int
+                    ?? performance["GPU Core Utilization"] as? Int
+                    ?? 0,
                 temperature: performance["Temperature(C)"] as? Double ?? SmcControl.shared.gpuProximityTemperature,
                 coreClock: performance["Core Clock(MHz)"] as? Int,
                 memoryClock: performance["Memory Clock(MHz)"] as? Int

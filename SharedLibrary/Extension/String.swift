@@ -29,16 +29,7 @@ public extension String {
     }
 
     var splittedByWhitespace: [String] {
-        guard let trimWhiteSpaceRegEx = try? NSRegularExpression(pattern: "/ +/g") else {
-            return []
-        }
-        let trimmed = trimWhiteSpaceRegEx.stringByReplacingMatches(
-            in: self,
-            options: [],
-            range: NSRange(location: 0, length: count),
-            withTemplate: " "
-        )
-        return trimmed.split(separator: " ").map { String($0) }
+        split(separator: " ").map { String($0) }
     }
 
     var numericOnly: String {

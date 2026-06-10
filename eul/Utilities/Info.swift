@@ -146,7 +146,12 @@ enum Info {
     }
 
     static func getActiveInterfaces() -> [String] {
-        shell("ifconfig")?.split(separator: "\n").map { String($0) }.reduce([InterfaceStatus]()) {
+        // virtual link-layer helpers report "active" too and shadow the real
+        // port (#226); exclude them rather than allowlisting en*/ap* so
+        // Thunderbolt/USB bridges and future physical types keep working
+        let virtualInterfacePrefixes = ["lo", "awdl", "llw", "utun", "gif", "stf"]
+
+        return shell("ifconfig")?.split(separator: "\n").map { String($0) }.reduce([InterfaceStatus]()) {
             // new interface
             if !$1.hasPrefix("\t") {
                 guard let colonIndex = $1.firstIndex(of: ":") else {
@@ -162,8 +167,10 @@ enum Info {
             }
 
             return $0.dropLast().appending(InterfaceStatus(name: lastInterface.name, status: splitted[1]))
-        }.compactMap {
-            $0.status == "active" ? $0.name : nil
+        }.compactMap { interface in
+            interface.status == "active" && !virtualInterfacePrefixes.contains(where: { interface.name.hasPrefix($0) })
+                ? interface.name
+                : nil
         } ?? []
     }
 

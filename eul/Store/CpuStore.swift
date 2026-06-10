@@ -163,9 +163,7 @@ class CpuStore: ObservableObject, Refreshable {
             usageUser: usageCPU?.user,
             usageNice: usageCPU?.nice
         ))
-        if #available(OSX 11, *) {
-            WidgetCenter.shared.reloadTimelines(ofKind: CpuEntry.kind)
-        }
+        WidgetReloader.requestReload(ofKind: CpuEntry.kind)
     }
 
     init() {

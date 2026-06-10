@@ -15,6 +15,11 @@ import SwiftUI
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var isSleeping = false
+    // Invalidates pending asyncAfter chains: a brief sleep/wake used to leave
+    // the old refresh chain alive next to the new one, multiplying the
+    // effective refresh rate after every wake (#76, #18)
+    private var refreshGeneration = 0
+    private var updateCheckGeneration = 0
     private var updateMethodCancellable: AnyCancellable?
     private var appearanceCancellable: AnyCancellable?
 
@@ -57,7 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         updateMethodCancellable = preferenceStore.$upgradeMethod.sink { _ in
             DispatchQueue.main.async {
-                self.checkUpdateRepeatedly()
+                self.restartUpdateCheck()
             }
         }
 
@@ -66,6 +71,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             appearanceCancellable = preferenceStore.$appearanceMode.sink { mode in
                 DispatchQueue.main.async {
                     self.window.appearance = mode.nsAppearance
+                    NSApp.appearance = mode.nsAppearance
                 }
             }
         }
@@ -79,9 +85,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func wakeUp() {
         isSleeping = false
-        refreshSMCRepeatedly()
-        refreshNetworkRepeatedly()
-        checkUpdateRepeatedly()
+        refreshGeneration += 1
+        refreshSMCRepeatedly(generation: refreshGeneration)
+        refreshNetworkRepeatedly(generation: refreshGeneration)
+        restartUpdateCheck()
+    }
+
+    func restartUpdateCheck() {
+        updateCheckGeneration += 1
+        checkUpdateRepeatedly(generation: updateCheckGeneration)
     }
 
     func sleep() {
@@ -114,36 +126,36 @@ extension AppDelegate {
 // MARK: Repeating Methods
 
 extension AppDelegate {
-    func refreshSMCRepeatedly() {
-        guard !isSleeping else {
+    func refreshSMCRepeatedly(generation: Int) {
+        guard !isSleeping, generation == refreshGeneration else {
             return
         }
 
         NotificationCenter.default.post(name: .SMCShouldRefresh, object: nil)
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(preferenceStore.smcRefreshRate)) { [self] in
-            refreshSMCRepeatedly()
+            refreshSMCRepeatedly(generation: generation)
         }
     }
 
-    func refreshNetworkRepeatedly() {
-        guard !isSleeping else {
+    func refreshNetworkRepeatedly(generation: Int) {
+        guard !isSleeping, generation == refreshGeneration else {
             return
         }
 
         NotificationCenter.default.post(name: .NetworkShouldRefresh, object: nil)
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(preferenceStore.networkRefreshRate)) { [self] in
-            refreshNetworkRepeatedly()
+            refreshNetworkRepeatedly(generation: generation)
         }
     }
 
-    func checkUpdateRepeatedly() {
-        guard !isSleeping, preferenceStore.upgradeMethod != .none else {
+    func checkUpdateRepeatedly(generation: Int) {
+        guard !isSleeping, generation == updateCheckGeneration, preferenceStore.upgradeMethod != .none else {
             return
         }
 
         preferenceStore.checkUpdate()
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(60 * 60)) { [self] in
-            checkUpdateRepeatedly()
+            checkUpdateRepeatedly(generation: generation)
         }
     }
 }

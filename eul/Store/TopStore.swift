@@ -58,7 +58,20 @@ class TopStore: ObservableObject {
                         return nil
                     }
 
-                    let usage = 100 * (ram / self.memorySizeMB)
+                    // rsize is like "433M+", "1024K-", "2G": optional growth
+                    // marker after a unit suffix; bare numbers are KB (#227)
+                    let unitSuffix = rawRamString.last(where: { $0.isLetter })
+                    let ramInMB: Double
+                    switch unitSuffix {
+                    case "M":
+                        ramInMB = ram
+                    case "G":
+                        ramInMB = ram * 1024
+                    default:
+                        ramInMB = ram / 1024
+                    }
+
+                    let usage = 100 * (ramInMB / self.memorySizeMB)
 
                     // Use command name from top output directly — avoids spawning a ps(1)
                     // subprocess per process on every refresh cycle.
@@ -66,7 +79,7 @@ class TopStore: ObservableObject {
                         pid: pid,
                         command: row[1],
                         value: usage,
-                        usageAmount: ram,
+                        usageAmount: ramInMB,
                         runningApp: runningApps.first(where: { $0.processIdentifier == pid })
                     )
                 }

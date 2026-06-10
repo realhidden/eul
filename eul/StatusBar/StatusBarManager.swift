@@ -67,10 +67,16 @@ class StatusBarManager {
     }
 
     func render(components _: [EulComponent]) {
-        item.isVisible = false
+        // Re-render in place. Toggling isVisible off and on made the system
+        // forget the item's saved position, so the bar jumped to the right end
+        // after any component change or reboot (#40, #113). Never fully hide
+        // the item: it is the only way into Preferences.
+        if !item.isVisible {
+            item.isVisible = true
+        }
 
         DispatchQueue.main.async {
-            self.item.isVisible = true
+            self.refresh()
         }
     }
 }

@@ -8,12 +8,12 @@
 
 import WidgetKit
 
-@available(OSXApplicationExtension 11, *)
+@available(macOSApplicationExtension 11, *)
 public protocol StandardProvider: TimelineProvider {
     associatedtype WidgetEntry: SharedWidgetEntry
 }
 
-@available(OSXApplicationExtension 11, *)
+@available(macOSApplicationExtension 11, *)
 public extension StandardProvider {
     func placeholder(in _: Context) -> WidgetEntry {
         Container.get(WidgetEntry.self) ?? WidgetEntry.sample
@@ -30,12 +30,15 @@ public extension StandardProvider {
     }
 
     func getTimeline(in _: Context, completion: @escaping (Timeline<WidgetEntry>) -> Void) {
+        // The app coalesces reload requests (WidgetReloader), so the outdated
+        // marker must outlast the reload throttle or widgets flip to
+        // "not available" between reloads
         let entry = Container.get(WidgetEntry.self) ?? WidgetEntry(outdated: true)
         let currentDate = Date()
-        let nextDate = Calendar.current.date(byAdding: .second, value: 10, to: currentDate)!
+        let nextDate = Calendar.current.date(byAdding: .second, value: 60, to: currentDate)!
         let entries: [WidgetEntry] = [entry, WidgetEntry(date: nextDate, outdated: true)]
 
-        let timeline = Timeline(entries: entries, policy: .after(Date().addingTimeInterval(10)))
+        let timeline = Timeline(entries: entries, policy: .after(Date().addingTimeInterval(60)))
         completion(timeline)
     }
 }

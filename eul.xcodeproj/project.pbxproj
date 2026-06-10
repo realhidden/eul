@@ -36,6 +36,7 @@
 		6C1FA41024AA1D4400CA7F71 /* FanStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA40F24AA1D4400CA7F71 /* FanStore.swift */; };
 		6C1FA41224AA1DC100CA7F71 /* MemoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */; };
 		6C1FA4A124A712BB00CA7F71 /* AppleSiliconSensors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */; };
+		6C1FA4A324A712BB00CA7F71 /* WidgetReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */; };
 		6C2688F52556762B00FB7306 /* SharedLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C2688EE2556762B00FB7306 /* SharedLibrary.framework */; };
 		6C2688F62556762B00FB7306 /* SharedLibrary.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6C2688EE2556762B00FB7306 /* SharedLibrary.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6C2688FE2556763700FB7306 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CAEED5324A5DE4700C39597 /* Color.swift */; };
@@ -379,6 +380,7 @@
 		6C1FA40F24AA1D4400CA7F71 /* FanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanStore.swift; sourceTree = "<group>"; };
 		6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStore.swift; sourceTree = "<group>"; };
 		6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSiliconSensors.swift; sourceTree = "<group>"; };
+		6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetReloader.swift; sourceTree = "<group>"; };
 		6C2688EE2556762B00FB7306 /* SharedLibrary.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SharedLibrary.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2688F12556762B00FB7306 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6C2F1647255C1EAD0062F76F /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -824,6 +826,7 @@
 				6CAEED6424A62DF800C39597 /* SMC.swift */,
 				6C1FA3FF24A712AA00CA7F71 /* SmcControl.swift */,
 				6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */,
+				6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */,
 				6C831368253DCF1F00914BB0 /* Print.swift */,
 				6CFAB80525BC526E002F5F48 /* GPU.swift */,
 				6CFAB80825BC55C6002F5F48 /* IOHelper.swift */,
@@ -1466,6 +1469,7 @@
 				6C1FA3F824A70DF300CA7F71 /* CpuView.swift in Sources */,
 				6C1FA40024A712AA00CA7F71 /* SmcControl.swift in Sources */,
 				6C1FA4A124A712BB00CA7F71 /* AppleSiliconSensors.swift in Sources */,
+				6C1FA4A324A712BB00CA7F71 /* WidgetReloader.swift in Sources */,
 				6CC1EBBD25769E2400BC05CA /* FanTextComponent.swift in Sources */,
 				6C33CECD25177CE300345977 /* CpuMenuBlockView.swift in Sources */,
 				6CF28D0D251758EE00EBE9CB /* StatusBarView.swift in Sources */,

@@ -90,10 +90,21 @@ class SmcControl: Refreshable {
         for sensor in sensors {
             do {
                 sensor.temp = try SMCKit.temperature(sensor.sensor.code, unit: tempUnit)
+                sensor.consecutiveFailedReads = 0
+                sensor.hasEverRead = true
             } catch {
                 sensor.temp = 0
-                print("error while getting temperature", error)
+                sensor.consecutiveFailedReads += 1
             }
+        }
+        // Apple Silicon lists a few SMC keys that always fail to read; drop
+        // them instead of logging the same error every tick. Sensors that have
+        // ever read successfully are kept — a transient bad patch (e.g. right
+        // after wake) must not remove a working sensor for the whole session.
+        let unreadable = sensors.filter { $0.consecutiveFailedReads >= 3 && !$0.hasEverRead }
+        if !unreadable.isEmpty {
+            print("dropping unreadable SMC sensors", unreadable.map { $0.sensor.name })
+            sensors.removeAll { $0.consecutiveFailedReads >= 3 && !$0.hasEverRead }
         }
         fans = fans.map {
             FanData(

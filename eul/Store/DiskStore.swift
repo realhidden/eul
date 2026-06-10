@@ -29,12 +29,30 @@ class DiskStore: ObservableObject, Refreshable {
         return list?.disks.filter { $0.name == config.diskSelection }.first
     }
 
+    /// With no explicit selection, report the boot volume instead of summing
+    /// every mounted volume — APFS volumes share one container, so the sum
+    /// counted the same space several times (#250, #182). Cached per refresh:
+    /// the capacity query is too expensive for per-render property access.
+    private var rootVolume: (size: UInt64, free: UInt64)?
+
+    private static func readRootVolume() -> (size: UInt64, free: UInt64)? {
+        let url = URL(fileURLWithPath: "/")
+        guard
+            let values = try? url.resourceValues(forKeys: [.volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey]),
+            let size = values.volumeTotalCapacity, size >= 0,
+            let free = values.volumeAvailableCapacityForImportantUsage, free >= 0
+        else {
+            return nil
+        }
+        return (UInt64(size), UInt64(free))
+    }
+
     var ceilingBytes: UInt64? {
-        selectedDisk?.size ?? list?.disks.reduce(0) { $0 + $1.size }
+        selectedDisk.map { $0.size } ?? rootVolume?.size
     }
 
     var freeBytes: UInt64? {
-        selectedDisk?.freeSize ?? list?.disks.reduce(0) { $0 + $1.freeSize }
+        selectedDisk.map { $0.freeSize } ?? rootVolume?.free
     }
 
     var usageString: String {
@@ -72,6 +90,8 @@ class DiskStore: ObservableObject, Refreshable {
         else {
             return
         }
+
+        rootVolume = Self.readRootVolume()
 
         guard let volumes = (try? FileManager.default.contentsOfDirectory(atPath: DiskList.volumesPath)) else {
             list = nil
