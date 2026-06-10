@@ -15,10 +15,11 @@ extension Notification.Name {
 }
 
 /// Shared plumbing for the two status items of the anchor + strip model
-/// (design §2.2 D). Position is enforced by seeding the autosaved position
-/// before creation: macOS lays the status area out right-to-left from the
-/// clock and hides the leftmost items first, so the item seeded closest to
-/// the clock is hidden last.
+/// (design §2.2 D). Only RELATIVE order matters: the anchor must sit on the
+/// clock side of the strip, because macOS hides the leftmost items first —
+/// so the strip is sacrificed before the anchor. eul stays in the ordinary
+/// third-party zone; it never claims the bar's right edge (the system items'
+/// accustomed territory).
 class BaseStatusItem: NSObject {
     let item: NSStatusItem
     let autosaveNameString: String
@@ -59,13 +60,8 @@ class BaseStatusItem: NSObject {
         }
     }
 
-    /// Seed "NSStatusItem Preferred Position <name>" only when absent —
-    /// smaller = closer to the clock; later user drags are respected
-    static func seedPreferredPosition(_ position: CGFloat, autosaveName: String) {
-        let key = "NSStatusItem Preferred Position \(autosaveName)"
-        if UserDefaults.standard.object(forKey: key) == nil {
-            UserDefaults.standard.set(position, forKey: key)
-        }
+    static func preferredPosition(for autosaveName: String) -> Double? {
+        UserDefaults.standard.object(forKey: "NSStatusItem Preferred Position \(autosaveName)") as? Double
     }
 
     init(autosaveName: String, length: CGFloat) {
@@ -89,7 +85,21 @@ class AnchorStatusItem: BaseStatusItem {
     private let contextMenu = NSMenu()
 
     init() {
-        Self.seedPreferredPosition(0, autosaveName: Self.autosaveName)
+        // Relative-order seeding ("NSStatusItem Preferred Position" is a
+        // distance from the bar's RIGHT edge; smaller = closer to the clock):
+        // when the strip already has a saved spot (1.x upgrade or a user
+        // drag), tuck the anchor just inside it. A fresh install stays
+        // unseeded — the anchor is created first and macOS inserts the strip
+        // to the LEFT of it, which already yields the right order, in the
+        // ordinary third-party zone. Seeding 0 here would butt eul against
+        // the clock, clock-side of the system items — wrong neighborhood.
+        let anchorKey = "NSStatusItem Preferred Position \(Self.autosaveName)"
+        if
+            UserDefaults.standard.object(forKey: anchorKey) == nil,
+            let stripPosition = Self.preferredPosition(for: StripStatusItem.autosaveName)
+        {
+            UserDefaults.standard.set(max(stripPosition - 1, 0), forKey: anchorKey)
+        }
         super.init(autosaveName: Self.autosaveName, length: Self.itemLength)
         item.isVisible = true
 
@@ -163,7 +173,6 @@ class StripStatusItem: BaseStatusItem {
     private(set) var slotLimit = Int.max
 
     init() {
-        Self.seedPreferredPosition(1, autosaveName: Self.autosaveName)
         super.init(autosaveName: Self.autosaveName, length: 0)
         item.button?.target = self
         item.button?.action = #selector(handleClick)

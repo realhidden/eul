@@ -21,8 +21,9 @@ class StatusBarManager {
     @ObservedObject var preferenceStore = SharedStore.preference
     @ObservedObject var componentsStore = SharedStore.components
 
-    // anchor is created FIRST so it materializes on the clock side; both are
-    // also position-seeded (anchor 0, strip 1) before creation
+    // anchor is created FIRST so the strip inserts to its left (clock-side
+    // anchor); on upgrade the anchor is seeded just inside the strip's
+    // saved position — see AnchorStatusItem.init
     let anchor = AnchorStatusItem()
     let strip = StripStatusItem()
 
