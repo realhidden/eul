@@ -48,20 +48,23 @@ class TopStore: ObservableObject {
 
         // MARK: Parsing command for RAM top processes
 
-        parseTerminalCommand(taskType: .ram, commandString: "top -l 0 -n 6 -stats pid,command,rsize -s \(refreshRate) -orsize") { separatorIndex, rows, titleRow in
+        parseTerminalCommand(taskType: .ram, commandString: "top -l 0 -n 6 -stats pid,command,rsize -s \(refreshRate) -orsize 2>/dev/null") { separatorIndex, rows, titleRow in
             if titleRow.contains("pid"), titleRow.contains("mem"), titleRow.contains("command") {
                 let runningApps = NSWorkspace.shared.runningApplications
                 let result: [RamUsage] = ((separatorIndex + 2)..<rows.count).compactMap { index in
                     let row = rows[index].split(separator: " ").map { String($0) }
-                    guard row.count >= 2, let pid = Int(row[0]), let rawRamString = row.last, let ram = Double(rawRamString.filter("0123456789.".contains)), pid != 0 else {
+                    // -stats pid,command,rsize → row[0]=pid, row[1]=command, row.last=rsize
+                    guard row.count >= 3, let pid = Int(row[0]), let rawRamString = row.last, let ram = Double(rawRamString.filter("0123456789.".contains)), pid != 0 else {
                         return nil
                     }
 
                     let usage = 100 * (ram / self.memorySizeMB)
 
+                    // Use command name from top output directly — avoids spawning a ps(1)
+                    // subprocess per process on every refresh cycle.
                     return RamUsage(
                         pid: pid,
-                        command: Info.getProcessCommand(pid: pid)!,
+                        command: row[1],
                         value: usage,
                         usageAmount: ram,
                         runningApp: runningApps.first(where: { $0.processIdentifier == pid })
@@ -98,7 +101,7 @@ class TopStore: ObservableObject {
 
         // MARK: Parsing command for CPU top processes
 
-        parseTerminalCommand(taskType: .cpu, commandString: "top -l 0 -u -n 5 -stats pid,cpu,command -s \(refreshRate)") { separatorIndex, rows, titleRow in
+        parseTerminalCommand(taskType: .cpu, commandString: "top -l 0 -u -n 5 -stats pid,cpu,command -s \(refreshRate) 2>/dev/null") { separatorIndex, rows, titleRow in
             if titleRow.contains("pid"), titleRow.contains("cpu"), titleRow.contains("command") {
                 let runningApps = NSWorkspace.shared.runningApplications
                 let result: [ProcessCpuUsage] = ((separatorIndex + 2)..<rows.count).compactMap { index in
@@ -106,9 +109,11 @@ class TopStore: ObservableObject {
                     guard row.count >= 3, let pid = Int(row[0]), let cpu = Double(row[1]), cpu >= 0.1 else {
                         return nil
                     }
+                    // Use command name from top output directly — avoids spawning a ps(1)
+                    // subprocess per process on every refresh cycle.
                     return ProcessCpuUsage(
                         pid: pid,
-                        command: Info.getProcessCommand(pid: pid) ?? row[2],
+                        command: row[2],
                         value: cpu,
                         runningApp: runningApps.first(where: { $0.processIdentifier == pid })
                     )

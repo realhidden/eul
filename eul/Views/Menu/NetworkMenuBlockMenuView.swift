@@ -32,9 +32,9 @@ struct NetworkMenuBlockMenuView: View {
                     ForEach(networkTopStore.processes.prefix(3)) { process in
                         ProcessRowView(section: "network", process: process, nameWidth: 140) { AnyView(
                             HStack(spacing: 4) {
-                                Text(ByteUnit(process.value.outSpeedInByte).readable)
+                                Text(ByteUnit(process.value.outTotalByte).readable)
                                     .displayText()
-                                Text(ByteUnit(process.value.inSpeedInByte).readable)
+                                Text(ByteUnit(process.value.inTotalByte).readable)
                                     .displayText()
                             }
                             .frame(width: 90, alignment: .trailing)

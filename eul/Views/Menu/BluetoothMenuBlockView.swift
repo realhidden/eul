@@ -6,7 +6,6 @@
 //  Copyright © 2021 Gao Sun. All rights reserved.
 //
 
-import CoreBluetooth
 import SwiftUI
 
 struct BluetoothRowView: View {
@@ -20,21 +19,19 @@ struct BluetoothRowView: View {
                 .frame(width: nameWidth, alignment: .leading)
                 .lineLimit(1)
             Spacer()
-            if let plistDevice = device.plistDevice, device.hasPlistBattery {
-                if let batteryPercent = plistDevice.BatteryPercent {
-                    MenuInfoView(text: "\(Int(batteryPercent * 100))%")
+            if device.hasBattery {
+                if let percent = device.batteryPercent {
+                    MenuInfoView(text: "\(percent)%")
                 }
-                if let batteryPercent = plistDevice.BatteryPercentLeft {
-                    MenuInfoView(label: "L", text: "\(batteryPercent)%")
+                if let percent = device.batteryPercentLeft {
+                    MenuInfoView(label: "L", text: "\(percent)%")
                 }
-                if let batteryPercent = plistDevice.BatteryPercentRight {
-                    MenuInfoView(label: "R", text: "\(batteryPercent)%")
+                if let percent = device.batteryPercentRight {
+                    MenuInfoView(label: "R", text: "\(percent)%")
                 }
-                if let batteryPercent = plistDevice.BatteryPercentCase {
-                    MenuInfoView(label: "C", text: "\(batteryPercent)%")
+                if let percent = device.batteryPercentCase {
+                    MenuInfoView(label: "C", text: "\(percent)%")
                 }
-            } else if let batteryLevel = device.batteryLevel {
-                MenuInfoView(text: "\(batteryLevel)%")
             }
         }
     }

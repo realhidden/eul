@@ -197,7 +197,7 @@ public struct SMCParamStruct {
 
     public struct SMCKeyInfoData {
         /// How many bytes written to SMCParamStruct.bytes
-        var dataSize: IOByteCount = 0
+        var dataSize: UInt32 = 0
 
         /// Type of data written to SMCParamStruct.bytes. This lets us know how
         /// to interpret it (translate it to human readable)
@@ -304,7 +304,13 @@ public enum SMCKit {
     /// Open connection to the SMC driver. This must be done first before any
     /// other calls
     public static func open() throws {
-        let service = IOServiceGetMatchingService(kIOMasterPortDefault,
+        let mainPort: mach_port_t
+        if #available(macOS 12.0, *) {
+            mainPort = kIOMainPortDefault
+        } else {
+            mainPort = kIOMasterPortDefault
+        }
+        let service = IOServiceGetMatchingService(mainPort,
                                                   IOServiceMatching("AppleSMC"))
 
         if service == 0 { throw SMCError.driverNotFound }
@@ -355,7 +361,7 @@ public enum SMCKit {
         var inputStruct = SMCParamStruct()
 
         inputStruct.key = key.code
-        inputStruct.keyInfo.dataSize = IOByteCount(UInt32(key.info.size))
+        inputStruct.keyInfo.dataSize = key.info.size
         inputStruct.data8 = SMCParamStruct.Selector.kSMCReadKey.rawValue
 
         let outputStruct = try callDriver(&inputStruct)
@@ -369,7 +375,7 @@ public enum SMCKit {
 
         inputStruct.key = key.code
         inputStruct.bytes = data
-        inputStruct.keyInfo.dataSize = IOByteCount(UInt32(key.info.size))
+        inputStruct.keyInfo.dataSize = key.info.size
         inputStruct.data8 = SMCParamStruct.Selector.kSMCWriteKey.rawValue
 
         _ = try callDriver(&inputStruct)
@@ -593,9 +599,17 @@ public extension SMCKit {
     static func temperature(_ sensorCode: FourCharCode,
                             unit: TemperatureUnit = .celius) throws -> Double
     {
-        let data = try readData(SMCKey(code: sensorCode, info: DataTypes.SP78))
-
-        let temperatureInCelius = Double(fromSP78: (data.0, data.1))
+        let temperatureInCelius: Double
+        do {
+            let data = try readData(SMCKey(code: sensorCode, info: DataTypes.SP78))
+            temperatureInCelius = Double(fromSP78: (data.0, data.1))
+        } catch SMCError.unknown(kIOReturn: 0, SMCResult: 135) {
+            let data = try readData(SMCKey(code: sensorCode, info: DataTypes.FLT))
+            let byteArray: [UInt8] = [data.0, data.1, data.2, data.3]
+            var floatValue: Float = 0.0
+            memcpy(&floatValue, byteArray, 4)
+            temperatureInCelius = Double(floatValue)
+        }
 
         switch unit {
         case .celius:

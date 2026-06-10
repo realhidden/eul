@@ -41,19 +41,13 @@ enum AutoUpdate {
                                 NSRunningApplication.current.processIdentifier.description,
                             ]
 
-                            let options = NSWorkspace.OpenConfiguration()
-                            options.arguments = arguments
-
                             Print("trying to run self update with arguments", tempSelfUpdateUrl, arguments)
-                            do {
-                                try NSWorkspace.shared.open(
-                                    tempSelfUpdateUrl,
-                                    options: .default,
-                                    configuration: [.arguments: arguments]
-                                )
-                            } catch {
-                                print("error when opening self update", error)
-                                return
+                            let configuration = NSWorkspace.OpenConfiguration()
+                            configuration.arguments = arguments
+                            NSWorkspace.shared.openApplication(at: tempSelfUpdateUrl, configuration: configuration) { _, error in
+                                if let error = error {
+                                    print("error when opening self update", error)
+                                }
                             }
 
                             Print("started self update app")

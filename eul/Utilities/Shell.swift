@@ -63,6 +63,8 @@ func shellAsync(_ args: String..., onFinish: @escaping (String?) -> Void) {
     }
 }
 
+private let shellPipeQueue = DispatchQueue(label: "eul.shellPipe", qos: .utility, attributes: .concurrent)
+
 @discardableResult
 func shellPipe(_ args: String..., onData: ((String) -> Void)? = nil, didTerminate: (() -> Void)? = nil) -> Process {
     let task = Process()
@@ -80,6 +82,8 @@ func shellPipe(_ args: String..., onData: ((String) -> Void)? = nil, didTerminat
 
     var buffer = Data()
     let outHandle = pipe.fileHandleForReading
+    // Use readabilityHandler only — combining it with waitForDataInBackgroundAndNotify
+    // creates a duplicate read mechanism that causes CPU spinning on macOS 12+.
     outHandle.readabilityHandler = { _ in
         let data = outHandle.availableData
 
@@ -91,19 +95,18 @@ func shellPipe(_ args: String..., onData: ((String) -> Void)? = nil, didTerminat
                 buffer.removeAll()
                 onData?(str)
             }
-            outHandle.waitForDataInBackgroundAndNotify()
         } else {
             buffer.removeAll()
         }
     }
-    outHandle.waitForDataInBackgroundAndNotify()
 
     task.terminationHandler = { _ in
+        outHandle.readabilityHandler = nil
         try? outHandle.close()
         didTerminate?()
     }
 
-    DispatchQueue(label: "shellPipe-\(UUID().uuidString)", qos: .background, attributes: .concurrent).async {
+    shellPipeQueue.async {
         Print("good to launch")
         do {
             try task.run()

@@ -14,9 +14,15 @@ class NetworkTopStore: ObservableObject {
     struct NetworkSpeed: CustomStringConvertible {
         var inSpeedInByte: Double = 0
         var outSpeedInByte: Double = 0
+        var inTotalByte: Double = 0
+        var outTotalByte: Double = 0
 
         var totalSpeedInByte: Double {
             inSpeedInByte + outSpeedInByte
+        }
+
+        var totalByte: Double {
+            inTotalByte + outTotalByte
         }
 
         var description: String {
@@ -52,7 +58,7 @@ class NetworkTopStore: ObservableObject {
     }
 
     private func run() {
-        guard let string = shell("nettop -L 1 -P -x -J bytes_in,bytes_out") else {
+        guard let string = shell("nettop -L 1 -P -x -J bytes_in,bytes_out 2>/dev/null") else {
             print("unable to fetch network activity, please make sure nettop is available")
             return
         }
@@ -76,7 +82,7 @@ class NetworkTopStore: ObservableObject {
         lastTimestamp = time
 
         Print("network top is updating")
-        processes = rows.dropFirst().compactMap { row in
+        let updated = rows.dropFirst().compactMap { row -> ProcessNetworkUsage? in
             let cols = row.split(separator: ",").map { String($0) }
 
             guard
@@ -99,33 +105,37 @@ class NetworkTopStore: ObservableObject {
                 return nil
             }
 
+            let totalBytes = inBytes + outBytes
+
+            guard totalBytes > 0 else {
+                return nil
+            }
+
             let lastIn = lastInBytes[pid]
             let lastOut = lastOutBytes[pid]
 
             lastInBytes[pid] = inBytes
             lastOutBytes[pid] = outBytes
 
-            if lastIn == nil, lastOut == nil {
-                return nil
-            }
-
             let speed = NetworkSpeed(
                 inSpeedInByte: lastIn.map { $0 > inBytes ? 0 : (inBytes - $0) / timeElapsed } ?? 0,
-                outSpeedInByte: lastOut.map { $0 > outBytes ? 0 : (outBytes - $0) / timeElapsed } ?? 0
+                outSpeedInByte: lastOut.map { $0 > outBytes ? 0 : (outBytes - $0) / timeElapsed } ?? 0,
+                inTotalByte: inBytes,
+                outTotalByte: outBytes
             )
-
-            guard speed.totalSpeedInByte >= 100 else {
-                return nil
-            }
 
             return ProcessNetworkUsage(
                 pid: pid,
-                command: Info.getProcessCommand(pid: pid) ?? splitted[0],
+                command: splitted[0],
                 value: speed,
                 runningApp: runningApps.first(where: { $0.processIdentifier == pid })
             )
         }
-        .sorted(by: { $0.value.totalSpeedInByte > $1.value.totalSpeedInByte })
+        .sorted(by: { $0.value.totalByte > $1.value.totalByte })
+
+        DispatchQueue.main.async {
+            self.processes = updated
+        }
     }
 
     func update(shouldStart: Bool) {
@@ -145,8 +155,11 @@ class NetworkTopStore: ObservableObject {
         lastTimestamp = Date().timeIntervalSince1970
         processes = []
 
-        let timer = Timer.scheduledTimer(withTimeInterval: Double(interval), repeats: true) { _ in
-            self.run()
+        let timer = Timer.scheduledTimer(withTimeInterval: Double(interval), repeats: true) { [weak self] _ in
+            // Run on a background thread — shell("nettop ...") is blocking
+            DispatchQueue.global(qos: .utility).async {
+                self?.run()
+            }
         }
         RunLoop.main.add(timer, forMode: .common)
         self.timer = timer
