@@ -222,3 +222,5 @@
 "widget.battery.description" = "Display battery information";
 "widget.network.title" = "Network Widget";
 "widget.network.description" = "Display network information";
+
+"cpu.cores" = "CPU Cores";

@@ -53,6 +53,33 @@ struct CpuMenuBlockView: View {
                     }
                 }
             }
+            if !cpuStore.coreUsages.isEmpty {
+                SeparatorView()
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("cpu.cores".localized())
+                        .secondaryDisplayText()
+                    ForEach(Array(cpuStore.coreUsages.enumerated()), id: \.offset) { index, usage in
+                        HStack(spacing: 8) {
+                            Text(cpuStore.coreLabels.indices.contains(index) ? cpuStore.coreLabels[index] : "C\(index)")
+                                .secondaryDisplayText()
+                                .frame(width: 24, alignment: .leading)
+                            GeometryReader { geometry in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(Color.secondary.opacity(0.2))
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(Color.accentColor)
+                                        .frame(width: geometry.size.width * CGFloat(min(usage, 100) / 100))
+                                }
+                            }
+                            .frame(height: 6)
+                            Text(String(format: "%.0f%%", usage))
+                                .displayText()
+                                .frame(width: 36, alignment: .trailing)
+                        }
+                    }
+                }
+            }
             if preferenceStore.showCPUTopActivities {
                 SeparatorView()
                 VStack(spacing: 8) {

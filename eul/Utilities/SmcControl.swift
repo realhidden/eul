@@ -16,20 +16,35 @@ class SmcControl: Refreshable {
     var sensors: [TemperatureData] = []
     var fans: [FanData] = []
     var tempUnit: TemperatureUnit = .celius
+    /// SMC die/proximity keys exist on Intel only; on Apple Silicon the same
+    /// readings come from IOHID PMU sensors (AppleSiliconSensors.shared is nil
+    /// on Intel, so each getter falls through to nil there as before).
     var cpuDieTemperature: Double? {
-        sensors.first(where: { $0.sensor.name == "CPU_0_DIE" })?.temp
+        if let temp = sensors.first(where: { $0.sensor.name == "CPU_0_DIE" })?.temp, temp > 0 {
+            return temp
+        }
+        return AppleSiliconSensors.shared?.cpuTemperature
     }
 
     var cpuProximityTemperature: Double? {
-        sensors.first(where: { $0.sensor.name == "CPU_0_PROXIMITY" })?.temp
+        if let temp = sensors.first(where: { $0.sensor.name == "CPU_0_PROXIMITY" })?.temp, temp > 0 {
+            return temp
+        }
+        return AppleSiliconSensors.shared?.cpuTemperature
     }
 
     var gpuProximityTemperature: Double? {
-        sensors.first(where: { $0.sensor.name == "GPU_0_PROXIMITY" })?.temp
+        if let temp = sensors.first(where: { $0.sensor.name == "GPU_0_PROXIMITY" })?.temp, temp > 0 {
+            return temp
+        }
+        return AppleSiliconSensors.shared?.gpuTemperature
     }
 
     var memoryProximityTemperature: Double? {
-        sensors.first(where: { $0.sensor.name == "MEM_SLOTS_PROXIMITY" })?.temp
+        if let temp = sensors.first(where: { $0.sensor.name == "MEM_SLOTS_PROXIMITY" })?.temp, temp > 0 {
+            return temp
+        }
+        return AppleSiliconSensors.shared?.socTemperature
     }
 
     var isFanValid: Bool {
@@ -41,6 +56,11 @@ class SmcControl: Refreshable {
     }
 
     init() {
+        #if arch(arm64)
+            AppleSiliconSensors.initialize()
+        #endif
+        // Keep the SMC path on both architectures: Apple Silicon has no
+        // CPU/GPU temperature keys but still exposes fans through SMC.
         do {
             try SMCKit.open()
             sensors = try SMCKit.allKnownTemperatureSensors().map { .init(sensor: $0) }

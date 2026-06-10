@@ -21,6 +21,12 @@ class GpuStore: ObservableObject, Refreshable {
     @Published var usageHistory: [Double] = []
 
     var usageAverage: Double? {
+        #if arch(arm64)
+            // single shared-die GPU; statistics carry no PCI ID to match against
+            if let stat = gpuStatistics.first {
+                return Double(stat.usagePercentage)
+            }
+        #endif
         let stats = gpus.compactMap { getStatustic(for: $0) }
         guard stats.count > 0 else {
             return nil
@@ -36,6 +42,14 @@ class GpuStore: ObservableObject, Refreshable {
     }
 
     var temperatureAverage: Double? {
+        #if arch(arm64)
+            if let temp = gpuStatistics.first?.temperature {
+                return temp
+            }
+            if let temp = AppleSiliconSensors.shared?.gpuTemperature {
+                return temp
+            }
+        #endif
         let temps = gpus.compactMap { getStatustic(for: $0)?.temperature }
         guard temps.count > 0 else {
             return nil
@@ -44,7 +58,12 @@ class GpuStore: ObservableObject, Refreshable {
     }
 
     func getStatustic(for gpu: GPU) -> GPU.Statistic? {
-        gpuStatistics.first {
+        #if arch(arm64)
+            if gpu.deviceId.hasPrefix("apple-silicon-") {
+                return gpuStatistics.first
+            }
+        #endif
+        return gpuStatistics.first {
             $0.pciMatch.lowercased().contains(gpu.deviceId.deletingPrefix("0x"))
         }
     }
