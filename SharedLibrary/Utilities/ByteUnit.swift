@@ -8,7 +8,7 @@
 
 import Foundation
 
-// edited from https://gist.github.com/fethica/52ef6d842604e416ccd57780c6dd28e6
+/// edited from https://gist.github.com/fethica/52ef6d842604e416ccd57780c6dd28e6
 public struct ByteUnit {
     public let bytes: UInt64
     public let kilo: UInt64

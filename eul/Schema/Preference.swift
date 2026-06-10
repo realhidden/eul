@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct Preference {
+enum Preference {
     enum TextDisplay: String, StringEnum {
         case compact
         case singleLine

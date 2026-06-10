@@ -16,8 +16,13 @@ struct BluetoothDevice: Identifiable {
     let batteryLevelRight: String?
     let batteryLevelCase: String?
 
-    var id: String { address }
-    var displayName: String { name }
+    var id: String {
+        address
+    }
+
+    var displayName: String {
+        name
+    }
 
     var hasBattery: Bool {
         batteryLevel != nil

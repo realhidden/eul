@@ -47,8 +47,8 @@ extension GPU {
         }
     }
 
-    // https://stackoverflow.com/questions/10110658/programmatically-get-gpu-percent-usage-in-os-x/22440235#22440235
-    // https://github.com/exelban/stats/blob/master/Modules/GPU/reader.swift
+    /// https://stackoverflow.com/questions/10110658/programmatically-get-gpu-percent-usage-in-os-x/22440235#22440235
+    /// https://github.com/exelban/stats/blob/master/Modules/GPU/reader.swift
     static func getInfo() -> [Statistic]? {
         guard let propertyList = IOHelper.getPropertyList(for: kIOAcceleratorClassName) else {
             return nil

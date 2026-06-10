@@ -24,11 +24,6 @@ jobs:
       - name: Install xcbeautify
         run: brew install xcbeautify
       - name: SwiftFormat (lint)
-        # Non-blocking during the 2026 revival: SwiftFormat was bumped 0.48.4 -> 0.55+ so it
-        # builds on the modern toolchain, and the stale 2022 codebase shows formatting deltas
-        # against the newer rules. Re-normalize formatting in a follow-up, then remove
-        # continue-on-error to re-enforce the lint gate.
-        continue-on-error: true
         run: swift run -c release swiftformat .. --lint
         working-directory: ./BuildTools
       - name: Build

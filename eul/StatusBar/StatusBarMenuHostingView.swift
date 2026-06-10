@@ -9,7 +9,7 @@
 import SwiftUI
 
 class StatusBarMenuHostingView<Content: View>: NSHostingView<Content> {
-    // https://stackoverflow.com/a/2437435/12514940
+    /// https://stackoverflow.com/a/2437435/12514940
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         window?.becomeKey()

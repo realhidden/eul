@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Dict<Key, Value> where Key: Hashable {
+struct Dict<Key: Hashable, Value> {
     let buildDefault: (Key) -> Value
     var dict = [Key: Value]()
 

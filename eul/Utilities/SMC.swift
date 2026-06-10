@@ -105,8 +105,8 @@ extension Double {
     }
 }
 
-// Thanks to Airspeed Velocity for the great idea!
-// http://airspeedvelocity.net/2015/05/22/my-talk-at-swift-summit/
+/// Thanks to Airspeed Velocity for the great idea!
+/// http://airspeedvelocity.net/2015/05/22/my-talk-at-swift-summit/
 public extension FourCharCode {
     init(fromString str: String) {
         precondition(str.count == 4)
@@ -475,7 +475,7 @@ public enum TemperatureSensors {
                                                         code: FourCharCode(fromStaticString: "TA0P"))
     public static let AMBIENT_AIR_1 = TemperatureSensor(name: "AMBIENT_AIR_1",
                                                         code: FourCharCode(fromStaticString: "TA1P"))
-    // Via powermetrics(1)
+    /// Via powermetrics(1)
     public static let CPU_0_DIE = TemperatureSensor(name: "CPU_0_DIE",
                                                     code: FourCharCode(fromStaticString: "TC0F"))
     public static let CPU_0_DIODE = TemperatureSensor(name: "CPU_0_DIODE",
@@ -642,7 +642,7 @@ public extension SMCKit {
         var fans = [Fan]()
 
         for i in 0..<count {
-            fans.append(try SMCKit.fan(i))
+            try fans.append(SMCKit.fan(i))
         }
 
         return fans

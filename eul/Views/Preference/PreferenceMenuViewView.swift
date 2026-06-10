@@ -142,8 +142,7 @@ extension Preference {
                                     }
                                     .onEnded { _ in
                                         self.dragging = nil
-                                    }
-                                )
+                                    })
                                 .background(GeometryReader { geometry in
                                     self.updateFrame(geometry: geometry, index: offset)
                                 })
