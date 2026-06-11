@@ -15,7 +15,7 @@ extension Notification.Name {
 }
 
 /// Shared plumbing for eul's two status items. Only ONE is ever visible —
-/// the strip (slots + eyes) in normal operation, the eyes-only anchor at the
+/// the slots strip in normal operation, the eyes-only anchor at the
 /// collapse floor — so eul always reads as a single entry point (user
 /// feedback: two simultaneous icons were perceived as two apps / a bug).
 class BaseStatusItem: NSObject {
@@ -187,8 +187,8 @@ class AnchorStatusItem: BaseStatusItem {
     }
 }
 
-/// The primary item: pinned slots + the eyes glyph as one unit, collapsing
-/// slot-by-slot under width pressure before swapping to the anchor floor.
+/// The primary item: the pinned slots as one unit, collapsing slot-by-slot
+/// under width pressure before swapping to the eyes-only anchor floor.
 /// Keeps the legacy "eul" autosaveName so existing users' saved position
 /// survives the upgrade.
 class StripStatusItem: BaseStatusItem {

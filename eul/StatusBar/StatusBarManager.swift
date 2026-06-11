@@ -11,8 +11,8 @@ import SwiftUI
 import UserNotifications
 
 /// Orchestrates the bar and runs the width governor (design §2.2–2.3).
-/// Exactly ONE item is visible at a time — the strip (slots + eyes) normally,
-/// the eyes-only anchor at the floor — so eul reads as a single entry point.
+/// Exactly ONE item is visible at a time — the slots strip normally, the
+/// eyes-only anchor at the floor — so eul reads as a single entry point.
 /// Under width pressure the strip drops slots by priority (last pinned drops
 /// first), then swaps for the anchor; if macOS hides even that, the recovery
 /// flow fires (§2.5).
@@ -236,7 +236,7 @@ class StatusBarManager {
         min(slotLimit, componentsStore.activeComponents.count)
     }
 
-    /// strip mode = anything to show beyond the eyes; otherwise the floor
+    /// strip mode = any slot to show; otherwise the eyes-only floor
     private var wantsStrip: Bool {
         (componentsStore.showComponents && visibleSlotCount > 0)
             // an active fan override keeps the strip alive — the auto-pinned

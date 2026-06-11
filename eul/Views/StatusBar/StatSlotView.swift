@@ -132,16 +132,16 @@ struct NetworkSlot: View {
 }
 
 /// The strip's whole content: the user's pinned monitors in priority order,
-/// truncated to what the width governor currently allows (design §2.2 D/C),
-/// with the eyes glyph at the trailing (clock-side) end — slots and identity
-/// are ONE menu bar item, one entry point (user feedback: two icons read as
-/// two separate apps). The standalone anchor item appears only when this
-/// strip is hidden. While a manual fan override is active a FAN slot
+/// truncated to what the width governor currently allows (design §2.2 D/C).
+/// Slots only — no eyes glyph next to the metrics (user feedback: it read as
+/// noise and its health state was mistaken for fan state; health cues live
+/// in the slot values themselves). The eyes appear exactly where they are
+/// load-bearing: the anchor floor when the strip has nothing to show, and
+/// the panel header. While a manual fan override is active a FAN slot
 /// auto-pins ahead of the governed slots, exempt from collapse (§2.7).
 struct StripView: View, SizeChangeView {
     @EnvironmentObject var componentsStore: ComponentsStore<EulComponent>
     @EnvironmentObject var fanControl: FanControlStore
-    @EnvironmentObject var healthStore: HealthStore
 
     var onSizeChange: ((CGSize) -> Void)?
     let slotLimit: Int
@@ -162,7 +162,6 @@ struct StripView: View, SizeChangeView {
             ForEach(slots) {
                 StatSlotView(component: $0)
             }
-            EyesGlyph(state: healthStore.glyphState, width: AnchorStatusItem.glyphWidth)
         }
         .frame(height: AppDelegate.statusBarHeight)
         .fixedSize()
