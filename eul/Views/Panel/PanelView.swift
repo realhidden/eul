@@ -139,20 +139,34 @@ struct PanelView: View, SizeChangeView {
                 }
             }
             Spacer()
-            Menu {
-                Button("menu.preferences".localized()) {
+            // both actions one click away, no submenu; quit is immediate —
+            // the helper's revert machinery makes quitting always safe
+            HStack(spacing: 6) {
+                Button(action: {
                     AppDelegate.openPreferences()
+                }) {
+                    Text("menu.preferences".localized())
+                        .font(.system(size: 10.5, weight: .medium))
+                        .foregroundColor(secondary)
                 }
-                Divider()
-                Button("menu.quit".localized()) {
+                .buttonStyle(PlainButtonStyle())
+                .padding(.horizontal, 9)
+                .padding(.vertical, 4)
+                .background(Color.primary.opacity(0.08))
+                .cornerRadius(6)
+                Button(action: {
                     AppDelegate.quit()
+                }) {
+                    Text("menu.quit".localized())
+                        .font(.system(size: 10.5, weight: .medium))
+                        .foregroundColor(DesignTokens.Health.critical)
                 }
-            } label: {
-                Text("···")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(secondary)
+                .buttonStyle(PlainButtonStyle())
+                .padding(.horizontal, 9)
+                .padding(.vertical, 4)
+                .background(DesignTokens.Health.critical.opacity(0.12))
+                .cornerRadius(6)
             }
-            .menuStyle(BorderlessButtonMenuStyle())
             .fixedSize()
         }
         .padding(EdgeInsets(top: 2, leading: 4, bottom: 12, trailing: 4))

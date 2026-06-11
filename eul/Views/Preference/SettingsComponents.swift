@@ -59,6 +59,7 @@ enum Settings {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.system(size: 12.5))
+                        .fixedSize(horizontal: false, vertical: true)
                     if let caption = caption {
                         Text(caption)
                             .font(.system(size: 10.5))
@@ -67,9 +68,14 @@ enum Settings {
                     }
                 }
                 Spacer(minLength: 12)
+                // the control always gets its natural width — when space is
+                // tight the TITLE wraps, never the control ("10s" rendering
+                // as a vertical column of glyphs is a bug, a two-line title
+                // is not)
                 trailing()
+                    .fixedSize()
             }
-            .padding(.vertical, 3)
+            .padding(.vertical, 5)
         }
     }
 
@@ -99,6 +105,7 @@ enum Settings {
                 ForEach(options, id: \.self) { option in
                     Text(label(option))
                         .font(.system(size: 10, weight: .semibold))
+                        .lineLimit(1)
                         .padding(.horizontal, 9)
                         .padding(.vertical, 3)
                         .background(selection == option ? Color.primary.opacity(0.15) : Color.clear)

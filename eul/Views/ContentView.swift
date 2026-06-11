@@ -70,7 +70,7 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
         }
-        .frame(width: 580, height: 520)
+        .frame(width: 640, height: 560)
         .id(preferenceStore.language)
         .preferredColorScheme()
     }

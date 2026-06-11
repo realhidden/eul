@@ -33,14 +33,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         // resizable/zoomable; the transparent titlebar keeps the rail design
         // while the title still draws
         window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 580, height: 520),
+            contentRect: NSRect(x: 0, y: 0, width: 640, height: 560),
             styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
             backing: .buffered, defer: false
         )
         window.center()
         window.setFrameAutosaveName("Eul Preferences")
         // the settings content is fixed-size; override a stale autosaved frame
-        window.setContentSize(NSSize(width: 580, height: 520))
+        window.setContentSize(NSSize(width: 640, height: 560))
         window.contentView = NSHostingView(rootView: contentView.withGlobalEnvironmentObjects())
         window.isReleasedWhenClosed = false
         window.title = "settings.title".localized()
