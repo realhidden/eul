@@ -27,7 +27,6 @@ class StatusBarManager {
     let strip = StripStatusItem()
 
     private var cancellables = Set<AnyCancellable>()
-    private var occlusionObserver: NSObjectProtocol?
     private var governorTimer: Timer?
     private var reprobeTimer: Timer?
     private var hasNotifiedHiddenEpisode = false
@@ -163,21 +162,37 @@ class StatusBarManager {
             self?.sessionBecameActive()
         }
 
-        // observe all windows and filter — button windows are recreated by
-        // visibility toggles, so observing specific instances would go blind
-        occlusionObserver = NotificationCenter.default.addObserver(
-            forName: NSWindow.didChangeOcclusionStateNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            guard
-                let self = self,
-                let window = notification.object as? NSWindow,
-                window === self.anchor.item.button?.window || window === self.strip.item.button?.window
-            else {
+        // space changes alter what fits (fullscreen spaces, displays joining)
+        // — give the full strip a fresh probe instead of waiting for the
+        // 5-minute reprobe
+        workspace.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            guard let self = self, self.slotLimit < self.componentsStore.activeComponents.count else {
                 return
             }
+            self.slotLimit = Int.max
+            self.renderBar()
             self.checkVisibilityIfNeeded()
+        }
+
+        // observe all windows and filter — button windows are recreated by
+        // visibility toggles, so observing specific instances would go blind.
+        // didMove is the primary signal (parking/placing an item moves its
+        // window); occlusion changes are kept as a secondary nudge.
+        for name in [NSWindow.didMoveNotification, NSWindow.didChangeOcclusionStateNotification] {
+            NotificationCenter.default.addObserver(
+                forName: name,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                guard
+                    let self = self,
+                    let window = notification.object as? NSWindow,
+                    window === self.anchor.item.button?.window || window === self.strip.item.button?.window
+                else {
+                    return
+                }
+                self.checkVisibilityIfNeeded()
+            }
         }
 
         renderBar()

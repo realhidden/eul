@@ -33,9 +33,23 @@ class BaseStatusItem: NSObject {
     }
 
     /// True when the item exists but the system is not drawing it — hidden
-    /// for lack of menu bar space (overflow/notch) while isVisible stays true
+    /// for lack of menu bar space (overflow/notch) while isVisible stays
+    /// true. occlusionState is NOT trustworthy for status windows (observed
+    /// on notched macOS 15: not-visible for items that are plainly in the
+    /// bar, visible for items parked offscreen) — the window frame is the
+    /// reliable signal. macOS parks an unplaceable item just below the
+    /// screen origin at (0, -height); a placed item sits flush with a
+    /// screen's top edge.
     var isOccluded: Bool {
-        item.button?.window?.occlusionState.contains(.visible) == false
+        guard item.isVisible, let window = item.button?.window else {
+            return false
+        }
+        let frame = window.frame
+        return !NSScreen.screens.contains { screen in
+            abs(frame.maxY - screen.frame.maxY) < 1
+                && frame.minX >= screen.frame.minX - 1
+                && frame.maxX <= screen.frame.maxX + 1
+        }
     }
 
     var isVisible: Bool {
