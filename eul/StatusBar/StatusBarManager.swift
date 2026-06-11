@@ -34,6 +34,17 @@ class StatusBarManager {
     /// governor's current cap on visible slots; reset whenever the user
     /// reconfigures the pinned set or the screen layout changes
     private var slotLimit = Int.max
+    /// Lock screen, display sleep, and system sleep mark EVERY status-item
+    /// window occluded. Without this gate the 3 s confirm windows fire across
+    /// those periods (queued notifications + stale timers run at wake while
+    /// the lock screen is still up) and shred the strip to the floor in
+    /// seconds — while recovery crawls back one slot per reprobe. Verdicts
+    /// from a screen nobody can see are void.
+    private var sessionInactive = false
+    /// occlusion readings are unreliable right after launch, wake/unlock,
+    /// and visibility transitions (a re-shown item can take a while to be
+    /// placed); no verdict is allowed inside the grace window
+    private var graceUntil = Date.distantPast
 
     /// whichever item currently carries eul in the bar
     private var entryItem: BaseStatusItem {
@@ -53,10 +64,28 @@ class StatusBarManager {
     }
 
     init() {
+        graceUntil = Date().addingTimeInterval(15)
         // w/o the delay items will have a chance of not appearing
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.subscribe()
         }
+    }
+
+    /// Wake/unlock: void any pressure verdicts reached against a dead screen
+    /// and give the full strip a fresh chance — if the bar is genuinely
+    /// tight, the governor will re-collapse it, correctly this time
+    private func sessionBecameActive() {
+        sessionInactive = false
+        graceUntil = max(graceUntil, Date().addingTimeInterval(15))
+        slotLimit = Int.max
+        renderBar()
+        checkVisibilityIfNeeded()
+    }
+
+    /// no occlusion verdict while the session is dark or inside a grace
+    /// window — readings there are artifacts, not width pressure
+    private var occlusionVerdictAllowed: Bool {
+        !sessionInactive && Date() >= graceUntil
     }
 
     private func subscribe() {
@@ -112,6 +141,27 @@ class StatusBarManager {
                 }
             }
             .store(in: &cancellables)
+
+        let workspace = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.willSleepNotification, NSWorkspace.screensDidSleepNotification] {
+            workspace.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                self?.sessionInactive = true
+            }
+        }
+        for name in [NSWorkspace.didWakeNotification, NSWorkspace.screensDidWakeNotification] {
+            workspace.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                self?.sessionBecameActive()
+            }
+        }
+        // lock/unlock has no NSWorkspace equivalent; these names are
+        // long-stable public-by-convention distributed notifications
+        let distributed = DistributedNotificationCenter.default()
+        distributed.addObserver(forName: Notification.Name("com.apple.screenIsLocked"), object: nil, queue: .main) { [weak self] _ in
+            self?.sessionInactive = true
+        }
+        distributed.addObserver(forName: Notification.Name("com.apple.screenIsUnlocked"), object: nil, queue: .main) { [weak self] _ in
+            self?.sessionBecameActive()
+        }
 
         // observe all windows and filter — button windows are recreated by
         // visibility toggles, so observing specific instances would go blind
@@ -185,6 +235,7 @@ class StatusBarManager {
             if !strip.isVisible {
                 strip.adoptPosition(from: anchor)
                 strip.setVisible(true)
+                noteVisibilityTransition()
             }
             if anchor.isVisible {
                 anchor.setVisible(false)
@@ -193,6 +244,7 @@ class StatusBarManager {
             if !anchor.isVisible {
                 anchor.adoptPosition(from: strip)
                 anchor.setVisible(true)
+                noteVisibilityTransition()
             }
             if strip.isVisible {
                 strip.setVisible(false)
@@ -200,7 +252,28 @@ class StatusBarManager {
         }
     }
 
+    /// a just-(re)shown item can report occluded until macOS actually places
+    /// it; acting on that reading would cascade drops the bar never asked for
+    private func noteVisibilityTransition() {
+        graceUntil = max(graceUntil, Date().addingTimeInterval(10))
+    }
+
     private func runGovernor() {
+        guard !sessionInactive else {
+            // the unlock/wake handler re-kicks the governor
+            return
+        }
+        guard occlusionVerdictAllowed else {
+            // inside a grace window — re-check once it has passed
+            governorTimer?.invalidate()
+            governorTimer = Timer.scheduledTimer(
+                withTimeInterval: max(graceUntil.timeIntervalSinceNow, 1.5),
+                repeats: false
+            ) { [weak self] _ in
+                self?.runGovernor()
+            }
+            return
+        }
         guard !isMenuBarLikelyHidden else {
             Print("menu bar is hidden (fullscreen/auto-hide), skipping governor")
             return
@@ -211,7 +284,7 @@ class StatusBarManager {
             // switches all false-positive occlusion briefly
             confirm(after: 3) { [weak self] in
                 guard
-                    let self = self, !self.isMenuBarLikelyHidden,
+                    let self = self, self.occlusionVerdictAllowed, !self.isMenuBarLikelyHidden,
                     self.strip.isVisible, self.strip.isOccluded
                 else {
                     return
@@ -228,7 +301,7 @@ class StatusBarManager {
             // reachable via relaunch/hotkey.
             confirm(after: 10) { [weak self] in
                 guard
-                    let self = self, !self.isMenuBarLikelyHidden,
+                    let self = self, self.occlusionVerdictAllowed, !self.isMenuBarLikelyHidden,
                     self.anchor.isVisible, self.anchor.isOccluded
                 else {
                     return
@@ -256,7 +329,7 @@ class StatusBarManager {
         guard visibleSlotCount > 0 else {
             confirm(after: 10) { [weak self] in
                 guard
-                    let self = self, !self.isMenuBarLikelyHidden,
+                    let self = self, self.occlusionVerdictAllowed, !self.isMenuBarLikelyHidden,
                     self.strip.isVisible, self.strip.isOccluded
                 else {
                     return
@@ -278,6 +351,7 @@ class StatusBarManager {
                 // the mode may have flipped between the hide and this re-show
                 if wantsStrip {
                     strip.setVisible(true)
+                    noteVisibilityTransition()
                 } else {
                     renderBar()
                 }

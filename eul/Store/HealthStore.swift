@@ -428,7 +428,8 @@ class HealthStore: ObservableObject, Refreshable {
             networkHistory: Self.downsample(networkHistory),
             cpuCurrent: SharedStore.cpu.usageString,
             memoryCurrent: memoryReady ? SharedStore.memory.usedPercentageString : "N/A",
-            networkCurrentInByte: SharedStore.network.inSpeedInByte
+            networkCurrentInByte: SharedStore.network.inSpeedInByte,
+            ratesInBits: SharedStore.preference.networkRateInBits
         ))
         WidgetReloader.requestReload(ofKind: TrendsEntry.kind)
     }

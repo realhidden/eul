@@ -30,12 +30,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationDidFinishLaunching(_: Notification) {
         let contentView = ContentView()
         window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            contentRect: NSRect(x: 0, y: 0, width: 580, height: 520),
+            styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered, defer: false
         )
         window.center()
         window.setFrameAutosaveName("Eul Preferences")
+        // the settings content is fixed-size; override a stale autosaved frame
+        window.setContentSize(NSSize(width: 580, height: 520))
         window.contentView = NSHostingView(rootView: contentView.withGlobalEnvironmentObjects())
         window.isReleasedWhenClosed = false
         window.titlebarAppearsTransparent = true

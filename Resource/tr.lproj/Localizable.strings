@@ -290,3 +290,16 @@
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "Her %@ sn'de yenile";
+"settings.units" = "Birimler ve biçimler";
+"settings.units.rates" = "Ağ hızları";
+"settings.hidden_tiles" = "Gizli kutucuklar";
+"settings.restore" = "Geri getir";
+"settings.reset" = "Varsayılanlara sıfırla";
+"settings.value_only" = "Yalnızca değerler";
+"settings.value_only.desc" = "Daha yoğun bir çubuk için CPU / NET etiketlerini kaldır";
+"menu_bar.anchor_note" = "Gözler her durumda çubukta kalır — eul'un giriş noktasıdır.";
+"panel.tile.hide" = "%@ gizle";
+"fan.control.unsigned" = "Bu derleme imzasız — macOS yalnızca imzalı uygulamaların yardımcılarını yükler. Kontrolü etkinleştirmek için eul'u bir geliştirme ekibiyle imzalayın.";

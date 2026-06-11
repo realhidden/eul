@@ -294,3 +294,16 @@ battery.timeRemaining = "Time Rem.";
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "%@초마다 새로 고침";
+"settings.units" = "단위 및 형식";
+"settings.units.rates" = "네트워크 속도";
+"settings.hidden_tiles" = "숨겨진 타일";
+"settings.restore" = "복원";
+"settings.reset" = "기본값으로 재설정";
+"settings.value_only" = "값만 표시";
+"settings.value_only.desc" = "CPU / NET 라벨을 제거해 더 좁게 표시";
+"menu_bar.anchor_note" = "눈 아이콘은 항상 메뉴 막대에 남아 있습니다 — eul의 입구입니다.";
+"panel.tile.hide" = "%@ 숨기기";
+"fan.control.unsigned" = "이 빌드는 서명되지 않았습니다. macOS는 서명된 앱의 헬퍼만 설치합니다. 팬 제어를 사용하려면 개발 팀으로 서명하세요.";

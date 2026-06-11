@@ -291,3 +291,16 @@
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "%@ секунд тутамд шинэчлэх";
+"settings.units" = "Нэгж ба формат";
+"settings.units.rates" = "Сүлжээний хурд";
+"settings.hidden_tiles" = "Нуугдсан хавтангууд";
+"settings.restore" = "Сэргээх";
+"settings.reset" = "Анхдагш руу буцаах";
+"settings.value_only" = "Зөвхөн утга";
+"settings.value_only.desc" = "CPU / NET шошгыг хасаж мөрийг нягтруулах";
+"menu_bar.anchor_note" = "Нүднүүд ямар ч тохиолдолд мөрөнд үлдэнэ — eul-ийн орох цэг.";
+"panel.tile.hide" = "%@ нуух";
+"fan.control.unsigned" = "Энэ хувилбар гарын үсэггүй — macOS зөвхөн гарын үсэгтэй апп-уудын туслагчийг суулгана. Удирдлагыг идэвхжүүлэхийн тулд eul-ийг хөгжүүлэлтийн багаар гарын үсэг зуруулна уу.";

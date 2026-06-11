@@ -14,6 +14,32 @@ import SharedLibrary
 import SwiftyJSON
 import WidgetKit
 
+/// identity of a panel tile for hide/restore (design §4.7): hiding is
+/// point-of-use (right-click the tile), restoring lives in Settings · General
+enum PanelTileKind: String, CaseIterable, Identifiable {
+    case cpu
+    case memory
+    case network
+    case gpu
+    case disk
+    case fans
+    case battery
+    case bluetooth
+
+    var id: String {
+        rawValue
+    }
+
+    var localizedDescription: String {
+        switch self {
+        case .fans:
+            return "component.fan".localized()
+        default:
+            return "component.\(rawValue)".localized()
+        }
+    }
+}
+
 class PreferenceStore: ObservableObject {
     enum UpgradeMethod: String, CaseIterable {
         case none
@@ -46,6 +72,41 @@ class PreferenceStore: ObservableObject {
         }
     }
 
+    /// rates speak bits or bytes (design §4.7, ask 18) — one choice, applied
+    /// everywhere: bar slot, panel, process rows, Trends widget
+    @Published var networkRateInBits = false
+
+    /// drops the CPU/NET caps labels in the strip for the dense-bar minority
+    /// (design §4.7) — one decision, not a layout editor
+    @Published var valueOnlySlots = false
+
+    /// panel tiles hidden via right-click (design §4.7, "battery rows are
+    /// noise" story); raw PanelTileKind values
+    @Published var hiddenTiles: [String] = []
+
+    func isTileHidden(_ kind: PanelTileKind) -> Bool {
+        hiddenTiles.contains(kind.rawValue)
+    }
+
+    func hideTile(_ kind: PanelTileKind) {
+        guard !isTileHidden(kind) else {
+            return
+        }
+        hiddenTiles.append(kind.rawValue)
+    }
+
+    func restoreTile(_ kind: PanelTileKind) {
+        hiddenTiles.removeAll { $0 == kind.rawValue }
+    }
+
+    func toggleTemperatureUnit() {
+        temperatureUnit = temperatureUnit == .celius ? .fahrenheit : .celius
+    }
+
+    func toggleNetworkRateUnit() {
+        networkRateInBits.toggle()
+    }
+
     @Published var language = Localize.currentLanguage() {
         willSet {
             Localize.setCurrentLanguage(newValue)
@@ -66,6 +127,9 @@ class PreferenceStore: ObservableObject {
     var json: JSON {
         JSON([
             "temperatureUnit": temperatureUnit.rawValue,
+            "networkRateInBits": networkRateInBits,
+            "valueOnlySlots": valueOnlySlots,
+            "hiddenTiles": hiddenTiles,
             "language": language,
             "smcRefreshRate": smcRefreshRate,
             "networkRefreshRate": networkRefreshRate,
@@ -131,6 +195,15 @@ class PreferenceStore: ObservableObject {
 
                 if let raw = data["temperatureUnit"].string, let value = TemperatureUnit(rawValue: raw) {
                     temperatureUnit = value
+                }
+                if let value = data["networkRateInBits"].bool {
+                    networkRateInBits = value
+                }
+                if let value = data["valueOnlySlots"].bool {
+                    valueOnlySlots = value
+                }
+                if let array = data["hiddenTiles"].array {
+                    hiddenTiles = array.compactMap { $0.string }
                 }
                 if let value = data["language"].string {
                     language = value

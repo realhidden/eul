@@ -14,6 +14,9 @@ import SwiftUI
 struct PanelTile<Content: View>: View {
     var label: String
     var aux: String?
+    /// units are clickable where they appear (design §4.7): a faint
+    /// underline marks the aux figure as the flip affordance
+    var auxAction: (() -> Void)?
     var abnormal = false
     var minHeight: CGFloat? = 86
     @ViewBuilder var content: () -> Content
@@ -27,9 +30,18 @@ struct PanelTile<Content: View>: View {
                     .foregroundColor(.primary.opacity(0.55))
                 Spacer()
                 if let aux = aux {
-                    Text(aux)
-                        .font(DesignTokens.Typo.sub)
-                        .foregroundColor(abnormal ? DesignTokens.Health.elevated : .primary.opacity(0.55))
+                    if let auxAction = auxAction {
+                        Text(aux)
+                            .font(DesignTokens.Typo.sub)
+                            .foregroundColor(abnormal ? DesignTokens.Health.elevated : .primary.opacity(0.55))
+                            .underline(true, color: Color.primary.opacity(0.3))
+                            .contentShape(Rectangle())
+                            .onTapGesture(perform: auxAction)
+                    } else {
+                        Text(aux)
+                            .font(DesignTokens.Typo.sub)
+                            .foregroundColor(abnormal ? DesignTokens.Health.elevated : .primary.opacity(0.55))
+                    }
                 }
             }
             content()

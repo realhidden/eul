@@ -291,3 +291,16 @@
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "تحديث كل %@ ث";
+"settings.units" = "الوحدات والتنسيقات";
+"settings.units.rates" = "سرعات الشبكة";
+"settings.hidden_tiles" = "البلاطات المخفية";
+"settings.restore" = "استعادة";
+"settings.reset" = "إعادة التعيين إلى الافتراضي";
+"settings.value_only" = "القيم فقط";
+"settings.value_only.desc" = "إزالة تسميات CPU / NET لشريط أكثر كثافة";
+"menu_bar.anchor_note" = "تبقى العيون في الشريط على أي حال — فهي مدخل eul.";
+"panel.tile.hide" = "إخفاء %@";
+"fan.control.unsigned" = "هذا الإصدار غير موقَّع — يثبّت macOS المساعدين من التطبيقات الموقَّعة فقط. وقِّع eul بفريق تطوير لتمكين التحكم.";

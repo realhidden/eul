@@ -172,6 +172,7 @@ struct PanelView: View, SizeChangeView {
         return PanelTile(
             label: "component.cpu".localized().uppercased(),
             aux: cpuStore.temp?.temperatureString,
+            auxAction: cpuStore.temp == nil ? nil : { preferenceStore.toggleTemperatureUnit() },
             abnormal: abnormal
         ) {
             Text(cpuStore.usageString)
@@ -230,6 +231,23 @@ struct PanelView: View, SizeChangeView {
         })
     }
 
+    /// rate with the unit suffix as the click affordance — bits ⇄ bytes,
+    /// stored once, applied everywhere (design §4.7, ask 18)
+    private func rateText(_ bytesPerSecond: Double) -> some View {
+        let parts = ByteUnit(bytesPerSecond).readableParts(inBits: preferenceStore.networkRateInBits)
+        return HStack(alignment: .firstTextBaseline, spacing: 2) {
+            Text(parts.value).font(DesignTokens.Typo.mid)
+            Text("\(parts.unit)/s")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(secondary)
+                .underline(true, color: Color.primary.opacity(0.3))
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    preferenceStore.toggleNetworkRateUnit()
+                }
+        }
+    }
+
     private func networkTile() -> AnyView {
         // NetworkPort.description handles the optional port name ("Wi-Fi (en0)")
         let aux = networkStore.currentActivePort.map { $0.description }
@@ -237,11 +255,11 @@ struct PanelView: View, SizeChangeView {
         return AnyView(PanelTile(label: "component.network".localized().uppercased(), aux: aux) {
             HStack(spacing: 2) {
                 Text("↓").foregroundColor(secondary).font(.system(size: 11))
-                Text(networkStore.inSpeed).font(DesignTokens.Typo.mid)
+                rateText(networkStore.inSpeedInByte)
             }
             HStack(spacing: 2) {
                 Text("↑").foregroundColor(secondary).font(.system(size: 11))
-                Text(networkStore.outSpeed).font(DesignTokens.Typo.mid)
+                rateText(networkStore.outSpeedInByte)
             }
             Sparkline(values: healthStore.networkHistory, maxValue: historyMax)
                 .frame(height: 22)
@@ -257,7 +275,8 @@ struct PanelView: View, SizeChangeView {
         }
         return AnyView(PanelTile(
             label: "component.gpu".localized().uppercased(),
-            aux: gpuStore.temperatureAverage?.temperatureString
+            aux: gpuStore.temperatureAverage?.temperatureString,
+            auxAction: gpuStore.temperatureAverage == nil ? nil : { preferenceStore.toggleTemperatureUnit() }
         ) {
             Text(gpuStore.usageAverageString ?? "N/A")
                 .font(DesignTokens.Typo.hero)
@@ -425,30 +444,54 @@ struct PanelView: View, SizeChangeView {
         }
     }
 
+    /// right-click → hide; hiding is point-of-use, restore lives in
+    /// Settings · General (design §4.7)
+    private func hideable(_ kind: PanelTileKind, _ view: AnyView) -> AnyView {
+        AnyView(view.contextMenu {
+            Button(String(format: "panel.tile.hide".localized(), kind.localizedDescription)) {
+                preferenceStore.hideTile(kind)
+            }
+        })
+    }
+
     private var tileGrid: some View {
         // expanded tiles promote to full width (design: grid-column 1/-1)
         var fullWidth: [AnyView] = []
         var rest: [AnyView] = []
+        let hidden = preferenceStore.isTileHidden
 
-        if cpuIsExpanded {
-            fullWidth.append(AnyView(cpuTile()))
-        } else {
-            rest.append(AnyView(cpuTile()))
-        }
-        rest.append(contentsOf: [memoryTile(), networkTile(), gpuTile(), diskTile()])
-        if fanStore.fans.count > 0 {
-            if fansExpanded, fanControl.status != .unsupportedOS {
-                fullWidth.append(fansTile())
+        if !hidden(.cpu) {
+            if cpuIsExpanded {
+                fullWidth.append(hideable(.cpu, AnyView(cpuTile())))
             } else {
-                rest.append(fansTile())
+                rest.append(hideable(.cpu, AnyView(cpuTile())))
             }
         }
-        if batteryStore.isValid {
-            rest.append(batteryTile())
+        if !hidden(.memory) {
+            rest.append(hideable(.memory, memoryTile()))
+        }
+        if !hidden(.network) {
+            rest.append(hideable(.network, networkTile()))
+        }
+        if !hidden(.gpu) {
+            rest.append(hideable(.gpu, gpuTile()))
+        }
+        if !hidden(.disk) {
+            rest.append(hideable(.disk, diskTile()))
+        }
+        if fanStore.fans.count > 0, !hidden(.fans) {
+            if fansExpanded, fanControl.status != .unsupportedOS {
+                fullWidth.append(hideable(.fans, fansTile()))
+            } else {
+                rest.append(hideable(.fans, fansTile()))
+            }
+        }
+        if batteryStore.isValid, !hidden(.battery) {
+            rest.append(hideable(.battery, batteryTile()))
         }
         let btDevices = bluetoothStore.devices.filter { $0.hasBattery }
-        if btDevices.count > 0 {
-            rest.append(bluetoothTile(devices: btDevices))
+        if btDevices.count > 0, !hidden(.bluetooth) {
+            rest.append(hideable(.bluetooth, bluetoothTile(devices: btDevices)))
         }
 
         return VStack(spacing: DesignTokens.Panel.spacing) {
@@ -493,7 +536,7 @@ struct PanelView: View, SizeChangeView {
             }
         case .network:
             return networkTopStore.processes.prefix(6).map {
-                AnyView(PanelProcessRow(icon: $0.runningApp?.icon, name: $0.displayName, value: "↓ " + ByteUnit($0.value.inSpeedInByte).readable + "/s"))
+                AnyView(PanelProcessRow(icon: $0.runningApp?.icon, name: $0.displayName, value: "↓ " + ByteUnit($0.value.inSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits)))
             }
         }
     }

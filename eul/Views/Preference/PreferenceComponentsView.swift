@@ -12,7 +12,7 @@ import SwiftUI
 extension Preference {
     /// The Menu Bar pane (design §4.4): pinned monitors with drag-to-set
     /// priority, the fixed tight-space behavior explained (not configurable),
-    /// and the two data-source choices (boot volume / network interface).
+    /// the value-only density toggle (§4.7), and the two data-source choices.
     /// The anchor is always shown — presence is the contract (P2), so it is
     /// deliberately not a setting.
     struct ComponentsView: View {
@@ -20,6 +20,7 @@ extension Preference {
         @EnvironmentObject var componentConfigStore: ComponentConfigStore
         @EnvironmentObject var diskStore: DiskStore
         @EnvironmentObject var networkStore: NetworkStore
+        @EnvironmentObject var preference: PreferenceStore
 
         var diskConfig: Binding<EulComponentConfig> {
             $componentConfigStore[EulComponent.Disk]
@@ -29,74 +30,89 @@ extension Preference {
             $componentConfigStore[EulComponent.Network]
         }
 
-        var body: some View {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 12) {
-                    Toggle(isOn: $componentsStore.showComponents) {
-                        Text("ui.show_components_in_status_bar".localized())
-                            .inlineSection()
-                    }
-                    Spacer()
-                }
+        private var pinnedCard: some View {
+            Settings.Card(title: "ui.menu_bar".localized()) {
+                Settings.ToggleRow(
+                    title: "ui.show_components_in_status_bar".localized(),
+                    caption: "menu_bar.anchor_note".localized(),
+                    isOn: $componentsStore.showComponents
+                )
                 if componentsStore.showComponents {
-                    HorizontalOrganizingView(
-                        componentsStore: componentsStore,
-                        title: "component.status_bar"
-                    ) { component in
-                        HStack {
+                    Settings.RowDivider()
+                    HorizontalOrganizingView(componentsStore: componentsStore) { component in
+                        HStack(spacing: 6) {
                             Image(component.rawValue)
                                 .resizable()
                                 .frame(width: 12, height: 12)
                             Text(component.localizedDescription)
-                                .normal()
+                                .font(.system(size: 11, weight: .medium))
                         }
                     }
                     Text("menu_bar.priority_note".localized())
-                        .secondaryDisplayText()
-                        .padding(.top, 4)
+                        .font(.system(size: 10.5))
+                        .foregroundColor(Settings.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Settings.RowDivider()
+                    Settings.ToggleRow(
+                        title: "settings.value_only".localized(),
+                        caption: "settings.value_only.desc".localized(),
+                        isOn: $preference.valueOnlySlots
+                    )
                 }
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("ui.data_sources".localized())
-                        .subsection()
-                    HStack(spacing: 12) {
-                        if let disks = diskStore.list?.disks {
-                            Picker(
-                                "disk.select".localized(),
-                                selection: diskConfig.diskSelection
-                            ) {
-                                // empty selection = boot volume (#250/#182),
-                                // not a sum of all volumes
-                                Text("disk.boot_volume".localized())
-                                    .inlineSection()
-                                    .tag("")
-                                ForEach(disks) {
-                                    Text($0.name)
-                                        .inlineSection()
-                                }
-                            }
-                            .frame(width: 200)
-                        }
-                        Picker(
-                            "network.port.select".localized(),
-                            selection: networkConfig.networkPortSelection
-                        ) {
-                            Text(networkStore.autoPortDesscription)
-                                .inlineSection()
+            }
+        }
+
+        private var dataSourcesCard: some View {
+            Settings.Card(title: "ui.data_sources".localized()) {
+                if let disks = diskStore.list?.disks {
+                    Settings.Row(title: "disk.select".localized()) {
+                        Picker("", selection: diskConfig.diskSelection) {
+                            // empty selection = boot volume (#250/#182),
+                            // not a sum of all volumes
+                            Text("disk.boot_volume".localized())
                                 .tag("")
-                            ForEach(networkStore.ports) {
-                                Text($0.description)
-                                    .inlineSection()
+                            ForEach(disks) {
+                                Text($0.name)
                             }
                         }
-                        .fixedSize()
+                        .labelsHidden()
+                        .controlSize(.small)
+                        .frame(width: 170)
                     }
+                    Settings.RowDivider()
                 }
-                .padding(.top, 16)
-                .onAppear {
-                    // the volume list is otherwise populated only while a
-                    // Disk slot is pinned or the panel is open
-                    diskStore.loadDisks()
+                Settings.Row(title: "network.port.select".localized()) {
+                    Picker("", selection: networkConfig.networkPortSelection) {
+                        Text(networkStore.autoPortDesscription)
+                            .tag("")
+                        ForEach(networkStore.ports) {
+                            Text($0.description)
+                        }
+                    }
+                    .labelsHidden()
+                    .controlSize(.small)
+                    .frame(width: 170)
                 }
+            }
+        }
+
+        private func resetToDefaults() {
+            componentsStore.resetToDefaults()
+            preference.valueOnlySlots = false
+            componentConfigStore[EulComponent.Disk].diskSelection = ""
+            componentConfigStore[EulComponent.Network].networkPortSelection = ""
+        }
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: DesignTokens.Panel.spacing) {
+                pinnedCard
+                dataSourcesCard
+                Settings.ResetRow(action: resetToDefaults)
+            }
+            .onAppear {
+                // the volume list is otherwise populated only while a
+                // Disk slot is pinned or the panel is open
+                diskStore.loadDisks()
             }
         }
     }

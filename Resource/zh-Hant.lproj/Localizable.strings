@@ -291,3 +291,16 @@
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "每 %@ 秒重新整理";
+"settings.units" = "單位與格式";
+"settings.units.rates" = "網路速率";
+"settings.hidden_tiles" = "已隱藏的卡片";
+"settings.restore" = "恢復";
+"settings.reset" = "重設為預設值";
+"settings.value_only" = "僅顯示數值";
+"settings.value_only.desc" = "移除 CPU / NET 標籤，選單列更緊湊";
+"menu_bar.anchor_note" = "無論如何，眼睛圖示都會留在選單列——它是 eul 的入口。";
+"panel.tile.hide" = "隱藏%@";
+"fan.control.unsigned" = "此版本未簽名——macOS 只安裝來自已簽名應用程式的輔助程式。請使用開發者團隊簽名 eul 以啟用控制。";

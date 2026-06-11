@@ -73,7 +73,8 @@ public struct TrendsEntry: SharedWidgetEntry {
         networkHistory: [Double] = [],
         cpuCurrent: String = "",
         memoryCurrent: String = "",
-        networkCurrentInByte: Double = 0
+        networkCurrentInByte: Double = 0,
+        ratesInBits: Bool = false
     ) {
         self.date = date
         self.outdated = outdated
@@ -86,6 +87,7 @@ public struct TrendsEntry: SharedWidgetEntry {
         self.cpuCurrent = cpuCurrent
         self.memoryCurrent = memoryCurrent
         self.networkCurrentInByte = networkCurrentInByte
+        self.ratesInBits = ratesInBits
     }
 
     public init(date: Date, outdated: Bool) {
@@ -118,4 +120,8 @@ public struct TrendsEntry: SharedWidgetEntry {
     public var cpuCurrent = ""
     public var memoryCurrent = ""
     public var networkCurrentInByte: Double = 0
+    /// the user's rate-unit choice rides along so the widget renders it
+    /// without a second container read; optional so entries written before
+    /// the field existed still decode
+    public var ratesInBits: Bool? = false
 }

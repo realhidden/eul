@@ -290,3 +290,16 @@
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "Obnovovat každých %@ s";
+"settings.units" = "Jednotky a formáty";
+"settings.units.rates" = "Rychlosti sítě";
+"settings.hidden_tiles" = "Skryté dlaždice";
+"settings.restore" = "Obnovit";
+"settings.reset" = "Obnovit výchozí";
+"settings.value_only" = "Pouze hodnoty";
+"settings.value_only.desc" = "Odebrat popisky CPU / NET pro hustší lištu";
+"menu_bar.anchor_note" = "Oči v liště zůstávají v každém případě — jsou vstupem do eul.";
+"panel.tile.hide" = "Skrýt %@";
+"fan.control.unsigned" = "Toto sestavení není podepsané — macOS instaluje pomocníky jen z podepsaných aplikací. Podepište eul vývojářským týmem, abyste povolili ovládání.";

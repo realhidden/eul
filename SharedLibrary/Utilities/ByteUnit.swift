@@ -52,3 +52,41 @@ public struct ByteUnit {
         }
     }
 }
+
+// MARK: rates (design §4.7, ask 18)
+
+/// "I think in megabits — show me Mb/s, not MB/s." One stored choice applied
+/// everywhere a rate renders: bar slot, panel, process rows, Trends widget.
+public extension ByteUnit {
+    /// value and unit as separate parts so point-of-use UIs can make the
+    /// unit itself the clickable affordance. Bits use decimal multiples
+    /// (Kb/Mb/Gb), the telecom convention; bytes keep the binary KB/MB/GB.
+    func readableParts(inBits: Bool) -> (value: String, unit: String) {
+        if inBits {
+            let bits = Double(bytes) * 8
+            switch bits {
+            case ..<1_000_000:
+                return (String(format: "%.0f", bits / 1000), "Kb")
+            case ..<1_000_000_000:
+                let mb = bits / 1_000_000
+                return (String(format: mb >= 100 ? "%.0f" : "%.1f", mb), "Mb")
+            default:
+                let gb = bits / 1_000_000_000
+                return (String(format: gb >= 100 ? "%.0f" : "%.1f", gb), "Gb")
+            }
+        }
+        switch bytes {
+        case 0..<(kilo * kilo):
+            return (String(format: "%.0f", kilobytes), "KB")
+        case kilo..<(kilo * kilo * kilo):
+            return (String(format: megabytes >= 100 ? "%.0f" : "%.1f", megabytes), "MB")
+        default:
+            return (String(format: gigabytes >= 100 ? "%.0f" : "%.1f", gigabytes), "GB")
+        }
+    }
+
+    func readableRate(inBits: Bool) -> String {
+        let parts = readableParts(inBits: inBits)
+        return "\(parts.value) \(parts.unit)/s"
+    }
+}

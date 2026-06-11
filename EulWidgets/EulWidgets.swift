@@ -214,7 +214,7 @@ struct TrendsWidgetView: View {
                         "NET",
                         entry.networkHistory,
                         maxValue: max(entry.networkHistory.max() ?? 1, 1),
-                        value: "↓ " + ByteUnit(entry.networkCurrentInByte).readable + "/s"
+                        value: "↓ " + ByteUnit(entry.networkCurrentInByte).readableRate(inBits: entry.ratesInBits ?? false)
                     )
                 }
                 .padding(.top, 8)

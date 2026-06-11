@@ -290,3 +290,16 @@
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "%@ စက္ကန့်တိုင်း ပြန်လည်ဆန်းသစ်ရန်";
+"settings.units" = "ယူနစ်နှင့် ပုံစံများ";
+"settings.units.rates" = "ကွန်ရက်နှုန်းများ";
+"settings.hidden_tiles" = "ဖျောက်ထားသော အကွက်များ";
+"settings.restore" = "ပြန်ဖော်ရန်";
+"settings.reset" = "မူရင်းအတိုင်း ပြန်သတ်မှတ်ရန်";
+"settings.value_only" = "တန်ဖိုးများသာ";
+"settings.value_only.desc" = "ဘားကို ကျစ်လစ်စေရန် CPU / NET တံဆိပ်များကို ဖယ်ရှားပါ";
+"menu_bar.anchor_note" = "မျက်လုံးများသည် မည်သို့ပင်ဖြစ်စေ ဘားတွင် ကျန်ရှိနေမည် — ၎င်းတို့သည် eul ၏ ဝင်ပေါက်ဖြစ်သည်။";
+"panel.tile.hide" = "%@ ကို ဖျောက်ရန်";
+"fan.control.unsigned" = "ဤတည်ဆောက်မှုသည် လက်မှတ်မထိုးထားပါ — macOS သည် လက်မှတ်ထိုးထားသော အက်ပ်များမှ အကူများကိုသာ ထည့်သွင်းသည်။ ထိန်းချုပ်မှုဖွင့်ရန် eul ကို ဖွံ့ဖြိုးရေးအဖွဲ့ဖြင့် လက်မှတ်ထိုးပါ။";

@@ -291,3 +291,16 @@
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "Frissítés %@ mp-enként";
+"settings.units" = "Mértékegységek és formátumok";
+"settings.units.rates" = "Hálózati sebességek";
+"settings.hidden_tiles" = "Rejtett csempék";
+"settings.restore" = "Visszaállítás";
+"settings.reset" = "Alapértelmezések visszaállítása";
+"settings.value_only" = "Csak értékek";
+"settings.value_only.desc" = "A CPU / NET címkék elhagyása a sűrűbb sávért";
+"menu_bar.anchor_note" = "A szemek mindenképp a sávban maradnak — ők az eul belépési pontja.";
+"panel.tile.hide" = "%@ elrejtése";
+"fan.control.unsigned" = "Ez a build nincs aláírva — a macOS csak aláírt alkalmazások segédprogramjait telepíti. Írja alá az eul-t fejlesztői csapattal a vezérléshez.";

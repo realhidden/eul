@@ -6,12 +6,15 @@
 //  Copyright © 2026 Gao Sun. All rights reserved.
 //
 
+import SharedLibrary
 import SwiftUI
 
 /// One strip slot (design §2.3 / §7 StatSlot): 9 pt caps label + 12 pt medium
 /// tabular value, fixed-width by the monitor's worst case so a value changing
 /// digit count never moves its neighbors. Labels are technical abbreviations
-/// (CPU, MEM…), deliberately unlocalized like unit symbols.
+/// (CPU, MEM…), deliberately unlocalized like unit symbols. The value-only
+/// toggle (design §4.7, dense-bar story) drops the labels — one decision,
+/// not a layout editor.
 struct StatSlotView: View {
     let component: EulComponent
 
@@ -22,6 +25,7 @@ struct StatSlotView: View {
     @EnvironmentObject var batteryStore: BatteryStore
     @EnvironmentObject var fanStore: FanStore
     @EnvironmentObject var networkStore: NetworkStore
+    @EnvironmentObject var preferenceStore: PreferenceStore
 
     private var fanAverageString: String {
         let speeds = fanStore.fans.compactMap { $0.currentSpeed }
@@ -46,22 +50,29 @@ struct StatSlotView: View {
         case .Fan:
             SlotText(label: "FAN", value: fanAverageString, worstCase: "8888")
         case .Network:
-            NetworkSlot(down: networkStore.inSpeed, up: networkStore.outSpeed)
+            NetworkSlot(
+                down: ByteUnit(networkStore.inSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits),
+                up: ByteUnit(networkStore.outSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits)
+            )
         }
     }
 }
 
 struct SlotText: View {
+    @EnvironmentObject var preferenceStore: PreferenceStore
+
     let label: String
     let value: String
     let worstCase: String
 
     var body: some View {
         HStack(spacing: 5) {
-            Text(label)
-                .font(DesignTokens.Typo.slotLabel)
-                .tracking(0.6)
-                .opacity(0.55)
+            if !preferenceStore.valueOnlySlots {
+                Text(label)
+                    .font(DesignTokens.Typo.slotLabel)
+                    .tracking(0.6)
+                    .opacity(0.55)
+            }
             ZStack(alignment: .trailing) {
                 Text(worstCase).hidden()
                 Text(value)

@@ -17,6 +17,7 @@ class ComponentsStore<Component: JSONCodabble & Equatable>: ObservableObject {
     @Published var availableComponents: [Component]
 
     private let allComponents: [Component]
+    private let defaultActiveComponents: [Component]
     private let userDefaultsKey: String
     private var cancellable: AnyCancellable?
     private var onDidChange: (() -> Void)?
@@ -41,6 +42,7 @@ class ComponentsStore<Component: JSONCodabble & Equatable>: ObservableObject {
     ) {
         let active = defaultComponents ?? all
         allComponents = all
+        defaultActiveComponents = active
         userDefaultsKey = key
         activeComponents = active
         availableComponents = all.filter { !active.contains($0) }
@@ -52,6 +54,13 @@ class ComponentsStore<Component: JSONCodabble & Equatable>: ObservableObject {
                 onDidChange?()
             }
         }
+    }
+
+    /// "Reset to defaults" is one button, per pane (design §4.7)
+    func resetToDefaults() {
+        showComponents = true
+        activeComponents = defaultActiveComponents
+        availableComponents = allComponents.filter { !defaultActiveComponents.contains($0) }
     }
 
     func toggleActiveComponent(at index: Int) {

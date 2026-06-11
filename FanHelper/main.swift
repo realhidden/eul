@@ -130,6 +130,31 @@ final class ListenerDelegate: NSObject, NSXPCListenerDelegate {
         self.controller = controller
     }
 
+    /// The helper and the app are built and signed together, so the client
+    /// requirement pins to the helper's OWN team — whichever real signing
+    /// team produced this binary — with the upstream team as fallback. This
+    /// keeps the requirement correct for forks/dev teams without edits.
+    static let teamIdentifier: String = {
+        var code: SecCode?
+        guard SecCodeCopySelf([], &code) == errSecSuccess, let code = code else {
+            return "M8G2RFZVFV"
+        }
+        var staticCode: SecStaticCode?
+        guard SecCodeCopyStaticCode(code, [], &staticCode) == errSecSuccess, let staticCode = staticCode else {
+            return "M8G2RFZVFV"
+        }
+        var info: CFDictionary?
+        guard
+            SecCodeCopySigningInformation(staticCode, SecCSFlags(rawValue: kSecCSSigningInformation), &info) == errSecSuccess,
+            let dictionary = info as? [String: Any],
+            let team = dictionary[kSecCodeInfoTeamIdentifier as String] as? String,
+            !team.isEmpty
+        else {
+            return "M8G2RFZVFV"
+        }
+        return team
+    }()
+
     func listener(_: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {
         // only eul may talk to this daemon: kernel-verified signing
         // requirement (Stats shipped a root LPE by skipping this —
@@ -137,7 +162,7 @@ final class ListenerDelegate: NSObject, NSXPCListenerDelegate {
         // leaf certificates for the team.
         if #available(macOS 13.0, *) {
             connection.setCodeSigningRequirement(
-                "anchor apple generic and identifier \"com.gaosun.eul\" and certificate leaf[subject.OU] = \"M8G2RFZVFV\""
+                "anchor apple generic and identifier \"com.gaosun.eul\" and certificate leaf[subject.OU] = \"\(Self.teamIdentifier)\""
             )
         } else {
             // the daemon is only ever registered via SMAppService (13+)

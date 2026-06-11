@@ -283,3 +283,16 @@ Copyright © 2020 Gao Sun. All rights reserved.
 "widget.trends.title" = "Trends";
 "widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
 "widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "Uppdatera var %@ s";
+"settings.units" = "Enheter och format";
+"settings.units.rates" = "Nätverkshastigheter";
+"settings.hidden_tiles" = "Dolda rutor";
+"settings.restore" = "Återställ";
+"settings.reset" = "Återställ till standard";
+"settings.value_only" = "Endast värden";
+"settings.value_only.desc" = "Ta bort CPU/NET-etiketterna för en tätare rad";
+"menu_bar.anchor_note" = "Ögonen stannar i raden oavsett — de är euls ingång.";
+"panel.tile.hide" = "Dölj %@";
+"fan.control.unsigned" = "Det här bygget är osignerat — macOS installerar bara hjälpare från signerade appar. Signera eul med ett utvecklingsteam för att aktivera styrning.";

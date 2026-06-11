@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import Security
 import ServiceManagement
 
 /// App side of fan control (design §2.7/§4.6, asks 15–17). Owns the helper
@@ -48,6 +49,33 @@ class FanControlStore: ObservableObject {
     @Published var overrides: [Int: Override] = [:]
     @Published var overrideSince: Date?
     @Published var installFailed = false
+    /// the underlying SMAppService error, surfaced so a failed install is
+    /// diagnosable instead of mute
+    @Published var installErrorText: String?
+
+    /// SMAppService validates signatures — an unsigned (ad-hoc) build can
+    /// never register the daemon. Detected up front so the ceremony can say
+    /// so instead of failing mutely after a click.
+    static let buildIsSigned: Bool = {
+        var code: SecCode?
+        guard SecCodeCopySelf([], &code) == errSecSuccess, let code = code else {
+            return false
+        }
+        var staticCode: SecStaticCode?
+        guard SecCodeCopyStaticCode(code, [], &staticCode) == errSecSuccess, let staticCode = staticCode else {
+            return false
+        }
+        var info: CFDictionary?
+        guard
+            SecCodeCopySigningInformation(staticCode, SecCSFlags(rawValue: kSecCSSigningInformation), &info) == errSecSuccess,
+            let dictionary = info as? [String: Any],
+            let team = dictionary[kSecCodeInfoTeamIdentifier as String] as? String,
+            !team.isEmpty
+        else {
+            return false
+        }
+        return true
+    }()
 
     private var pingTimer: Timer?
     private var approvalPollTimer: Timer?
@@ -104,6 +132,7 @@ class FanControlStore: ObservableObject {
 
     func beginCeremony() {
         installFailed = false
+        installErrorText = nil
         ceremony = .explainer
     }
 
@@ -112,6 +141,7 @@ class FanControlStore: ObservableObject {
     func cancelCeremony() {
         ceremony = .idle
         installFailed = false
+        installErrorText = nil
         stopApprovalPolling()
     }
 
@@ -120,12 +150,14 @@ class FanControlStore: ObservableObject {
             return
         }
         let service = SMAppService.daemon(plistName: FanHelperConstants.plistName)
+        var registerError: String?
         do {
             try service.register()
         } catch {
             // expected on first registration: the system flips the service
             // to .requiresApproval and the user approves in System Settings
             Print("helper register:", error.localizedDescription)
+            registerError = error.localizedDescription
         }
         refreshStatus()
         switch status {
@@ -136,10 +168,11 @@ class FanControlStore: ObservableObject {
             SMAppService.openSystemSettingsLoginItems()
             startApprovalPolling()
         default:
-            // registration failed outright (e.g. ad-hoc signed dev build —
-            // SMAppService validates signatures). Stay on the explainer with
-            // one quiet line of feedback; "Not now" remains one click away.
+            // registration failed outright (e.g. unsigned dev build —
+            // SMAppService validates signatures). Stay on the explainer and
+            // say so plainly; "Not now" remains one click away.
             installFailed = true
+            installErrorText = registerError
         }
     }
 

@@ -32,6 +32,7 @@ extension Preference {
         }
     }
 
+    /// rail item in the panel's segmented idiom
     struct PreferenceSectionView: View {
         @Binding var activeSection: Section
         let section: Section
@@ -43,13 +44,13 @@ extension Preference {
         var body: some View {
             HStack(spacing: 8) {
                 Text(section.localizedDescription)
-                    .inlineSection()
+                    .font(.system(size: 12, weight: isActive ? .semibold : .regular))
                 Spacer()
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(isActive ? Color.separator : Color.clear)
-            .cornerRadius(4)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(isActive ? Color.primary.opacity(0.12) : Color.clear)
+            .cornerRadius(7)
             .contentShape(Rectangle())
             .onTapGesture {
                 activeSection = section

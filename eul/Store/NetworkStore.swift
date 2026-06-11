@@ -28,11 +28,11 @@ class NetworkStore: ObservableObject, Refreshable {
     }
 
     var inSpeed: String {
-        ByteUnit(inSpeedInByte).readable + "/s"
+        ByteUnit(inSpeedInByte).readableRate(inBits: SharedStore.preference.networkRateInBits)
     }
 
     var outSpeed: String {
-        ByteUnit(outSpeedInByte).readable + "/s"
+        ByteUnit(outSpeedInByte).readableRate(inBits: SharedStore.preference.networkRateInBits)
     }
 
     var autoPortDesscription: String {

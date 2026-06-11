@@ -228,11 +228,26 @@ struct FanCeremonyOverlay: View {
                 bullet("fan.control.explainer.point3")
                 bullet("fan.control.explainer.point4")
             }
-            if fanControl.installFailed {
-                Text("fan.control.install_failed".localized())
-                    .font(.system(size: 10.5))
-                    .foregroundColor(secondary)
+            if !FanControlStore.buildIsSigned {
+                // an unsigned build can never pass SMAppService validation —
+                // say so up front, not after a doomed click
+                Text("fan.control.unsigned".localized())
+                    .font(.system(size: 10.5, weight: .medium))
+                    .foregroundColor(DesignTokens.Health.elevated)
                     .fixedSize(horizontal: false, vertical: true)
+            }
+            if fanControl.installFailed {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("fan.control.install_failed".localized())
+                        .font(.system(size: 10.5, weight: .medium))
+                        .foregroundColor(DesignTokens.Health.elevated)
+                    if let detail = fanControl.installErrorText {
+                        Text(detail)
+                            .font(.system(size: 9.5))
+                            .foregroundColor(secondary)
+                    }
+                }
+                .fixedSize(horizontal: false, vertical: true)
             }
             HStack {
                 Spacer()
