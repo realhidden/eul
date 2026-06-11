@@ -308,3 +308,5 @@
 "fan.control.unreachable" = "کمک‌رسان پاسخ نمی‌دهد — macOS نسخهٔ نصب‌شده را مسدود کرده است. تعمیر آن را دوباره ثبت می‌کند.";
 "fan.control.repair" = "تعمیر";
 "settings.title" = "تنظیمات";
+"fan.control.unlink" = "کنترل جداگانه";
+"fan.control.link" = "پیوند فن‌ها";

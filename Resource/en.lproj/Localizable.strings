@@ -309,3 +309,5 @@
 "fan.control.unreachable" = "The helper isn't responding — macOS is blocking the installed copy. Repair re-registers it.";
 "fan.control.repair" = "Repair";
 "settings.title" = "Settings";
+"fan.control.unlink" = "Control separately";
+"fan.control.link" = "Link fans";

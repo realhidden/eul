@@ -18,6 +18,7 @@ struct FanControlSurface: View {
 
     /// slider positions while dragging; committed to the helper on release
     @State private var pendingTargets: [Int: Double] = [:]
+    @State private var pendingLinkedPercent: Double?
 
     private var secondary: Color {
         Color.primary.opacity(0.55)
@@ -39,25 +40,164 @@ struct FanControlSurface: View {
             : [.auto, .manual]
     }
 
-    private func modePicker(for fan: FanData) -> some View {
+    private func modePicker(modes: [FanControlStore.Mode], current: FanControlStore.Mode, onSelect: @escaping (FanControlStore.Mode) -> Void) -> some View {
         HStack(spacing: 2) {
-            ForEach(availableModes(for: fan), id: \.rawValue) { mode in
+            ForEach(modes, id: \.rawValue) { mode in
                 Text(modeLabel(mode))
                     .font(.system(size: 10, weight: .semibold))
                     .padding(.horizontal, 9)
                     .padding(.vertical, 3)
-                    .background(currentMode(fan.id) == mode ? Color.primary.opacity(0.15) : Color.clear)
+                    .background(current == mode ? Color.primary.opacity(0.15) : Color.clear)
                     .cornerRadius(5)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        pendingTargets.removeValue(forKey: fan.id)
-                        fanControl.setMode(fanID: fan.id, mode: mode, fanData: fan)
+                        onSelect(mode)
                     }
             }
         }
         .padding(2)
         .background(Color.primary.opacity(0.08))
         .cornerRadius(7)
+    }
+
+    private func modePicker(for fan: FanData) -> some View {
+        modePicker(modes: availableModes(for: fan), current: currentMode(fan.id)) { mode in
+            pendingTargets.removeValue(forKey: fan.id)
+            fanControl.setMode(fanID: fan.id, mode: mode, fanData: fan)
+        }
+    }
+
+    // MARK: linked control (one slider drives every fan)
+
+    /// slider detents: 0% = each fan's hardware minimum, 100% = its maximum
+    private static let linkedStep: Double = 20
+
+    private var linkableFans: [FanData] {
+        fanStore.fans.filter { fan in
+            guard let minSpeed = fan.minSpeed, let maxSpeed = fan.maxSpeed else {
+                return false
+            }
+            return maxSpeed > minSpeed
+        }
+    }
+
+    private var showLinked: Bool {
+        fanControl.linked && fanStore.fans.count > 1 && !linkableFans.isEmpty
+    }
+
+    private var linkedMode: FanControlStore.Mode {
+        let modes = Set(fanStore.fans.compactMap { fanControl.overrides[$0.id]?.mode })
+        if modes.isEmpty {
+            return .auto
+        }
+        if modes == [.boost] {
+            return .boost
+        }
+        return .manual
+    }
+
+    private var linkedAvailableModes: [FanControlStore.Mode] {
+        fanStore.fans.allSatisfy { ($0.maxSpeed ?? 0) > 0 }
+            ? [.auto, .manual, .boost]
+            : [.auto, .manual]
+    }
+
+    /// where this fan sits in its own controllable range, 0...100
+    private func percent(of fan: FanData) -> Double? {
+        guard let minSpeed = fan.minSpeed, let maxSpeed = fan.maxSpeed, maxSpeed > minSpeed else {
+            return nil
+        }
+        let value = fanControl.overrides[fan.id]?.target ?? Double(fan.currentSpeed ?? minSpeed)
+        return min(max((value - Double(minSpeed)) / Double(maxSpeed - minSpeed) * 100, 0), 100)
+    }
+
+    private var linkedCurrentPercent: Double {
+        let values = linkableFans.compactMap { percent(of: $0) }
+        guard !values.isEmpty else {
+            return 0
+        }
+        return values.reduce(0, +) / Double(values.count)
+    }
+
+    private func snapped(_ value: Double) -> Double {
+        (value / Self.linkedStep).rounded() * Self.linkedStep
+    }
+
+    private func setLinkedPercent(_ value: Double) {
+        for fan in linkableFans {
+            guard let minSpeed = fan.minSpeed, let maxSpeed = fan.maxSpeed else {
+                continue
+            }
+            fanControl.setTarget(fanID: fan.id, target: Double(minSpeed) + value / 100 * Double(maxSpeed - minSpeed))
+        }
+    }
+
+    private func setLinkedMode(_ mode: FanControlStore.Mode) {
+        pendingLinkedPercent = nil
+        pendingTargets = [:]
+        switch mode {
+        case .manual:
+            // pin every fan at the same point of its own range — the current
+            // average, snapped to the slider's detents
+            setLinkedPercent(snapped(linkedCurrentPercent))
+        default:
+            for fan in fanStore.fans {
+                fanControl.setMode(fanID: fan.id, mode: mode, fanData: fan)
+            }
+        }
+    }
+
+    private var linkedSliderBinding: Binding<Double> {
+        Binding(
+            get: { pendingLinkedPercent ?? snapped(linkedCurrentPercent) },
+            set: { pendingLinkedPercent = $0 }
+        )
+    }
+
+    private var linkedControls: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                // readouts stay per-fan — linking is control, not display
+                ForEach(fanStore.fans) { fan in
+                    HStack(spacing: 4) {
+                        Text("\(fan.id + 1)")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(secondary)
+                        Text(fan.currentSpeedString)
+                            .font(DesignTokens.Typo.sub)
+                            .foregroundColor(secondary)
+                    }
+                }
+                Spacer()
+                modePicker(modes: linkedAvailableModes, current: linkedMode) { mode in
+                    setLinkedMode(mode)
+                }
+            }
+            if linkedMode == .manual {
+                HStack(spacing: 8) {
+                    Text("0%")
+                        .font(DesignTokens.Typo.sub)
+                        .foregroundColor(secondary)
+                    Slider(value: linkedSliderBinding, in: 0...100, step: Self.linkedStep, onEditingChanged: { editing in
+                        if !editing, let value = pendingLinkedPercent {
+                            setLinkedPercent(value)
+                            pendingLinkedPercent = nil
+                        }
+                    })
+                    Text("100%")
+                        .font(DesignTokens.Typo.sub)
+                        .foregroundColor(secondary)
+                }
+                Text(String(
+                    format: "fan.control.target".localized(),
+                    "\(Int(pendingLinkedPercent ?? snapped(linkedCurrentPercent)))%",
+                    fanStore.fans.map { "\($0.currentSpeed ?? 0)" }.joined(separator: " · ")
+                ))
+                .font(DesignTokens.Typo.sub)
+                .foregroundColor(secondary)
+            }
+        }
+        .padding(.top, 6)
     }
 
     private func sliderBinding(for fan: FanData, range: ClosedRange<Double>) -> Binding<Double> {
@@ -168,26 +308,30 @@ struct FanControlSurface: View {
                         .cornerRadius(7)
                     }
                 }
-                ForEach(fanStore.fans) { fan in
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 8) {
-                            Text("\(fan.id + 1)")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(secondary)
-                            Text(fan.currentSpeedString)
-                                .font(DesignTokens.Typo.sub)
-                                .foregroundColor(secondary)
-                            Spacer()
-                            modePicker(for: fan)
+                if showLinked {
+                    linkedControls
+                } else {
+                    ForEach(fanStore.fans) { fan in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 8) {
+                                Text("\(fan.id + 1)")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(secondary)
+                                Text(fan.currentSpeedString)
+                                    .font(DesignTokens.Typo.sub)
+                                    .foregroundColor(secondary)
+                                Spacer()
+                                modePicker(for: fan)
+                            }
+                            if currentMode(fan.id) == .manual {
+                                manualControls(for: fan)
+                            }
                         }
-                        if currentMode(fan.id) == .manual {
-                            manualControls(for: fan)
-                        }
+                        .padding(.top, 6)
                     }
-                    .padding(.top, 6)
                 }
                 safetyStrip
-                HStack {
+                HStack(spacing: 12) {
                     Button(action: {
                         fanControl.removeHelper()
                     }) {
@@ -197,6 +341,19 @@ struct FanControlSurface: View {
                             .foregroundColor(secondary)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    if fanStore.fans.count > 1, !linkableFans.isEmpty {
+                        Button(action: {
+                            pendingLinkedPercent = nil
+                            pendingTargets = [:]
+                            fanControl.linked.toggle()
+                        }) {
+                            Text((fanControl.linked ? "fan.control.unlink" : "fan.control.link").localized())
+                                .font(.system(size: 10.5))
+                                .underline()
+                                .foregroundColor(secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
                     Spacer()
                     if fanControl.overrideActive {
                         Button(action: {

@@ -307,3 +307,5 @@
 "fan.control.unreachable" = "A segéd nem válaszol — a macOS blokkolja a telepített példányt. A javítás újraregisztrálja.";
 "fan.control.repair" = "Javítás";
 "settings.title" = "Beállítások";
+"fan.control.unlink" = "Külön vezérlés";
+"fan.control.link" = "Ventilátorok összekapcsolása";

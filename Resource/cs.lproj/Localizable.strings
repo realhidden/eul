@@ -306,3 +306,5 @@
 "fan.control.unreachable" = "Pomocník neodpovídá — macOS blokuje nainstalovanou kopii. Oprava ji znovu zaregistruje.";
 "fan.control.repair" = "Opravit";
 "settings.title" = "Nastavení";
+"fan.control.unlink" = "Ovládat samostatně";
+"fan.control.link" = "Propojit ventilátory";

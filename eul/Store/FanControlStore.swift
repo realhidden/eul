@@ -56,6 +56,14 @@ class FanControlStore: ObservableObject {
     /// cause is a stale BTM launch constraint after the app was re-signed
     /// (launchd SIGKILLs the helper at spawn); surfaced with a Repair action
     @Published var helperUnreachable = false
+    /// multi-fan Macs get ONE control by default — both fans move together
+    /// as a percentage of each fan's own range; per-fan control is the
+    /// opt-out, persisted so a deliberate unlink survives relaunch
+    @Published var linked: Bool = UserDefaults.standard.object(forKey: "fanControlLinked") as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(linked, forKey: "fanControlLinked")
+        }
+    }
 
     /// SMAppService validates signatures — an unsigned (ad-hoc) build can
     /// never register the daemon. Detected up front so the ceremony can say

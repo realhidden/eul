@@ -306,3 +306,5 @@
 "fan.control.unreachable" = "ตัวช่วยไม่ตอบสนอง — macOS กำลังบล็อกสำเนาที่ติดตั้งไว้ การซ่อมแซมจะลงทะเบียนใหม่";
 "fan.control.repair" = "ซ่อมแซม";
 "settings.title" = "การตั้งค่า";
+"fan.control.unlink" = "ควบคุมแยกกัน";
+"fan.control.link" = "เชื่อมพัดลม";

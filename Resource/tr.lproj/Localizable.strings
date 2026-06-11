@@ -306,3 +306,5 @@
 "fan.control.unreachable" = "Yardımcı yanıt vermiyor — macOS yüklü kopyayı engelliyor. Onarım onu yeniden kaydeder.";
 "fan.control.repair" = "Onar";
 "settings.title" = "Ayarlar";
+"fan.control.unlink" = "Ayrı kontrol et";
+"fan.control.link" = "Fanları bağla";

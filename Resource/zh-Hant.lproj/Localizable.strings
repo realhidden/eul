@@ -307,3 +307,5 @@
 "fan.control.unreachable" = "輔助程式沒有回應 — macOS 正在封鎖已安裝的副本。修復將重新註冊它。";
 "fan.control.repair" = "修復";
 "settings.title" = "設定";
+"fan.control.unlink" = "分別控制";
+"fan.control.link" = "連動風扇";

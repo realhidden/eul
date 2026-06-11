@@ -308,3 +308,5 @@
 "fan.control.unreachable" = "L'helper non risponde — macOS sta bloccando la copia installata. Ripara lo registra di nuovo.";
 "fan.control.repair" = "Ripara";
 "settings.title" = "Impostazioni";
+"fan.control.unlink" = "Controlla separatamente";
+"fan.control.link" = "Collega le ventole";

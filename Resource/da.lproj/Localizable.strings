@@ -297,3 +297,5 @@
 "fan.control.unreachable" = "Hjælperen svarer ikke — macOS blokerer den installerede kopi. Reparation registrerer den igen.";
 "fan.control.repair" = "Reparér";
 "settings.title" = "Indstillinger";
+"fan.control.unlink" = "Styr separat";
+"fan.control.link" = "Sammenkæd blæsere";

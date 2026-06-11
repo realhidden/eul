@@ -307,3 +307,5 @@
 "fan.control.unreachable" = "المساعد لا يستجيب — يقوم macOS بحظر النسخة المثبّتة. الإصلاح يعيد تسجيلها.";
 "fan.control.repair" = "إصلاح";
 "settings.title" = "الإعدادات";
+"fan.control.unlink" = "تحكم منفصل";
+"fan.control.link" = "ربط المراوح";

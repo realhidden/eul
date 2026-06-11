@@ -299,3 +299,5 @@ Copyright © 2020 Gao Sun. All rights reserved.
 "fan.control.unreachable" = "Hjälparen svarar inte — macOS blockerar den installerade kopian. Reparera registrerar den igen.";
 "fan.control.repair" = "Reparera";
 "settings.title" = "Inställningar";
+"fan.control.unlink" = "Styr separat";
+"fan.control.link" = "Länka fläktar";

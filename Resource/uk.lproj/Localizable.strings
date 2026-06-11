@@ -306,3 +306,5 @@
 "fan.control.unreachable" = "Помічник не відповідає — macOS блокує встановлену копію. Ремонт зареєструє його знову.";
 "fan.control.repair" = "Полагодити";
 "settings.title" = "Параметри";
+"fan.control.unlink" = "Керувати окремо";
+"fan.control.link" = "Зв'язати вентилятори";

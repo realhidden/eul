@@ -307,3 +307,5 @@
 "fan.control.unreachable" = "Туслагч хариу өгөхгүй байна — macOS суулгасан хувилбарыг хориглож байна. Засвар дахин бүртгэнэ.";
 "fan.control.repair" = "Засах";
 "settings.title" = "Тохиргоо";
+"fan.control.unlink" = "Тус тусад нь удирдах";
+"fan.control.link" = "Сэнсүүдийг холбох";

@@ -306,3 +306,5 @@
 "fan.control.unreachable" = "ヘルパーが応答しません — インストール済みのコピーが macOS にブロックされています。修復すると再登録されます。";
 "fan.control.repair" = "修復";
 "settings.title" = "設定";
+"fan.control.unlink" = "個別に制御";
+"fan.control.link" = "ファンを連動";

@@ -310,3 +310,5 @@ battery.timeRemaining = "Time Rem.";
 "fan.control.unreachable" = "도우미가 응답하지 않습니다 — macOS가 설치된 사본을 차단하고 있습니다. 복구하면 다시 등록됩니다.";
 "fan.control.repair" = "복구";
 "settings.title" = "설정";
+"fan.control.unlink" = "개별 제어";
+"fan.control.link" = "팬 연동";

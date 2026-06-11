@@ -309,3 +309,5 @@
 "fan.control.unreachable" = "辅助程序没有响应 — macOS 正在阻止已安装的副本。修复将重新注册它。";
 "fan.control.repair" = "修复";
 "settings.title" = "设置";
+"fan.control.unlink" = "分别控制";
+"fan.control.link" = "联动风扇";
