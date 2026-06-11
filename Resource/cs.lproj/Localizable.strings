@@ -303,3 +303,6 @@
 "menu_bar.anchor_note" = "Oči v liště zůstávají v každém případě — jsou vstupem do eul.";
 "panel.tile.hide" = "Skrýt %@";
 "fan.control.unsigned" = "Toto sestavení není podepsané — macOS instaluje pomocníky jen z podepsaných aplikací. Podepište eul vývojářským týmem, abyste povolili ovládání.";
+"fan.control.unreachable" = "Pomocník neodpovídá — macOS blokuje nainstalovanou kopii. Oprava ji znovu zaregistruje.";
+"fan.control.repair" = "Opravit";
+"settings.title" = "Nastavení";

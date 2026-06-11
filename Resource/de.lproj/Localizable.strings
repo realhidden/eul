@@ -303,3 +303,6 @@
 "menu_bar.anchor_note" = "Die Augen bleiben in jedem Fall in der Leiste — sie sind euls Einstiegspunkt.";
 "panel.tile.hide" = "%@ ausblenden";
 "fan.control.unsigned" = "Dieser Build ist unsigniert — macOS installiert nur Helfer aus signierten Apps. Signieren Sie eul mit einem Entwicklerteam, um die Steuerung zu aktivieren.";
+"fan.control.unreachable" = "Der Helfer antwortet nicht — macOS blockiert die installierte Kopie. Reparieren registriert ihn neu.";
+"fan.control.repair" = "Reparieren";
+"settings.title" = "Einstellungen";

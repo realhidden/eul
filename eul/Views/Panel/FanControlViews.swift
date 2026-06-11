@@ -144,6 +144,30 @@ struct FanControlSurface: View {
                     .cornerRadius(7)
                 }
             case .enabled:
+                if fanControl.helperUnreachable {
+                    // registered but the daemon never answers (typically a
+                    // stale launch constraint after a re-signed update) —
+                    // controls would silently no-op, so say so and offer the
+                    // one-click re-registration
+                    HStack(alignment: .top, spacing: 8) {
+                        Text("fan.control.unreachable".localized())
+                            .font(.system(size: 10.5, weight: .medium))
+                            .foregroundColor(DesignTokens.Health.elevated)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer()
+                        Button(action: {
+                            fanControl.repairHelper()
+                        }) {
+                            Text("fan.control.repair".localized())
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Color.primary.opacity(0.1))
+                        .cornerRadius(7)
+                    }
+                }
                 ForEach(fanStore.fans) { fan in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 8) {

@@ -306,3 +306,6 @@
 "menu_bar.anchor_note" = "The eyes stay in the bar either way — they are eul's entry point.";
 "panel.tile.hide" = "Hide %@";
 "fan.control.unsigned" = "This build is unsigned — macOS only installs helpers from signed apps. Sign eul with a development team to enable control.";
+"fan.control.unreachable" = "The helper isn't responding — macOS is blocking the installed copy. Repair re-registers it.";
+"fan.control.repair" = "Repair";
+"settings.title" = "Settings";

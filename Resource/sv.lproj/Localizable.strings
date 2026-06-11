@@ -296,3 +296,6 @@ Copyright © 2020 Gao Sun. All rights reserved.
 "menu_bar.anchor_note" = "Ögonen stannar i raden oavsett — de är euls ingång.";
 "panel.tile.hide" = "Dölj %@";
 "fan.control.unsigned" = "Det här bygget är osignerat — macOS installerar bara hjälpare från signerade appar. Signera eul med ett utvecklingsteam för att aktivera styrning.";
+"fan.control.unreachable" = "Hjälparen svarar inte — macOS blockerar den installerade kopian. Reparera registrerar den igen.";
+"fan.control.repair" = "Reparera";
+"settings.title" = "Inställningar";

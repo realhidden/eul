@@ -303,3 +303,6 @@
 "menu_bar.anchor_note" = "Les yeux restent dans la barre dans tous les cas — ils sont le point d'entrée d'eul.";
 "panel.tile.hide" = "Masquer %@";
 "fan.control.unsigned" = "Cette version n'est pas signée — macOS n'installe que des assistants d'apps signées. Signez eul avec une équipe de développement pour activer le contrôle.";
+"fan.control.unreachable" = "L'assistant ne répond pas — macOS bloque la copie installée. Réparer le réenregistre.";
+"fan.control.repair" = "Réparer";
+"settings.title" = "Réglages";

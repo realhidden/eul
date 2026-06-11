@@ -307,3 +307,6 @@ battery.timeRemaining = "Time Rem.";
 "menu_bar.anchor_note" = "눈 아이콘은 항상 메뉴 막대에 남아 있습니다 — eul의 입구입니다.";
 "panel.tile.hide" = "%@ 숨기기";
 "fan.control.unsigned" = "이 빌드는 서명되지 않았습니다. macOS는 서명된 앱의 헬퍼만 설치합니다. 팬 제어를 사용하려면 개발 팀으로 서명하세요.";
+"fan.control.unreachable" = "도우미가 응답하지 않습니다 — macOS가 설치된 사본을 차단하고 있습니다. 복구하면 다시 등록됩니다.";
+"fan.control.repair" = "복구";
+"settings.title" = "설정";

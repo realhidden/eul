@@ -167,26 +167,32 @@ struct PanelView: View, SizeChangeView {
             .padding(.top, 6)
     }
 
+    /// a tile's color cue comes from the health engine — sustained, debounced
+    /// signals, never a raw sample (§2.4) — at the engine's current level
+    private func tileSeverity(_ component: EulComponent) -> HealthLevel {
+        healthStore.abnormalComponent == component ? healthStore.level : .normal
+    }
+
     private func cpuTile() -> some View {
-        let abnormal = healthStore.abnormalComponent == .CPU
+        let severity = tileSeverity(.CPU)
         return PanelTile(
             label: "component.cpu".localized().uppercased(),
             aux: cpuStore.temp?.temperatureString,
-            auxAction: cpuStore.temp == nil ? nil : { preferenceStore.toggleTemperatureUnit() },
-            abnormal: abnormal
+            severity: severity
         ) {
             Text(cpuStore.usageString)
                 .font(DesignTokens.Typo.hero)
-            Sparkline(values: healthStore.cpuHistory, maxValue: 100, color: abnormal ? DesignTokens.Health.elevated : .primary)
+                .foregroundColor(severity.accent ?? .primary)
+            Sparkline(values: healthStore.cpuHistory, maxValue: 100, color: severity.accent ?? .primary)
                 .frame(height: 22)
                 .padding(.top, 2)
-            Text(abnormal ? healthStore.verdictText : String(format: "panel.cores".localized(), cpuStore.logicalCores))
+            Text(severity != .normal ? healthStore.verdictText : String(format: "panel.cores".localized(), cpuStore.logicalCores))
                 .font(DesignTokens.Typo.sub)
                 .foregroundColor(secondary)
                 .padding(.top, 2)
             if cpuIsExpanded {
                 tileDivider()
-                CoreGrid(usages: cpuStore.coreUsages, labels: cpuStore.coreLabels, abnormal: abnormal)
+                CoreGrid(usages: cpuStore.coreUsages, labels: cpuStore.coreLabels, accent: severity.accent)
                     .padding(.top, 8)
                 Text("\("panel.load".localized()) \(cpuStore.loadAverage1MinString) · \(cpuStore.loadAverage5MinString) · \(cpuStore.loadAverage15MinString)\(cpuStore.upTimeString.map { "  ·  \(String(format: "panel.up".localized(), $0))" } ?? "")")
                     .font(DesignTokens.Typo.sub)
@@ -211,13 +217,15 @@ struct PanelView: View, SizeChangeView {
             "memory.compressed".localized(),
             memoryStore.compressed
         )
+        let severity = tileSeverity(.Memory)
         return AnyView(PanelTile(
             label: "component.memory".localized().uppercased(),
             aux: "\("memory.swap".localized()) \(memoryStore.swapUsed.memoryString)",
-            abnormal: healthStore.abnormalComponent == .Memory
+            severity: severity
         ) {
             Text(memoryStore.usedPercentageString)
                 .font(DesignTokens.Typo.hero)
+                .foregroundColor(severity.accent ?? .primary)
             SegmentBar(segments: total > 0 ? [
                 (memoryStore.appMemory / total, 0.95),
                 (memoryStore.wired / total, 0.5),
@@ -231,8 +239,8 @@ struct PanelView: View, SizeChangeView {
         })
     }
 
-    /// rate with the unit suffix as the click affordance — bits ⇄ bytes,
-    /// stored once, applied everywhere (design §4.7, ask 18)
+    /// bits ⇄ bytes is a stored choice made in Settings · General · Units
+    /// (design §4.7) and applied everywhere a rate renders
     private func rateText(_ bytesPerSecond: Double) -> some View {
         let parts = ByteUnit(bytesPerSecond).readableParts(inBits: preferenceStore.networkRateInBits)
         return HStack(alignment: .firstTextBaseline, spacing: 2) {
@@ -240,11 +248,6 @@ struct PanelView: View, SizeChangeView {
             Text("\(parts.unit)/s")
                 .font(.system(size: 10, weight: .medium))
                 .foregroundColor(secondary)
-                .underline(true, color: Color.primary.opacity(0.3))
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    preferenceStore.toggleNetworkRateUnit()
-                }
         }
     }
 
@@ -275,8 +278,7 @@ struct PanelView: View, SizeChangeView {
         }
         return AnyView(PanelTile(
             label: "component.gpu".localized().uppercased(),
-            aux: gpuStore.temperatureAverage?.temperatureString,
-            auxAction: gpuStore.temperatureAverage == nil ? nil : { preferenceStore.toggleTemperatureUnit() }
+            aux: gpuStore.temperatureAverage?.temperatureString
         ) {
             Text(gpuStore.usageAverageString ?? "N/A")
                 .font(DesignTokens.Typo.hero)
@@ -295,14 +297,16 @@ struct PanelView: View, SizeChangeView {
         } else {
             usedFraction = 0
         }
+        let severity = tileSeverity(.Disk)
         return AnyView(PanelTile(
             label: "component.disk".localized().uppercased(),
             aux: diskStore.usagePercentageString,
-            abnormal: healthStore.abnormalComponent == .Disk
+            severity: severity
         ) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(diskStore.freeString)
                     .font(Font.system(size: 19, weight: .semibold).monospacedDigit())
+                    .foregroundColor(severity.accent ?? .primary)
                 Text("text_component.free".localized().lowercased())
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(secondary)
@@ -333,7 +337,10 @@ struct PanelView: View, SizeChangeView {
     private func fansTile() -> AnyView {
         let controllable = fanControl.status != .unsupportedOS
         let expanded = fansExpanded && controllable
-        let tile = PanelTile(label: "component.fan".localized().uppercased(), aux: fanModeText) {
+        // an unreachable helper means the controls would silently no-op —
+        // the tile carries the cue so the repair affordance gets found
+        let severity: HealthLevel = fanControl.status == .enabled && fanControl.helperUnreachable ? .elevated : .normal
+        let tile = PanelTile(label: "component.fan".localized().uppercased(), aux: fanModeText, severity: severity) {
             if !expanded {
                 ForEach(fanStore.fans) { fan in
                     HStack(spacing: 4) {
@@ -379,13 +386,32 @@ struct PanelView: View, SizeChangeView {
         )
     }
 
+    /// the one display-only cue: charge is monotonic on battery power, so a
+    /// plain threshold can't flap like a raw usage sample would. Plugged in,
+    /// a low percentage is a non-event — no color.
+    private var batterySeverity: HealthLevel {
+        guard !batteryStore.acPowered else {
+            return .normal
+        }
+        if batteryStore.charge <= 0.1 {
+            return .critical
+        }
+        if batteryStore.charge <= 0.2 {
+            return .elevated
+        }
+        return .normal
+    }
+
     private func batteryTile() -> AnyView {
-        AnyView(PanelTile(
+        let severity = batterySeverity
+        return AnyView(PanelTile(
             label: "component.battery".localized().uppercased(),
-            aux: batteryStore.timeRemaining
+            aux: batteryStore.timeRemaining,
+            severity: severity
         ) {
             Text(batteryStore.charge.percentageString)
                 .font(DesignTokens.Typo.hero)
+                .foregroundColor(severity.accent ?? .primary)
             Spacer(minLength: 0)
             Text(String(format: "panel.battery.sub".localized(), batteryStore.health.percentageString, "\(batteryStore.cycleCount)"))
                 .font(DesignTokens.Typo.sub)

@@ -29,9 +29,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func applicationDidFinishLaunching(_: Notification) {
         let contentView = ContentView()
+        // HIG (settings windows): titled, closable and miniaturizable, never
+        // resizable/zoomable; the transparent titlebar keeps the rail design
+        // while the title still draws
         window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 580, height: 520),
-            styleMask: [.titled, .closable, .fullSizeContentView],
+            styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
             backing: .buffered, defer: false
         )
         window.center()
@@ -40,9 +43,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.setContentSize(NSSize(width: 580, height: 520))
         window.contentView = NSHostingView(rootView: contentView.withGlobalEnvironmentObjects())
         window.isReleasedWhenClosed = false
+        window.title = "settings.title".localized()
         window.titlebarAppearsTransparent = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
-        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.delegate = self
 
         // comment out for not showing window at login. no proper solution currently, tracking:
@@ -145,7 +148,10 @@ extension AppDelegate {
     }
 
     static func openPreferences() {
-        (NSApp.delegate as! AppDelegate).window.makeKeyAndOrderFront(nil)
+        let window = (NSApp.delegate as! AppDelegate).window!
+        // titles are snapshots — refresh in case the language changed
+        window.title = "settings.title".localized()
+        window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         NotificationCenter.default.post(name: .StatusBarMenuShouldClose, object: nil)
     }

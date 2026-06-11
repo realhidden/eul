@@ -305,3 +305,6 @@
 "menu_bar.anchor_note" = "Gli occhi restano comunque nella barra — sono l'ingresso di eul.";
 "panel.tile.hide" = "Nascondi %@";
 "fan.control.unsigned" = "Questa build non è firmata — macOS installa solo helper da app firmate. Firma eul con un team di sviluppo per abilitare il controllo.";
+"fan.control.unreachable" = "L'helper non risponde — macOS sta bloccando la copia installata. Ripara lo registra di nuovo.";
+"fan.control.repair" = "Ripara";
+"settings.title" = "Impostazioni";

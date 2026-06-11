@@ -294,3 +294,6 @@
 "menu_bar.anchor_note" = "Øjnene bliver i bjælken uanset hvad — de er euls indgang.";
 "panel.tile.hide" = "Skjul %@";
 "fan.control.unsigned" = "Denne build er ikke signeret — macOS installerer kun hjælpere fra signerede apps. Signér eul med et udviklingsteam for at aktivere styring.";
+"fan.control.unreachable" = "Hjælperen svarer ikke — macOS blokerer den installerede kopi. Reparation registrerer den igen.";
+"fan.control.repair" = "Reparér";
+"settings.title" = "Indstillinger";

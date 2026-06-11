@@ -52,6 +52,10 @@ class FanControlStore: ObservableObject {
     /// the underlying SMAppService error, surfaced so a failed install is
     /// diagnosable instead of mute
     @Published var installErrorText: String?
+    /// registration says enabled but the daemon never answers — the classic
+    /// cause is a stale BTM launch constraint after the app was re-signed
+    /// (launchd SIGKILLs the helper at spawn); surfaced with a Repair action
+    @Published var helperUnreachable = false
 
     /// SMAppService validates signatures — an unsigned (ad-hoc) build can
     /// never register the daemon. Detected up front so the ceremony can say
@@ -102,6 +106,7 @@ class FanControlStore: ObservableObject {
                 }
                 if opened {
                     self.refreshStatus()
+                    self.checkHelperReachable()
                     if self.ceremony == .waiting {
                         self.startApprovalPolling()
                     }
@@ -163,6 +168,7 @@ class FanControlStore: ObservableObject {
         switch status {
         case .enabled:
             ceremony = .idle
+            checkHelperReachable()
         case .requiresApproval:
             ceremony = .waiting
             SMAppService.openSystemSettingsLoginItems()
@@ -181,6 +187,51 @@ class FanControlStore: ObservableObject {
             return
         }
         SMAppService.openSystemSettingsLoginItems()
+    }
+
+    /// "Enabled" only proves the registration; the daemon must answer too.
+    /// A ping that errors instead of replying means launchd can't keep the
+    /// helper alive — seen in the field when the BTM record's launch
+    /// constraint was snapshotted from a previous signing of the app and the
+    /// kernel kills the new binary at spawn (EX_CONFIG). Checked on panel
+    /// open, never at app launch (P6: nothing privileged runs unprompted).
+    func checkHelperReachable() {
+        guard status == .enabled else {
+            helperUnreachable = false
+            return
+        }
+        proxy(onError: { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.helperUnreachable = true
+            }
+        })?.ping { [weak self] _, _ in
+            DispatchQueue.main.async {
+                self?.helperUnreachable = false
+            }
+        }
+    }
+
+    /// Re-register so BTM re-snapshots the helper's CURRENT signature: revert
+    /// local state, unregister, then run the normal install path (macOS may
+    /// ask for approval again — the ceremony handles it).
+    func repairHelper() {
+        guard #available(macOS 13.0, *) else {
+            return
+        }
+        overrides = [:]
+        updateOverrideState()
+        connection?.invalidate()
+        connection = nil
+        try? SMAppService.daemon(plistName: FanHelperConstants.plistName).unregister()
+        helperUnreachable = false
+        installHelper()
+        if installFailed {
+            // a failed re-register must not be silent — the daemon is now
+            // unregistered, so show the explainer, which carries the
+            // installFailed/installErrorText UI (set directly: beginCeremony
+            // would wipe the diagnostics)
+            ceremony = .explainer
+        }
     }
 
     /// Removal is first-class (§4.6): one click uninstalls the daemon and
@@ -218,6 +269,7 @@ class FanControlStore: ObservableObject {
                 // approval unlocks the controls in place — no second dialog
                 self.ceremony = .idle
                 self.stopApprovalPolling()
+                self.checkHelperReachable()
             }
         }
     }

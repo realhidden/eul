@@ -99,14 +99,6 @@ class PreferenceStore: ObservableObject {
         hiddenTiles.removeAll { $0 == kind.rawValue }
     }
 
-    func toggleTemperatureUnit() {
-        temperatureUnit = temperatureUnit == .celius ? .fahrenheit : .celius
-    }
-
-    func toggleNetworkRateUnit() {
-        networkRateInBits.toggle()
-    }
-
     @Published var language = Localize.currentLanguage() {
         willSet {
             Localize.setCurrentLanguage(newValue)

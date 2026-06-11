@@ -303,3 +303,6 @@
 "menu_bar.anchor_note" = "Oczy i tak pozostają na pasku — to wejście do eul.";
 "panel.tile.hide" = "Ukryj %@";
 "fan.control.unsigned" = "Ta kompilacja jest niepodpisana — macOS instaluje pomocników tylko z podpisanych aplikacji. Podpisz eul zespołem deweloperskim, aby włączyć sterowanie.";
+"fan.control.unreachable" = "Pomocnik nie odpowiada — macOS blokuje zainstalowaną kopię. Naprawa zarejestruje go ponownie.";
+"fan.control.repair" = "Napraw";
+"settings.title" = "Ustawienia";

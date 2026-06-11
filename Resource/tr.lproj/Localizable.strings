@@ -303,3 +303,6 @@
 "menu_bar.anchor_note" = "Gözler her durumda çubukta kalır — eul'un giriş noktasıdır.";
 "panel.tile.hide" = "%@ gizle";
 "fan.control.unsigned" = "Bu derleme imzasız — macOS yalnızca imzalı uygulamaların yardımcılarını yükler. Kontrolü etkinleştirmek için eul'u bir geliştirme ekibiyle imzalayın.";
+"fan.control.unreachable" = "Yardımcı yanıt vermiyor — macOS yüklü kopyayı engelliyor. Onarım onu yeniden kaydeder.";
+"fan.control.repair" = "Onar";
+"settings.title" = "Ayarlar";

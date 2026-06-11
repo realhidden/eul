@@ -304,3 +304,6 @@
 "menu_bar.anchor_note" = "無論如何，眼睛圖示都會留在選單列——它是 eul 的入口。";
 "panel.tile.hide" = "隱藏%@";
 "fan.control.unsigned" = "此版本未簽名——macOS 只安裝來自已簽名應用程式的輔助程式。請使用開發者團隊簽名 eul 以啟用控制。";
+"fan.control.unreachable" = "輔助程式沒有回應 — macOS 正在封鎖已安裝的副本。修復將重新註冊它。";
+"fan.control.repair" = "修復";
+"settings.title" = "設定";

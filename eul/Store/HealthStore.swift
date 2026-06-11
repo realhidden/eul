@@ -33,6 +33,19 @@ enum HealthLevel: Int, Comparable {
             return .critical
         }
     }
+
+    /// the color cue for a metric at this level — nil at normal so surfaces
+    /// stay monochrome until something deserves attention (§5.2)
+    var accent: Color? {
+        switch self {
+        case .normal:
+            return nil
+        case .elevated:
+            return DesignTokens.Health.elevated
+        case .critical:
+            return DesignTokens.Health.critical
+        }
+    }
 }
 
 /// The health engine (design §2.4, ask 2): per-signal thresholds with

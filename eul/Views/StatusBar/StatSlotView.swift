@@ -26,6 +26,7 @@ struct StatSlotView: View {
     @EnvironmentObject var fanStore: FanStore
     @EnvironmentObject var networkStore: NetworkStore
     @EnvironmentObject var preferenceStore: PreferenceStore
+    @EnvironmentObject var healthStore: HealthStore
 
     private var fanAverageString: String {
         let speeds = fanStore.fans.compactMap { $0.currentSpeed }
@@ -35,18 +36,37 @@ struct StatSlotView: View {
         return "\(speeds.reduce(0, +) / speeds.count)"
     }
 
+    /// the same cue the panel tile carries, in the bar (§5.2: health colors
+    /// only): health-engine attribution for CPU/MEM/DISK, charge thresholds
+    /// for BATT while on battery power
+    private var tint: Color? {
+        if component == .Battery {
+            guard !batteryStore.acPowered else {
+                return nil
+            }
+            if batteryStore.charge <= 0.1 {
+                return HealthLevel.critical.accent
+            }
+            if batteryStore.charge <= 0.2 {
+                return HealthLevel.elevated.accent
+            }
+            return nil
+        }
+        return healthStore.abnormalComponent == component ? healthStore.level.accent : nil
+    }
+
     var body: some View {
         switch component {
         case .CPU:
-            SlotText(label: "CPU", value: cpuStore.usageString, worstCase: "100%")
+            SlotText(label: "CPU", value: cpuStore.usageString, worstCase: "100%", tint: tint)
         case .Memory:
-            SlotText(label: "MEM", value: memoryStore.usedPercentageString, worstCase: "100%")
+            SlotText(label: "MEM", value: memoryStore.usedPercentageString, worstCase: "100%", tint: tint)
         case .GPU:
             SlotText(label: "GPU", value: gpuStore.usageAverageString ?? "N/A", worstCase: "100%")
         case .Disk:
-            SlotText(label: "DISK", value: diskStore.freeString, worstCase: "888.8 GB")
+            SlotText(label: "DISK", value: diskStore.freeString, worstCase: "888.8 GB", tint: tint)
         case .Battery:
-            SlotText(label: "BATT", value: batteryStore.charge.percentageString, worstCase: "100%")
+            SlotText(label: "BATT", value: batteryStore.charge.percentageString, worstCase: "100%", tint: tint)
         case .Fan:
             SlotText(label: "FAN", value: fanAverageString, worstCase: "8888")
         case .Network:
@@ -64,6 +84,7 @@ struct SlotText: View {
     let label: String
     let value: String
     let worstCase: String
+    var tint: Color?
 
     var body: some View {
         HStack(spacing: 5) {
@@ -76,6 +97,7 @@ struct SlotText: View {
             ZStack(alignment: .trailing) {
                 Text(worstCase).hidden()
                 Text(value)
+                    .foregroundColor(tint)
             }
             .font(DesignTokens.Typo.slotValue)
         }

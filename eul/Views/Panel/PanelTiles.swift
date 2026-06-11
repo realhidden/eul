@@ -9,19 +9,18 @@
 import SwiftUI
 
 /// Panel tile container (design §7 Tile): label, optional aux figure, body
-/// content; the abnormal variant carries the surface's only color. Tiles for
-/// absent hardware are absent, never empty (§2.6).
+/// content; severity carries the surface's only color (§5.2) — amber for
+/// elevated, red for critical. Tiles for absent hardware are absent, never
+/// empty (§2.6).
 struct PanelTile<Content: View>: View {
     var label: String
     var aux: String?
-    /// units are clickable where they appear (design §4.7): a faint
-    /// underline marks the aux figure as the flip affordance
-    var auxAction: (() -> Void)?
-    var abnormal = false
+    var severity: HealthLevel = .normal
     var minHeight: CGFloat? = 86
     @ViewBuilder var content: () -> Content
 
     var body: some View {
+        let accent = severity.accent
         VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline) {
                 Text(label)
@@ -30,18 +29,9 @@ struct PanelTile<Content: View>: View {
                     .foregroundColor(.primary.opacity(0.55))
                 Spacer()
                 if let aux = aux {
-                    if let auxAction = auxAction {
-                        Text(aux)
-                            .font(DesignTokens.Typo.sub)
-                            .foregroundColor(abnormal ? DesignTokens.Health.elevated : .primary.opacity(0.55))
-                            .underline(true, color: Color.primary.opacity(0.3))
-                            .contentShape(Rectangle())
-                            .onTapGesture(perform: auxAction)
-                    } else {
-                        Text(aux)
-                            .font(DesignTokens.Typo.sub)
-                            .foregroundColor(abnormal ? DesignTokens.Health.elevated : .primary.opacity(0.55))
-                    }
+                    Text(aux)
+                        .font(DesignTokens.Typo.sub)
+                        .foregroundColor(accent ?? .primary.opacity(0.55))
                 }
             }
             content()
@@ -54,7 +44,7 @@ struct PanelTile<Content: View>: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: DesignTokens.Panel.tileRadius)
-                .stroke(abnormal ? DesignTokens.Health.elevated.opacity(0.7) : Color.clear, lineWidth: 1)
+                .stroke(accent?.opacity(0.7) ?? Color.clear, lineWidth: 1)
         )
     }
 }
@@ -87,7 +77,7 @@ struct SegmentBar: View {
 struct CoreGrid: View {
     var usages: [Double]
     var labels: [String]
-    var abnormal = false
+    var accent: Color?
 
     private struct Cluster {
         let label: String
@@ -120,7 +110,7 @@ struct CoreGrid: View {
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(Color.primary.opacity(0.12))
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(abnormal ? DesignTokens.Health.elevated : Color.primary.opacity(0.85))
+                                .fill(accent ?? Color.primary.opacity(0.85))
                                 .frame(height: 30 * CGFloat(min(max(clusters[clusterIndex].values[coreIndex] / 100, 0), 1)))
                         }
                         .frame(width: 9, height: 30)

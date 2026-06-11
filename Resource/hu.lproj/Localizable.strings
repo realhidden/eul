@@ -304,3 +304,6 @@
 "menu_bar.anchor_note" = "A szemek mindenképp a sávban maradnak — ők az eul belépési pontja.";
 "panel.tile.hide" = "%@ elrejtése";
 "fan.control.unsigned" = "Ez a build nincs aláírva — a macOS csak aláírt alkalmazások segédprogramjait telepíti. Írja alá az eul-t fejlesztői csapattal a vezérléshez.";
+"fan.control.unreachable" = "A segéd nem válaszol — a macOS blokkolja a telepített példányt. A javítás újraregisztrálja.";
+"fan.control.repair" = "Javítás";
+"settings.title" = "Beállítások";

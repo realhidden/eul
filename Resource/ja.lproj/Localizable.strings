@@ -303,3 +303,6 @@
 "menu_bar.anchor_note" = "目のアイコンは常にバーに残ります — eul の入り口です。";
 "panel.tile.hide" = "%@を非表示";
 "fan.control.unsigned" = "このビルドは未署名です。macOS は署名済みアプリのヘルパーのみをインストールします。ファン制御には開発チームで署名してください。";
+"fan.control.unreachable" = "ヘルパーが応答しません — インストール済みのコピーが macOS にブロックされています。修復すると再登録されます。";
+"fan.control.repair" = "修復";
+"settings.title" = "設定";
