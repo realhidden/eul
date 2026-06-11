@@ -284,3 +284,11 @@
 "fan.control.waiting.body" = "macOS is asking for your approval in System Settings → Login Items & Extensions.";
 "fan.control.open_settings" = "Open System Settings";
 "fan.control.install_failed" = "macOS declined the registration — the helper needs a properly signed build.";
+"health.runaway" = "Runaway process";
+"health.runaway.desc" = "When one process stays above 150% of a core for 2 minutes";
+"health.verdict.runaway" = "Runaway process — %@";
+"widget.health.title" = "Health";
+"widget.health.description" = "The eyes, the verdict, and your headline figures — honest about freshness";
+"widget.trends.title" = "Trends";
+"widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
+"widget.no_data" = "Open eul to start monitoring";

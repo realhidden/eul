@@ -32,7 +32,7 @@ enum GlobalHotKey {
                 DispatchQueue.main.async {
                     if PanelManager.shared.isOpen {
                         PanelManager.shared.close()
-                    } else if StatusBarManager.shared.anchor.isOccluded {
+                    } else if StatusBarManager.shared.entryItemOccluded {
                         PanelManager.shared.openCentered()
                     } else {
                         PanelManager.shared.open()

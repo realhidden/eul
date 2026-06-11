@@ -91,7 +91,7 @@ final class PanelManager: NSObject {
         position(panel, centered: centered)
         panel.orderFrontRegardless()
         panel.makeKey()
-        StatusBarManager.shared.anchor.item.button?.highlight(true)
+        StatusBarManager.shared.entryButton?.highlight(true)
         if !isOpen {
             isOpen = true
             // the collector contract: panel open = menu open (TopStore,
@@ -123,6 +123,7 @@ final class PanelManager: NSObject {
         hostingView?.rootView = AnyView(EmptyView())
         SharedStore.ui.menuOpened = false
         StatusBarManager.shared.anchor.item.button?.highlight(false)
+        StatusBarManager.shared.strip.item.button?.highlight(false)
     }
 
     private func makeRootView() -> AnyView {
@@ -210,7 +211,7 @@ final class PanelManager: NSObject {
 
         if
             !centered,
-            let window = StatusBarManager.shared.anchor.item.button?.window,
+            let window = StatusBarManager.shared.entryWindow,
             let screen = window.screen
         {
             // the button window's frame is in global screen coordinates and

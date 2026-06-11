@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import SharedLibrary
 import SwiftUI
 import SwiftyJSON
 
@@ -116,6 +117,7 @@ class HealthStore: ObservableObject, Refreshable {
         case thermal
         case memoryPressure
         case diskFull
+        case runaway
     }
 
     private let userDefaultsKey = "health"
@@ -128,6 +130,11 @@ class HealthStore: ObservableObject, Refreshable {
         .memoryPressure: SignalTracker(elevatedWindow: 30, criticalWindow: 10),
         // disk changes slowly; short windows just guard against transient reads
         .diskFull: SignalTracker(elevatedWindow: 10, criticalWindow: 10),
+        // §2.4: 1 process > 150% core-eq ≥ 120 s — elevated only, never
+        // critical. The 120 s sustain is enforced PER-PROCESS inside
+        // rawRunaway (a relay of different hot processes must not trip it);
+        // this tracker just debounces one sample and gives a 30 s clear.
+        .runaway: SignalTracker(elevatedWindow: 15, criticalWindow: .greatestFiniteMagnitude),
     ]
 
     @Published var level: HealthLevel = .normal
@@ -138,6 +145,7 @@ class HealthStore: ObservableObject, Refreshable {
     @Published var thermalEnabled = true
     @Published var memoryPressureEnabled = true
     @Published var diskFullEnabled = true
+    @Published var runawayEnabled = true
 
     // MARK: history ring buffers (design §10 ask 1 — 10 min, in-memory only)
 
@@ -154,7 +162,7 @@ class HealthStore: ObservableObject, Refreshable {
     /// which panel tile should carry the abnormal treatment
     var abnormalComponent: EulComponent? {
         switch activeSignal {
-        case .thermal:
+        case .thermal, .runaway:
             return .CPU
         case .memoryPressure:
             return .Memory
@@ -173,6 +181,9 @@ class HealthStore: ObservableObject, Refreshable {
             return "health.verdict.memory".localized()
         case .diskFull:
             return "health.verdict.disk".localized()
+        case .runaway:
+            // culprit attribution (ask 2): "Runaway process — Xcode"
+            return String(format: "health.verdict.runaway".localized(), runawayCulprit ?? "?")
         case nil:
             return "health.verdict.normal".localized()
         }
@@ -252,11 +263,125 @@ class HealthStore: ObservableObject, Refreshable {
         return .normal
     }
 
+    // MARK: runaway process sampling (design §2.4 / ask 6)
+
+    /// rusage_info times are mach ticks on Apple Silicon, nanoseconds on
+    /// Intel — the timebase factor normalizes both to nanoseconds
+    private static let machTimebaseFactor: Double = {
+        var info = mach_timebase_info()
+        mach_timebase_info(&info)
+        return Double(info.numer) / Double(info.denom)
+    }()
+
+    /// pid → cumulative CPU seconds at the last sample
+    private var processCPUSamples: [pid_t: Double] = [:]
+    /// pid → when this process FIRST crossed the threshold and stayed there;
+    /// the §2.4 sustain is per-process, so a relay of different briefly-hot
+    /// processes cannot trip the signal or misattribute the culprit
+    private var overThresholdSince: [pid_t: Date] = [:]
+    private var lastRunawaySampleAt: Date?
+    private var cachedRunawayLevel: HealthLevel = .normal
+    private(set) var runawayCulprit: String?
+    /// the trip window is 120 s — sampling every refresh tick would be
+    /// wasted syscalls; 15 s gives 8 samples per window
+    private static let runawaySampleInterval: TimeInterval = 15
+    /// §2.4: 1 process > 150% of one core, normalized (1.0 = one full core)
+    private static let runawayCoreEquivalentThreshold = 1.5
+    private static let runawaySustainWindow: TimeInterval = 120
+
+    private func rawRunaway() -> HealthLevel {
+        let now = Date()
+        guard let last = lastRunawaySampleAt else {
+            lastRunawaySampleAt = now
+            processCPUSamples = Self.sampleProcessCPUSeconds()
+            return .normal
+        }
+        let elapsed = now.timeIntervalSince(last)
+        guard elapsed >= Self.runawaySampleInterval else {
+            return cachedRunawayLevel
+        }
+        lastRunawaySampleAt = now
+
+        let current = Self.sampleProcessCPUSeconds()
+        var streaks: [pid_t: Date] = [:]
+        for (pid, cpuSeconds) in current {
+            guard let previous = processCPUSamples[pid] else {
+                continue
+            }
+            let coreEquivalent = (cpuSeconds - previous) / elapsed
+            if coreEquivalent > Self.runawayCoreEquivalentThreshold {
+                streaks[pid] = overThresholdSince[pid] ?? now
+            }
+        }
+        // pids that fell below or died drop out of both maps
+        overThresholdSince = streaks
+        processCPUSamples = current
+
+        if
+            let sustained = streaks.min(by: { $0.value < $1.value }),
+            now.timeIntervalSince(sustained.value) >= Self.runawaySustainWindow
+        {
+            cachedRunawayLevel = .elevated
+            // culprit persists through the tracker's hysteresis window
+            runawayCulprit = Self.processName(sustained.key)
+        } else {
+            cachedRunawayLevel = .normal
+        }
+        return cachedRunawayLevel
+    }
+
+    private static func sampleProcessCPUSeconds() -> [pid_t: Double] {
+        let expected = proc_listallpids(nil, 0)
+        guard expected > 0 else {
+            return [:]
+        }
+        var pids = [pid_t](repeating: 0, count: Int(expected) + 32)
+        let filled = proc_listallpids(&pids, Int32(pids.count * MemoryLayout<pid_t>.size))
+        guard filled > 0 else {
+            return [:]
+        }
+
+        var result: [pid_t: Double] = [:]
+        result.reserveCapacity(Int(filled))
+        for index in 0..<Int(filled) {
+            let pid = pids[index]
+            guard pid > 0 else {
+                continue
+            }
+            // flavor pinned to V4: RUSAGE_INFO_CURRENT floats with the SDK
+            // (V6 today) and kernels before macOS 13 reject it with EINVAL,
+            // which would silently disable the detector on the 11/12 floor;
+            // V4 has both time fields and is supported everywhere we run
+            var info = rusage_info_v4()
+            let status = withUnsafeMutablePointer(to: &info) { pointer in
+                pointer.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) {
+                    proc_pid_rusage(pid, RUSAGE_INFO_V4, $0)
+                }
+            }
+            guard status == 0 else {
+                continue
+            }
+            let ticks = info.ri_user_time &+ info.ri_system_time
+            result[pid] = Double(ticks) * machTimebaseFactor / 1_000_000_000
+        }
+        return result
+    }
+
+    private static func processName(_ pid: pid_t) -> String {
+        var buffer = [CChar](repeating: 0, count: 256)
+        let length = proc_name(pid, &buffer, UInt32(buffer.count))
+        guard length > 0 else {
+            return "pid \(pid)"
+        }
+        return String(cString: buffer)
+    }
+
     @objc func refresh() {
         let raws: [Signal: HealthLevel] = [
             .thermal: thermalEnabled ? rawThermal() : .normal,
             .memoryPressure: memoryPressureEnabled ? rawMemoryPressure() : .normal,
             .diskFull: diskFullEnabled ? rawDiskFullCached() : .normal,
+            .runaway: runawayEnabled ? rawRunaway() : .normal,
         ]
 
         var newLevel = HealthLevel.normal
@@ -277,15 +402,55 @@ class HealthStore: ObservableObject, Refreshable {
         }
 
         appendHistories()
+        writeToContainer()
+    }
+
+    /// the eul 2.0 widgets feed off the health engine + ring buffers
+    /// (design §6); WidgetReloader coalesces the reload side
+    private func writeToContainer() {
+        let now = Date()
+        // memory total can be 0 for the first tick(s) → NaN percentage
+        let memoryReady = SharedStore.memory.total > 0
+        Container.set(HealthEntry(
+            capturedAt: now,
+            level: level.rawValue,
+            verdict: verdictText,
+            cpu: SharedStore.cpu.usage,
+            memory: memoryReady ? SharedStore.memory.usedPercentage : nil
+        ))
+        WidgetReloader.requestReload(ofKind: HealthEntry.kind)
+
+        Container.set(TrendsEntry(
+            capturedAt: now,
+            level: level.rawValue,
+            cpuHistory: Self.downsample(cpuHistory),
+            memoryHistory: Self.downsample(memoryHistory),
+            networkHistory: Self.downsample(networkHistory),
+            cpuCurrent: SharedStore.cpu.usageString,
+            memoryCurrent: memoryReady ? SharedStore.memory.usedPercentageString : "N/A",
+            networkCurrentInByte: SharedStore.network.inSpeedInByte
+        ))
+        WidgetReloader.requestReload(ofKind: TrendsEntry.kind)
+    }
+
+    /// a medium widget row is ~250 pt wide — 40 points is plenty
+    private static func downsample(_ values: [Double], to target: Int = 40) -> [Double] {
+        guard values.count > target else {
+            return values
+        }
+        let step = Double(values.count) / Double(target)
+        return (0..<target).map { values[Int(Double($0) * step)] }
     }
 
     private static let maxHistorySamples = 200
 
     private func appendHistories() {
         /// sampled at the refresh cadence; values may lag one tick behind the
-        /// producing stores depending on observer order — fine for sparklines
+        /// producing stores depending on observer order — fine for sparklines.
+        /// Non-finite values (memory % before the first sample) become 0 so
+        /// no NaN ever reaches a Path or the widget container.
         func push(_ buffer: inout [Double], _ value: Double) {
-            buffer.append(value)
+            buffer.append(value.isFinite ? value : 0)
             if buffer.count > Self.maxHistorySamples {
                 buffer.removeFirst(buffer.count - Self.maxHistorySamples)
             }
@@ -303,6 +468,7 @@ class HealthStore: ObservableObject, Refreshable {
             "thermalEnabled": thermalEnabled,
             "memoryPressureEnabled": memoryPressureEnabled,
             "diskFullEnabled": diskFullEnabled,
+            "runawayEnabled": runawayEnabled,
         ])
     }
 
@@ -315,6 +481,9 @@ class HealthStore: ObservableObject, Refreshable {
         }
         if let value = data["thermalEnabled"].bool {
             thermalEnabled = value
+        }
+        if let value = data["runawayEnabled"].bool {
+            runawayEnabled = value
         }
         if let value = data["memoryPressureEnabled"].bool {
             memoryPressureEnabled = value
@@ -339,9 +508,9 @@ class HealthStore: ObservableObject, Refreshable {
         // persist only the toggles — objectWillChange fires on every history
         // append (every refresh tick) and would write UserDefaults constantly
         saveCancellable = Publishers
-            .CombineLatest3($thermalEnabled, $memoryPressureEnabled, $diskFullEnabled)
+            .CombineLatest4($thermalEnabled, $memoryPressureEnabled, $diskFullEnabled, $runawayEnabled)
             .dropFirst()
-            .sink { [weak self] _, _, _ in
+            .sink { [weak self] _, _, _, _ in
                 DispatchQueue.main.async {
                     self?.saveToDefaults()
                 }

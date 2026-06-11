@@ -10,10 +10,12 @@ import Combine
 import SwiftUI
 import UserNotifications
 
-/// Orchestrates the anchor + strip pair and runs the width governor
-/// (design §2.2–2.3): under width pressure the strip drops slots by priority
-/// (last pinned drops first), then disappears entirely; the anchor survives
-/// last and, if macOS hides even that, the recovery flow fires (§2.5).
+/// Orchestrates the bar and runs the width governor (design §2.2–2.3).
+/// Exactly ONE item is visible at a time — the strip (slots + eyes) normally,
+/// the eyes-only anchor at the floor — so eul reads as a single entry point.
+/// Under width pressure the strip drops slots by priority (last pinned drops
+/// first), then swaps for the anchor; if macOS hides even that, the recovery
+/// flow fires (§2.5).
 class StatusBarManager {
     static let shared = StatusBarManager()
     private static let launchTime = Date()
@@ -21,20 +23,34 @@ class StatusBarManager {
     @ObservedObject var preferenceStore = SharedStore.preference
     @ObservedObject var componentsStore = SharedStore.components
 
-    // anchor is created FIRST so the strip inserts to its left (clock-side
-    // anchor); on upgrade the anchor is seeded just inside the strip's
-    // saved position — see AnchorStatusItem.init
     let anchor = AnchorStatusItem()
     let strip = StripStatusItem()
 
     private var cancellables = Set<AnyCancellable>()
-    private var occlusionObservers: [NSObjectProtocol] = []
+    private var occlusionObserver: NSObjectProtocol?
     private var governorTimer: Timer?
     private var reprobeTimer: Timer?
     private var hasNotifiedHiddenEpisode = false
     /// governor's current cap on visible slots; reset whenever the user
     /// reconfigures the pinned set or the screen layout changes
     private var slotLimit = Int.max
+
+    /// whichever item currently carries eul in the bar
+    private var entryItem: BaseStatusItem {
+        strip.isVisible ? strip : anchor
+    }
+
+    var entryButton: NSStatusBarButton? {
+        entryItem.item.button
+    }
+
+    var entryWindow: NSWindow? {
+        entryItem.item.button?.window
+    }
+
+    var entryItemOccluded: Bool {
+        entryItem.isOccluded
+    }
 
     init() {
         // w/o the delay items will have a chance of not appearing
@@ -46,14 +62,14 @@ class StatusBarManager {
     private func subscribe() {
         componentsStore.$activeComponents
             .sink { [weak self] _ in
-                // @Published emits on willSet — defer so renderStrip reads
+                // @Published emits on willSet — defer so renderBar reads
                 // the post-assignment store state
                 DispatchQueue.main.async {
                     guard let self = self else {
                         return
                     }
                     self.slotLimit = Int.max
-                    self.renderStrip()
+                    self.renderBar()
                     self.checkVisibilityIfNeeded()
                 }
             }
@@ -62,7 +78,7 @@ class StatusBarManager {
         componentsStore.$showComponents
             .sink { [weak self] _ in
                 DispatchQueue.main.async {
-                    self?.renderStrip()
+                    self?.renderBar()
                 }
             }
             .store(in: &cancellables)
@@ -81,7 +97,7 @@ class StatusBarManager {
             .sink { [weak self] _ in
                 // display layout changed: pressure may have eased — start over
                 self?.slotLimit = Int.max
-                self?.renderStrip()
+                self?.renderBar()
                 self?.checkVisibilityIfNeeded()
             }
             .store(in: &cancellables)
@@ -92,27 +108,29 @@ class StatusBarManager {
             .removeDuplicates()
             .sink { [weak self] _ in
                 DispatchQueue.main.async {
-                    self?.renderStrip()
+                    self?.renderBar()
                 }
             }
             .store(in: &cancellables)
 
-        observeOcclusion()
-        renderStrip()
-    }
-
-    private func observeOcclusion() {
-        // button windows exist by now (0.5 s after item creation)
-        let windows = [anchor.item.button?.window, strip.item.button?.window].compactMap { $0 }
-        for window in windows {
-            occlusionObservers.append(NotificationCenter.default.addObserver(
-                forName: NSWindow.didChangeOcclusionStateNotification,
-                object: window,
-                queue: .main
-            ) { [weak self] _ in
-                self?.checkVisibilityIfNeeded()
-            })
+        // observe all windows and filter — button windows are recreated by
+        // visibility toggles, so observing specific instances would go blind
+        occlusionObserver = NotificationCenter.default.addObserver(
+            forName: NSWindow.didChangeOcclusionStateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard
+                let self = self,
+                let window = notification.object as? NSWindow,
+                window === self.anchor.item.button?.window || window === self.strip.item.button?.window
+            else {
+                return
+            }
+            self.checkVisibilityIfNeeded()
         }
+
+        renderBar()
     }
 
     /// The occlusion check false-positives whenever the menu bar itself is
@@ -127,7 +145,7 @@ class StatusBarManager {
             return true
         }
 
-        guard let screen = anchor.item.button?.window?.screen ?? NSScreen.main else {
+        guard let screen = entryWindow?.screen ?? NSScreen.main else {
             return false
         }
         var reservedTop: CGFloat = 0
@@ -153,19 +171,32 @@ class StatusBarManager {
         min(slotLimit, componentsStore.activeComponents.count)
     }
 
-    private func renderStrip() {
-        let count = visibleSlotCount
-        // an active fan override keeps the strip alive even with zero
-        // governed slots or components off — the auto-pinned FAN slot must
-        // be impossible to forget (design §2.7)
-        let overrideActive = SharedStore.fanControl.overrideActive
-        guard componentsStore.showComponents || overrideActive, count > 0 || overrideActive else {
-            strip.setVisible(false)
-            return
-        }
-        strip.render(slotLimit: count)
-        if !strip.isVisible {
-            strip.setVisible(true)
+    /// strip mode = anything to show beyond the eyes; otherwise the floor
+    private var wantsStrip: Bool {
+        (componentsStore.showComponents && visibleSlotCount > 0)
+            // an active fan override keeps the strip alive — the auto-pinned
+            // FAN slot must be impossible to forget (design §2.7)
+            || SharedStore.fanControl.overrideActive
+    }
+
+    private func renderBar() {
+        if wantsStrip {
+            strip.render(slotLimit: visibleSlotCount)
+            if !strip.isVisible {
+                strip.adoptPosition(from: anchor)
+                strip.setVisible(true)
+            }
+            if anchor.isVisible {
+                anchor.setVisible(false)
+            }
+        } else {
+            if !anchor.isVisible {
+                anchor.adoptPosition(from: strip)
+                anchor.setVisible(true)
+            }
+            if strip.isVisible {
+                strip.setVisible(false)
+            }
         }
     }
 
@@ -175,20 +206,30 @@ class StatusBarManager {
             return
         }
 
-        let stripDrawnButOccluded = strip.isVisible && strip.isOccluded
-        let anchorOccluded = anchor.isOccluded
-
-        if anchorOccluded, stripDrawnButOccluded {
-            // usually a display event (lock, lid, monitor switch) — but a bar
-            // that fills enough can swallow both items in one re-layout, and
-            // that state is stable. Persistence over a re-check means it's
-            // real: macOS already draws nothing for us, so dropping slots
-            // can't help — go straight to the recovery notification.
-            governorTimer?.invalidate()
-            governorTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { [weak self] _ in
+        if strip.isVisible, strip.isOccluded {
+            // confirm before acting: lid close, screen lock, and monitor
+            // switches all false-positive occlusion briefly
+            confirm(after: 3) { [weak self] in
                 guard
                     let self = self, !self.isMenuBarLikelyHidden,
-                    self.anchor.isOccluded, !self.strip.isVisible || self.strip.isOccluded
+                    self.strip.isVisible, self.strip.isOccluded
+                else {
+                    return
+                }
+                self.dropSlot()
+            }
+            return
+        }
+
+        if anchor.isVisible, anchor.isOccluded {
+            // the bar is truly full — macOS hid even the 28 pt floor.
+            // Persistence over a longer re-check separates that from display
+            // events; then tell, once, silently (§2.5) — the panel stays
+            // reachable via relaunch/hotkey.
+            confirm(after: 10) { [weak self] in
+                guard
+                    let self = self, !self.isMenuBarLikelyHidden,
+                    self.anchor.isVisible, self.anchor.isOccluded
                 else {
                     return
                 }
@@ -197,33 +238,55 @@ class StatusBarManager {
             return
         }
 
-        if stripDrawnButOccluded {
-            // drop the lowest-priority slot; only an off/on toggle makes
-            // macOS re-evaluate a hidden item (#149). The toggle preserves
-            // the stashed position, and a position-forgotten item re-inserts
-            // on the left of our other item, so anchor-right ordering holds.
-            slotLimit = max(visibleSlotCount - 1, 0)
-            Print("width governor: dropping to \(slotLimit) slot(s)")
-            renderStrip()
-            if slotLimit > 0 {
-                strip.setVisible(false)
-                DispatchQueue.main.async { [self] in
-                    strip.setVisible(true)
-                    checkVisibilityIfNeeded()
-                }
-            }
-            scheduleReprobe()
-            return
-        }
-
-        if anchorOccluded {
-            // the bar is truly full — macOS hid even the anchor. Tell, once,
-            // silently (§2.5); the panel stays reachable via relaunch/hotkey.
-            notifyHiddenEpisode()
-            return
-        }
-
         hasNotifiedHiddenEpisode = false
+    }
+
+    private func confirm(after seconds: TimeInterval, _ action: @escaping () -> Void) {
+        governorTimer?.invalidate()
+        governorTimer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false) { _ in
+            action()
+        }
+    }
+
+    private func dropSlot() {
+        // an override-pinned strip at zero governed slots IS the floor —
+        // there is nothing left to drop, so a persistent occlusion here is
+        // the hidden-bar case, not width pressure (otherwise the toggle
+        // below would loop forever and the notification would never fire)
+        guard visibleSlotCount > 0 else {
+            confirm(after: 10) { [weak self] in
+                guard
+                    let self = self, !self.isMenuBarLikelyHidden,
+                    self.strip.isVisible, self.strip.isOccluded
+                else {
+                    return
+                }
+                self.notifyHiddenEpisode()
+            }
+            return
+        }
+
+        // drop the lowest-priority slot; only an off/on toggle makes macOS
+        // re-evaluate a hidden item (#149). The toggle preserves the stashed
+        // position. At zero slots renderBar swaps to the 28 pt anchor floor.
+        slotLimit = max(visibleSlotCount - 1, 0)
+        Print("width governor: dropping to \(slotLimit) slot(s)")
+        renderBar()
+        if strip.isVisible {
+            strip.setVisible(false)
+            DispatchQueue.main.async { [self] in
+                // the mode may have flipped between the hide and this re-show
+                if wantsStrip {
+                    strip.setVisible(true)
+                } else {
+                    renderBar()
+                }
+                checkVisibilityIfNeeded()
+            }
+        } else {
+            checkVisibilityIfNeeded()
+        }
+        scheduleReprobe()
     }
 
     private func notifyHiddenEpisode() {
@@ -248,7 +311,7 @@ class StatusBarManager {
                 return
             }
             self.slotLimit += 1
-            self.renderStrip()
+            self.renderBar()
             self.checkVisibilityIfNeeded()
             self.scheduleReprobe()
         }
@@ -256,7 +319,7 @@ class StatusBarManager {
 }
 
 /// The one notification in the product (design §2.5): posted when macOS
-/// hides even the anchor, at most once per occlusion episode, never
+/// hides even the floor item, at most once per occlusion episode, never
 /// focus-stealing. Replaces the 1.x modal alert.
 enum RecoveryNotifier {
     static func postHiddenNotification() {
