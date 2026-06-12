@@ -1,48 +1,58 @@
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/14722250/93017676-1a009c00-f5fd-11ea-9b8e-c69c2cd4fa89.png" height=64 />
+  <img src="Resource/Assets.xcassets/AppIcon.appiconset/eul@256px.png" height=96 />
 </p>
 
-# eul
+# eul 2.0
 
-![Preview](https://user-images.githubusercontent.com/14722250/105626766-f718ab00-5e6c-11eb-9761-661ff85c8faf.jpg)
+A calm system monitor for the macOS menu bar — this fork revives and redesigns [gao-sun/eul](https://github.com/gao-sun/eul) for modern macOS and Apple Silicon, rebuilt around one idea: **glanceable when things are fine, useful when they aren't.**
 
 ## Highlights
 
-- Dark Mode compatible
-- Big Sur widgets out of the box
-- Bluetooth battery level
-- Written in SwiftUI (as much as possible)
+- **One entry point in the bar.** Your pinned metrics render as a single strip; when the menu bar gets crowded, a width governor collapses it slot by slot down to the eyes — eul never silently disappears.
+- **An investigation panel, not a dropdown.** Click the strip for a top-down read: verdict, metric tiles with sparklines, top processes by CPU / memory / network, and eul's own footprint reported on every open.
+- **A health engine instead of a Christmas tree.** Surfaces stay monochrome until a *sustained* signal trips — thermal pressure, memory pressure, disk almost full, runaway process — then exactly the responsible metric tints amber or red, in the bar and in the panel.
+- **Fan control with a real safety model.** A privileged helper (macOS 13+, approved by you in System Settings) drives the fans: linked by default with one stepped slider, Auto / Manual / Boost per fan if you unlink. Targets are clamped to hardware limits, macOS can always cool past your setting, and fans revert to Auto whenever eul isn't running — enforced by the helper's own dead-man watchdog, not by good intentions.
+- **Honest widgets.** Health and Trends widgets that say how old their data is instead of pretending to be live.
+- **Native, cheap sampling.** Metrics come from syscalls, not shelled-out tools; container writes and widget reloads are skipped when nothing consumes them; refresh cadence (1–10 s) is one slider with its energy cost stated next to it.
+- **Personalization without a layout editor.** Hide tiles you don't care about (right-click), value-only bar slots, °C/°F and MB/s ⇄ Mb/s units, 23 languages.
 
 ## OS Requirement
 
-macOS 10.15 minimum for SwiftUI support
+macOS 10.15+ (Catalina) for the app. Fan control requires macOS 13+ and a signed build. Big Sur 11+ for widgets. Universal: Apple Silicon + Intel.
 
 ## Installation
 
-### Download
-
-Download the [latest release](https://github.com/gao-sun/eul/releases/latest/download/eul.app.zip) directly and drag `.app` file into your `Application` folder.
-
-### Homebrew Cask
+No binary releases yet on this fork — build from source:
 
 ```bash
-brew install --cask eul
+git clone https://github.com/chrsomle/eul.git && cd eul
+
+xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx -configuration Release build \
+  CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<your team id> -allowProvisioningUpdates
 ```
 
-### App Store
+Copy the built `eul.app` from DerivedData into `/Applications`. A real signing team (free Apple Developer account works) is required for fan control — macOS refuses to register privileged helpers from unsigned apps. Everything else runs fine unsigned:
 
-Search `eul` or [click here](https://apps.apple.com/us/app/eul/id1537133867) to view in App Store.
+```bash
+xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx build \
+  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" \
+  CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO"
+```
 
-Note:
+## Development
 
-1. Some features are disabled due to the removal of all SMC calls.
-2. The version is out-dated.
+SwiftUI throughout, no test target — CI builds and lint-checks formatting. Run the formatter before committing:
 
-### Release Notes
+```bash
+cd BuildTools && swift run -c release swiftformat ../ --lint   # check
+cd BuildTools && swift run -c release swiftformat ..           # fix
+```
 
-[Click here](https://github.com/gao-sun/eul/releases/latest) to browse our latest release notes.
+The design direction and component specs live in [`design/handoff`](design/handoff). The app icon is generated from code: [`design/icon/generate-appicon.swift`](design/icon/generate-appicon.swift).
 
-## Contributors
+## Acknowledgements
+
+eul was created by [gao-sun](https://github.com/gao-sun) — this fork stands on that work and keeps its localization community's contributions.
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -104,12 +114,13 @@ Note:
 
 ```swift
 let languages = [
-  "简体中文", "English", "Arabic",
+  "简体中文", "English", "العربية",
   "Deutsch", "Русский", "Español",
   "Português", "Монгол", "한국어",
   "日本語", "Français", "Українська",
   "Svenska", "Čeština", "Italiano",
   "繁體中文", "မြန်မာဘာသာ", "Magyar",
-  "ไทย", "Türkçe"
+  "ไทย", "Türkçe", "فارسی",
+  "Polski", "Dansk",
 ];
 ```
