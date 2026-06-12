@@ -6,6 +6,10 @@
 
 A calm system monitor for the macOS menu bar — this fork revives and redesigns [gao-sun/eul](https://github.com/gao-sun/eul) for modern macOS and Apple Silicon, rebuilt around one idea: **glanceable when things are fine, useful when they aren't.**
 
+<p align="center">
+  <img src="design/screenshots/panel.png" width="390" alt="The eul menu bar strip and investigation panel" />
+</p>
+
 ## Highlights
 
 - **One entry point in the bar.** Your pinned metrics render as a single strip; when the menu bar gets crowded, a width governor collapses it slot by slot down to the eyes — eul never silently disappears.
@@ -22,7 +26,13 @@ macOS 10.15+ (Catalina) for the app. Fan control requires macOS 13+ and a signed
 
 ## Installation
 
-No binary releases yet on this fork — build from source:
+### Download
+
+Download [`eul.app.zip` from the latest release](https://github.com/chrsomle/eul/releases/latest/download/eul.app.zip), unzip, and drag `eul.app` into `/Applications`.
+
+The release build is development-signed, not notarized — on first launch macOS will balk: right-click `eul.app` → **Open** (or allow it under System Settings → Privacy & Security).
+
+### Build from source
 
 ```bash
 git clone https://github.com/chrsomle/eul.git && cd eul
