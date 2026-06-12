@@ -23,12 +23,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var updateCheckGeneration = 0
     private var updateMethodCancellable: AnyCancellable?
     private var appearanceCancellable: AnyCancellable?
+    /// the Settings SwiftUI tree is mounted only while the window is visible
+    /// (same pattern as PanelManager); a hidden tree would re-diff on every
+    /// store tick around the clock
+    private var settingsHostingView: NSHostingView<AnyView>?
 
     var window: NSWindow!
     @ObservedObject var preferenceStore = SharedStore.preference
 
     func applicationDidFinishLaunching(_: Notification) {
-        let contentView = ContentView()
         // HIG (settings windows): titled, closable and miniaturizable, never
         // resizable/zoomable; the transparent titlebar keeps the rail design
         // while the title still draws
@@ -41,7 +44,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.setFrameAutosaveName("Eul Preferences")
         // the settings content is fixed-size; override a stale autosaved frame
         window.setContentSize(NSSize(width: 640, height: 560))
-        window.contentView = NSHostingView(rootView: contentView.withGlobalEnvironmentObjects())
+        // placeholder until openPreferences mounts ContentView; the fixed
+        // frame keeps the non-resizable window's geometry stable
+        let hosting = NSHostingView(rootView: AnyView(EmptyView().frame(width: 640, height: 560)))
+        settingsHostingView = hosting
+        window.contentView = hosting
         window.isReleasedWhenClosed = false
         window.title = "settings.title".localized()
         window.titlebarAppearsTransparent = true
@@ -124,6 +131,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         isSleeping = true
     }
 
+    /// unmount the Settings tree on close so it stops re-diffing on every
+    /// store tick; all settings state lives in the stores, so the next
+    /// openPreferences remounts pixel-identically
+    func windowWillClose(_ notification: Notification) {
+        guard (notification.object as? NSWindow) === window else {
+            return
+        }
+        settingsHostingView?.rootView = AnyView(EmptyView().frame(width: 640, height: 560))
+    }
+
     func applicationWillTerminate(_: Notification) {
         // Insert code here to tear down your application
     }
@@ -148,9 +165,14 @@ extension AppDelegate {
     }
 
     static func openPreferences() {
-        let window = (NSApp.delegate as! AppDelegate).window!
+        let delegate = NSApp.delegate as! AppDelegate
+        let window = delegate.window!
         // titles are snapshots — refresh in case the language changed
         window.title = "settings.title".localized()
+        // mount the Settings tree on demand (unmounted again on close)
+        delegate.settingsHostingView?.rootView = AnyView(ContentView().withGlobalEnvironmentObjects())
+        // guard against the placeholder having influenced the frame
+        window.setContentSize(NSSize(width: 640, height: 560))
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         NotificationCenter.default.post(name: .StatusBarMenuShouldClose, object: nil)
@@ -170,9 +192,14 @@ extension AppDelegate {
         }
 
         NotificationCenter.default.post(name: .SMCShouldRefresh, object: nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + Double(preferenceStore.smcRefreshRate)) { [self] in
+        // tolerance lets the OS coalesce wakeups; .common keeps the re-arm
+        // alive while a menu is open or a window is dragged (like asyncAfter)
+        let interval = Double(preferenceStore.smcRefreshRate)
+        let timer = Timer(timeInterval: interval, repeats: false) { [self] _ in
             refreshSMCRepeatedly(generation: generation)
         }
+        timer.tolerance = min(interval * 0.1, 0.5)
+        RunLoop.main.add(timer, forMode: .common)
     }
 
     func refreshNetworkRepeatedly(generation: Int) {
@@ -181,9 +208,12 @@ extension AppDelegate {
         }
 
         NotificationCenter.default.post(name: .NetworkShouldRefresh, object: nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + Double(preferenceStore.networkRefreshRate)) { [self] in
+        let interval = Double(preferenceStore.networkRefreshRate)
+        let timer = Timer(timeInterval: interval, repeats: false) { [self] _ in
             refreshNetworkRepeatedly(generation: generation)
         }
+        timer.tolerance = min(interval * 0.1, 0.5)
+        RunLoop.main.add(timer, forMode: .common)
     }
 
     func checkUpdateRepeatedly(generation: Int) {
@@ -192,8 +222,10 @@ extension AppDelegate {
         }
 
         preferenceStore.checkUpdate()
-        DispatchQueue.main.asyncAfter(deadline: .now() + Double(60 * 60)) { [self] in
+        let timer = Timer(timeInterval: Double(60 * 60), repeats: false) { [self] _ in
             checkUpdateRepeatedly(generation: generation)
         }
+        timer.tolerance = Double(60 * 5)
+        RunLoop.main.add(timer, forMode: .common)
     }
 }

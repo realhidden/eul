@@ -6,9 +6,11 @@
 //  Copyright © 2020 Gao Sun. All rights reserved.
 //
 
+import Darwin
 import Foundation
 import IOKit.ps
 import SharedLibrary
+import SystemConfiguration
 import SystemKit
 
 extension BatteryEntry.BatteryCondition {
@@ -120,11 +122,6 @@ enum Info {
         }
     }
 
-    struct InterfaceStatus {
-        var name: String
-        var status: String?
-    }
-
     static func findPort(_ string: String) -> NetworkPort? {
         guard string.hasPrefix("("), string.hasSuffix(")") else {
             return nil
@@ -145,69 +142,144 @@ enum Info {
         return NetworkPort(port: port, device: device)
     }
 
+    /// SIOCGIFMEDIA = _IOWR('i', 56, struct ifmediareq); the _IOWR macro
+    /// doesn't import into Swift — value derived from the macOS SDK headers
+    /// where sizeof(struct ifmediareq) == 44 (0x2C)
+    private static let SIOCGIFMEDIA: UInt = 0xC02C_6938
+    // status bits per net/if_media.h
+    private static let IFM_AVALID: Int32 = 0x0000_0001
+    private static let IFM_ACTIVE: Int32 = 0x0000_0002
+
     static func getActiveInterfaces() -> [String] {
         // virtual link-layer helpers report "active" too and shadow the real
         // port (#226); exclude them rather than allowlisting en*/ap* so
         // Thunderbolt/USB bridges and future physical types keep working
         let virtualInterfacePrefixes = ["lo", "awdl", "llw", "utun", "gif", "stf"]
 
-        return shell("ifconfig")?.split(separator: "\n").map { String($0) }.reduce([InterfaceStatus]()) {
-            // new interface
-            if !$1.hasPrefix("\t") {
-                guard let colonIndex = $1.firstIndex(of: ":") else {
-                    return $0
+        var addressList: UnsafeMutablePointer<ifaddrs>?
+
+        guard getifaddrs(&addressList) == 0 else {
+            return []
+        }
+        defer { freeifaddrs(addressList) }
+
+        var names = [String]()
+        var pointer = addressList
+        while let address = pointer?.pointee {
+            pointer = address.ifa_next
+
+            guard address.ifa_addr?.pointee.sa_family == UInt8(AF_LINK), let cName = address.ifa_name else {
+                continue
+            }
+
+            let name = String(cString: cName)
+            if !names.contains(name), !virtualInterfacePrefixes.contains(where: { name.hasPrefix($0) }) {
+                names.append(name)
+            }
+        }
+
+        let socketDescriptor = socket(AF_INET, SOCK_DGRAM, 0)
+
+        guard socketDescriptor >= 0 else {
+            return []
+        }
+        defer { close(socketDescriptor) }
+
+        return names.filter { name in
+            // the same check ifconfig uses to print "status: active"; an
+            // ioctl failure means no media support, which ifconfig reports
+            // with no status line at all
+            var request = ifmediareq()
+            withUnsafeMutablePointer(to: &request.ifm_name) {
+                $0.withMemoryRebound(to: CChar.self, capacity: Int(IFNAMSIZ)) { destination in
+                    _ = name.withCString { strlcpy(destination, $0, Int(IFNAMSIZ)) }
                 }
-                return $0.appending(InterfaceStatus(name: String($1[..<colonIndex])))
             }
 
-            let splitted = $1.split(separator: ":").map { $0.trimmingCharacters(in: CharacterSet(charactersIn: " \t")) }
-
-            guard splitted.count == 2, splitted[0] == "status", let lastInterface = $0.last else {
-                return $0
+            guard ioctl(socketDescriptor, SIOCGIFMEDIA, &request) == 0 else {
+                return false
             }
 
-            return $0.dropLast().appending(InterfaceStatus(name: lastInterface.name, status: splitted[1]))
-        }.compactMap { interface in
-            interface.status == "active" && !virtualInterfacePrefixes.contains(where: { interface.name.hasPrefix($0) })
-                ? interface.name
-                : nil
-        } ?? []
+            return request.ifm_status & IFM_AVALID != 0 && request.ifm_status & IFM_ACTIVE != 0
+        }
+    }
+
+    /// 64-bit `if_data64` interface counters — the same numbers `netstat -bI`
+    /// prints, without spawning a process. the NET_RT_IFLIST2 route dump is
+    /// deliberately avoided: the kernel quantizes its ifi_ibytes/ifi_obytes
+    /// to 1KiB and wraps them at 4GiB for non-Apple-signed binaries, while
+    /// the per-interface IFMIB_IFDATA sysctl stays full precision
+    private static func interfaceBytes(forDevice device: String) -> (inBytes: UInt64, outBytes: UInt64)? {
+        let index = if_nametoindex(device)
+
+        guard index > 0 else {
+            return nil
+        }
+
+        var mib: [Int32] = [CTL_NET, PF_LINK, NETLINK_GENERIC, IFMIB_IFDATA, Int32(index), IFDATA_GENERAL]
+        var data = ifmibdata()
+        var size = MemoryLayout<ifmibdata>.size
+
+        guard sysctl(&mib, UInt32(mib.count), &data, &size, nil, 0) == 0 else {
+            return nil
+        }
+
+        return (data.ifmd_data.ifi_ibytes, data.ifmd_data.ifi_obytes)
+    }
+
+    /// the same user-defined order `networksetup -listnetworkserviceorder`
+    /// prints, read straight from the configd store
+    private static func orderedNetworkServices() -> [NetworkPort] {
+        guard
+            let preferences = SCPreferencesCreate(nil, "eul" as CFString, nil),
+            let set = SCNetworkSetCopyCurrent(preferences),
+            let serviceIDs = SCNetworkSetGetServiceOrder(set) as? [CFString]
+        else {
+            return []
+        }
+
+        return serviceIDs.compactMap { id in
+            guard let service = SCNetworkServiceCopy(preferences, id) else {
+                return nil
+            }
+
+            let interfaceInfo = SCPreferencesPathGetValue(preferences, "/NetworkServices/\(id)/Interface" as CFString) as? [String: Any]
+
+            // networksetup hides services whose interface is flagged
+            // HiddenConfiguration (e.g. auto-created "Ethernet Adapter" ports)
+            guard interfaceInfo?["HiddenConfiguration"] as? Bool != true else {
+                return nil
+            }
+
+            // DeviceName covers modem-style ports without a BSD name (the
+            // Device field networksetup prints); device-less services are
+            // dropped just like the old parser did
+            guard
+                let device = SCNetworkServiceGetInterface(service).flatMap({ SCNetworkInterfaceGetBSDName($0) }) as String?
+                ?? interfaceInfo?["DeviceName"] as? String
+            else {
+                return nil
+            }
+
+            return NetworkPort(port: SCNetworkServiceGetName(service) as String?, device: device)
+        }
     }
 
     static func getNetworkUsage(forDevice: String?, _ onData: @escaping (NetworkUsage, [NetworkPort], NetworkPort?) -> Void) {
-        // TO-DO: use Combine
-        shellAsync("networksetup -listnetworkserviceorder") {
-            let services = $0?.split(separator: "\n").map(String.init).compactMap(Info.findPort) ?? []
-            let activeInterfaces = Info.getActiveInterfaces()
+        DispatchQueue.global(qos: .utility).async {
+            let services = orderedNetworkServices()
+            let activeInterfaces = getActiveInterfaces()
             let currentActivePort = services.first(where: { activeInterfaces.contains($0.device) })
 
             Print("network services order", services)
             Print("network active interfaces", activeInterfaces)
             Print("network current active interfaces", currentActivePort ?? "N/A")
 
-            var inBytes: UInt64?
-            var outBytes: UInt64?
-
             let device = forDevice ?? currentActivePort?.device ?? "en0"
-
-            if
-                let rows = shell("netstat -bI \(device)")?.split(separator: "\n").map({ String($0) }),
-                rows.count > 1
-            {
-                let headers = rows[0].splittedByWhitespace
-                let values = rows[1].splittedByWhitespace
-
-                if let raw = String.getValue(of: "ibytes", in: values, of: headers), let bytes = UInt64(raw) {
-                    inBytes = bytes
-                }
-
-                if let raw = String.getValue(of: "obytes", in: values, of: headers), let bytes = UInt64(raw) {
-                    outBytes = bytes
-                }
-            }
+            let bytes = interfaceBytes(forDevice: device)
 
             DispatchQueue.main.async {
-                onData(NetworkUsage(inBytes: inBytes ?? 0, outBytes: outBytes ?? 0), services, currentActivePort)
+                onData(NetworkUsage(inBytes: bytes?.inBytes ?? 0, outBytes: bytes?.outBytes ?? 0), services, currentActivePort)
             }
         }
     }

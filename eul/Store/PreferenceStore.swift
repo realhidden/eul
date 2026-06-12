@@ -54,6 +54,7 @@ class PreferenceStore: ObservableObject {
     private let userDefaultsKey = "preference"
     private let repo = "gao-sun/eul"
     private var cancellable: AnyCancellable?
+    private var temperatureUnitCancellable: AnyCancellable?
     var repoURL: URL? {
         URL(string: "https://github.com/\(repo)")
     }
@@ -140,6 +141,13 @@ class PreferenceStore: ObservableObject {
         cancellable = objectWillChange.sink {
             DispatchQueue.main.async {
                 self.saveToDefaults()
+            }
+        }
+        // PreferenceEntry's only field is temperatureUnit — rewrite the
+        // container (and wake widgets) only when that actually changes, not on
+        // every unrelated @Published mutation (e.g. the hourly checkUpdate)
+        temperatureUnitCancellable = $temperatureUnit.removeDuplicates().dropFirst().sink { _ in
+            DispatchQueue.main.async {
                 self.writeToContainer()
             }
         }

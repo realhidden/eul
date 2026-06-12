@@ -424,27 +424,32 @@ class HealthStore: ObservableObject, Refreshable {
         let now = Date()
         // memory total can be 0 for the first tick(s) → NaN percentage
         let memoryReady = SharedStore.memory.total > 0
-        Container.set(HealthEntry(
-            capturedAt: now,
-            level: level.rawValue,
-            verdict: verdictText,
-            cpu: SharedStore.cpu.usage,
-            memory: memoryReady ? SharedStore.memory.usedPercentage : nil
-        ))
-        WidgetReloader.requestReload(ofKind: HealthEntry.kind)
 
-        Container.set(TrendsEntry(
-            capturedAt: now,
-            level: level.rawValue,
-            cpuHistory: Self.downsample(cpuHistory),
-            memoryHistory: Self.downsample(memoryHistory),
-            networkHistory: Self.downsample(networkHistory),
-            cpuCurrent: SharedStore.cpu.usageString,
-            memoryCurrent: memoryReady ? SharedStore.memory.usedPercentageString : "N/A",
-            networkCurrentInByte: SharedStore.network.inSpeedInByte,
-            ratesInBits: SharedStore.preference.networkRateInBits
-        ))
-        WidgetReloader.requestReload(ofKind: TrendsEntry.kind)
+        if WidgetReloader.shouldWrite(kind: HealthEntry.kind) {
+            Container.set(HealthEntry(
+                capturedAt: now,
+                level: level.rawValue,
+                verdict: verdictText,
+                cpu: SharedStore.cpu.usage,
+                memory: memoryReady ? SharedStore.memory.usedPercentage : nil
+            ))
+            WidgetReloader.requestReload(ofKind: HealthEntry.kind)
+        }
+
+        if WidgetReloader.shouldWrite(kind: TrendsEntry.kind) {
+            Container.set(TrendsEntry(
+                capturedAt: now,
+                level: level.rawValue,
+                cpuHistory: Self.downsample(cpuHistory),
+                memoryHistory: Self.downsample(memoryHistory),
+                networkHistory: Self.downsample(networkHistory),
+                cpuCurrent: SharedStore.cpu.usageString,
+                memoryCurrent: memoryReady ? SharedStore.memory.usedPercentageString : "N/A",
+                networkCurrentInByte: SharedStore.network.inSpeedInByte,
+                ratesInBits: SharedStore.preference.networkRateInBits
+            ))
+            WidgetReloader.requestReload(ofKind: TrendsEntry.kind)
+        }
     }
 
     /// a medium widget row is ~250 pt wide — 40 points is plenty

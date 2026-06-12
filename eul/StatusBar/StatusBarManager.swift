@@ -230,6 +230,9 @@ class StatusBarManager {
         governorTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
             self?.runGovernor()
         }
+        // tolerance only ever delays a fire; every governor window is a
+        // "confirm after at least N seconds" minimum, so verdicts stay valid
+        governorTimer?.tolerance = 0.5
     }
 
     private var visibleSlotCount: Int {
@@ -287,6 +290,7 @@ class StatusBarManager {
             ) { [weak self] _ in
                 self?.runGovernor()
             }
+            governorTimer?.tolerance = 0.5
             return
         }
         guard !isMenuBarLikelyHidden else {
@@ -334,6 +338,7 @@ class StatusBarManager {
         governorTimer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false) { _ in
             action()
         }
+        governorTimer?.tolerance = 0.5
     }
 
     private func dropSlot() {
@@ -404,6 +409,7 @@ class StatusBarManager {
             self.checkVisibilityIfNeeded()
             self.scheduleReprobe()
         }
+        reprobeTimer?.tolerance = 30
     }
 }
 

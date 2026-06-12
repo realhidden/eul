@@ -87,6 +87,9 @@ class SmcControl: Refreshable {
     }
 
     @objc func refresh() {
+        // one IOHID scan per tick: drop the snapshot here so every store/view
+        // reading this refresh shares a single fresh read (nil on Intel)
+        AppleSiliconSensors.shared?.invalidate()
         for sensor in sensors {
             do {
                 sensor.temp = try SMCKit.temperature(sensor.sensor.code, unit: tempUnit)

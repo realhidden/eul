@@ -129,6 +129,9 @@ class BaseStatusItem: NSObject {
         item.button?.target = self
         item.button?.action = #selector(handleClick)
         item.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        // the buttons carry no title/image, so VoiceOver would announce a
+        // nameless button; "eul" is the deliberately unlocalized product mark
+        item.button?.setAccessibilityLabel("eul")
     }
 
     init(autosaveName: String, length: CGFloat) {
@@ -175,11 +178,22 @@ class AnchorStatusItem: BaseStatusItem {
     }
 
     private func render(level: HealthLevel = SharedStore.health.level) {
-        let view = NSHostingView(rootView: AnyView(
+        let root = AnyView(
             EyesGlyph(state: level.glyphState, width: Self.glyphWidth)
                 .frame(width: Self.itemLength, height: AppDelegate.statusBarHeight)
                 .allowsHitTesting(false)
-        ))
+        )
+        if let view = hostingView {
+            // reuse the mounted tree on health-level changes
+            view.rootView = root
+            if view.superview !== item.button {
+                // AppKit recreates the button across isVisible off/on toggles
+                item.button?.subviews.forEach { $0.removeFromSuperview() }
+                item.button?.addSubview(view)
+            }
+            return
+        }
+        let view = NSHostingView(rootView: root)
         view.setFrameSize(NSSize(width: Self.itemLength, height: AppDelegate.statusBarHeight))
         item.button?.subviews.forEach { $0.removeFromSuperview() }
         item.button?.addSubview(view)
@@ -215,7 +229,26 @@ class StripStatusItem: BaseStatusItem {
     }
 
     func render(slotLimit: Int) {
+        let limitChanged = slotLimit != self.slotLimit
         self.slotLimit = slotLimit
+        if let view = statusView {
+            // unchanged limit + attached view = no-op: the live tree already
+            // reflects store state via its environment objects. Recreating
+            // it here would discard the mounted tree and flash a 0-width
+            // item until the async size report lands.
+            if limitChanged {
+                view.rootView = AnyView(
+                    StripView(onSizeChange: { [weak self] in self?.onSizeChange(size: $0) }, slotLimit: slotLimit)
+                        .withGlobalEnvironmentObjects()
+                )
+            }
+            if view.superview !== item.button {
+                // AppKit recreates the button across isVisible off/on toggles (dropSlot recovery)
+                item.button?.subviews.forEach { $0.removeFromSuperview() }
+                item.button?.addSubview(view)
+            }
+            return
+        }
         let view = NSHostingView(rootView: AnyView(
             StripView(onSizeChange: { [weak self] in self?.onSizeChange(size: $0) }, slotLimit: slotLimit)
                 .withGlobalEnvironmentObjects()

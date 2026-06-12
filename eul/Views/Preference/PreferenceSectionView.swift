@@ -42,19 +42,22 @@ extension Preference {
         }
 
         var body: some View {
-            HStack(spacing: 8) {
-                Text(section.localizedDescription)
-                    .font(.system(size: 12, weight: isActive ? .semibold : .regular))
-                Spacer()
-            }
-            .padding(.vertical, 6)
-            .padding(.horizontal, 10)
-            .background(isActive ? Color.primary.opacity(0.12) : Color.clear)
-            .cornerRadius(7)
-            .contentShape(Rectangle())
-            .onTapGesture {
+            Button(action: {
                 activeSection = section
+            }) {
+                HStack(spacing: 8) {
+                    Text(section.localizedDescription)
+                        .font(.system(size: 12, weight: isActive ? .semibold : .regular))
+                    Spacer()
+                }
+                .padding(.vertical, 6)
+                .padding(.horizontal, 10)
+                .background(isActive ? Color.primary.opacity(0.12) : Color.clear)
+                .cornerRadius(7)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
         }
     }
 }

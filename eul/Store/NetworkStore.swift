@@ -106,6 +106,9 @@ class NetworkStore: ObservableObject, Refreshable {
     }
 
     func writeToContainer() {
+        guard WidgetReloader.shouldWrite(kind: NetworkEntry.kind) else {
+            return
+        }
         Container.set(NetworkEntry(inSpeedInByte: inSpeedInByte, outSpeedInByte: outSpeedInByte))
         WidgetReloader.requestReload(ofKind: NetworkEntry.kind)
     }

@@ -20,7 +20,6 @@ class MemoryStore: ObservableObject, Refreshable {
     @Published var appMemory: Double = 0
     @Published var cachedFiles: Double = 0
     @Published var temp: Double?
-    @Published var usageHistory: [Double] = []
     @Published var swapUsed: Double = 0
     @Published var swapTotal: Double = 0
 
@@ -59,7 +58,6 @@ class MemoryStore: ObservableObject, Refreshable {
     @objc func refresh() {
         (free, active, inactive, wired, compressed, appMemory, cachedFiles) = System.memoryUsage()
         temp = SmcControl.shared.memoryProximityTemperature
-        usageHistory = (usageHistory + [usedPercentage]).suffix(LineChart.defaultMaxPointCount)
         getSwap()
         writeToContainer()
     }
@@ -78,6 +76,9 @@ class MemoryStore: ObservableObject, Refreshable {
     }
 
     func writeToContainer() {
+        guard WidgetReloader.shouldWrite(kind: MemoryEntry.kind) else {
+            return
+        }
         Container.set(MemoryEntry(used: used, total: total, temp: temp))
         WidgetReloader.requestReload(ofKind: MemoryEntry.kind)
     }

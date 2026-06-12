@@ -53,11 +53,16 @@ class BatteryStore: ObservableObject, Refreshable {
         io = Info.Battery()
 
         guard battery.open() == kIOReturnSuccess else {
-            isValid = false
+            // equality-guarded so battery-less Macs don't publish every tick
+            if isValid {
+                isValid = false
+            }
             return
         }
 
-        isValid = true
+        if !isValid {
+            isValid = true
+        }
 
         acPowered = battery.isACPowered()
         charged = battery.isCharged()
@@ -73,6 +78,9 @@ class BatteryStore: ObservableObject, Refreshable {
     }
 
     func writeToContainer() {
+        guard WidgetReloader.shouldWrite(kind: BatteryEntry.kind) else {
+            return
+        }
         Container.set(BatteryEntry(
             isCharging: charging, acPowered: acPowered, charge: charge, capacity: capacity, maxCapacity: maxCapacity, designCapacity: designCapacity, cycleCount: cycleCount, condition: io.condition
         ))

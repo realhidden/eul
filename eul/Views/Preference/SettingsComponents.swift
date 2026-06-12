@@ -103,17 +103,20 @@ enum Settings {
         var body: some View {
             HStack(spacing: 2) {
                 ForEach(options, id: \.self) { option in
-                    Text(label(option))
-                        .font(.system(size: 10, weight: .semibold))
-                        .lineLimit(1)
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 3)
-                        .background(selection == option ? Color.primary.opacity(0.15) : Color.clear)
-                        .cornerRadius(5)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selection = option
-                        }
+                    Button(action: {
+                        selection = option
+                    }) {
+                        Text(label(option))
+                            .font(.system(size: 10, weight: .semibold))
+                            .lineLimit(1)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 3)
+                            .background(selection == option ? Color.primary.opacity(0.15) : Color.clear)
+                            .cornerRadius(5)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                 }
             }
             .padding(2)
@@ -135,6 +138,7 @@ enum Settings {
                     .foregroundColor(secondary)
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
         }
     }
 

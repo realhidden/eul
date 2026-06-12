@@ -118,6 +118,7 @@ struct PanelView: View, SizeChangeView {
                             .foregroundColor(Color.accentColor)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                     .padding(.top, 1)
                 }
                 // an active override must be impossible to forget (§2.7) —
@@ -132,6 +133,7 @@ struct PanelView: View, SizeChangeView {
                                 .underline()
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .pointingHandCursor()
                     }
                     .font(.system(size: 10.5))
                     .foregroundColor(secondary)
@@ -154,6 +156,7 @@ struct PanelView: View, SizeChangeView {
                 .padding(.vertical, 4)
                 .background(Color.primary.opacity(0.08))
                 .cornerRadius(6)
+                .pointingHandCursor()
                 Button(action: {
                     AppDelegate.quit()
                 }) {
@@ -166,6 +169,7 @@ struct PanelView: View, SizeChangeView {
                 .padding(.vertical, 4)
                 .background(DesignTokens.Health.critical.opacity(0.12))
                 .cornerRadius(6)
+                .pointingHandCursor()
             }
             .fixedSize()
         }
@@ -218,9 +222,11 @@ struct PanelView: View, SizeChangeView {
         .onTapGesture {
             cpuExpanded.toggle()
         }
+        .pointingHandCursor()
+        .a11yExpandButton(label: "component.cpu".localized())
     }
 
-    private func memoryTile() -> AnyView {
+    private func memoryTile() -> some View {
         let total = memoryStore.total
         let sub = String(
             format: "%@ %.1f · %@ %.1f · %@ %.1f GB",
@@ -232,7 +238,7 @@ struct PanelView: View, SizeChangeView {
             memoryStore.compressed
         )
         let severity = tileSeverity(.Memory)
-        return AnyView(PanelTile(
+        return PanelTile(
             label: "component.memory".localized().uppercased(),
             aux: "\("memory.swap".localized()) \(memoryStore.swapUsed.memoryString)",
             severity: severity
@@ -250,7 +256,7 @@ struct PanelView: View, SizeChangeView {
                 .foregroundColor(secondary)
                 .lineLimit(1)
                 .padding(.top, 2)
-        })
+        }
     }
 
     /// bits ⇄ bytes is a stored choice made in Settings · General · Units
@@ -265,11 +271,11 @@ struct PanelView: View, SizeChangeView {
         }
     }
 
-    private func networkTile() -> AnyView {
+    private func networkTile() -> some View {
         // NetworkPort.description handles the optional port name ("Wi-Fi (en0)")
         let aux = networkStore.currentActivePort.map { $0.description }
         let historyMax = max(healthStore.networkHistory.max() ?? 1, 1)
-        return AnyView(PanelTile(label: "component.network".localized().uppercased(), aux: aux) {
+        return PanelTile(label: "component.network".localized().uppercased(), aux: aux) {
             HStack(spacing: 2) {
                 Text("↓").foregroundColor(secondary).font(.system(size: 11))
                 rateText(networkStore.inSpeedInByte)
@@ -281,16 +287,16 @@ struct PanelView: View, SizeChangeView {
             Sparkline(values: healthStore.networkHistory, maxValue: historyMax)
                 .frame(height: 22)
                 .padding(.top, 2)
-        })
+        }
     }
 
-    private func gpuTile() -> AnyView {
+    private func gpuTile() -> some View {
         let gpu = gpuStore.gpus.first
         var sub = gpu?.model ?? "component.gpu".localized()
         if let cores = gpu?.cores {
             sub += " · " + String(format: "panel.cores".localized(), cores)
         }
-        return AnyView(PanelTile(
+        return PanelTile(
             label: "component.gpu".localized().uppercased(),
             aux: gpuStore.temperatureAverage?.temperatureString
         ) {
@@ -301,10 +307,10 @@ struct PanelView: View, SizeChangeView {
                 .font(DesignTokens.Typo.sub)
                 .foregroundColor(secondary)
                 .lineLimit(1)
-        })
+        }
     }
 
-    private func diskTile() -> AnyView {
+    private func diskTile() -> some View {
         let usedFraction: Double
         if let ceiling = diskStore.ceilingBytes, let free = diskStore.freeBytes, ceiling > 0 {
             usedFraction = Double(ceiling - free) / Double(ceiling)
@@ -312,7 +318,7 @@ struct PanelView: View, SizeChangeView {
             usedFraction = 0
         }
         let severity = tileSeverity(.Disk)
-        return AnyView(PanelTile(
+        return PanelTile(
             label: "component.disk".localized().uppercased(),
             aux: diskStore.usagePercentageString,
             severity: severity
@@ -330,7 +336,7 @@ struct PanelView: View, SizeChangeView {
                 .font(DesignTokens.Typo.sub)
                 .foregroundColor(secondary)
                 .padding(.top, 2)
-        })
+        }
     }
 
     private var fanModeText: String {
@@ -397,6 +403,8 @@ struct PanelView: View, SizeChangeView {
                 .onTapGesture {
                     fansExpanded.toggle()
                 }
+                .pointingHandCursor()
+                .a11yExpandButton(label: "component.fan".localized())
         )
     }
 
@@ -416,9 +424,9 @@ struct PanelView: View, SizeChangeView {
         return .normal
     }
 
-    private func batteryTile() -> AnyView {
+    private func batteryTile() -> some View {
         let severity = batterySeverity
-        return AnyView(PanelTile(
+        return PanelTile(
             label: "component.battery".localized().uppercased(),
             aux: batteryStore.timeRemaining,
             severity: severity
@@ -430,7 +438,7 @@ struct PanelView: View, SizeChangeView {
             Text(String(format: "panel.battery.sub".localized(), batteryStore.health.percentageString, "\(batteryStore.cycleCount)"))
                 .font(DesignTokens.Typo.sub)
                 .foregroundColor(secondary)
-        })
+        }
     }
 
     private func bluetoothDeviceDescription(_ device: BluetoothDevice) -> String {
@@ -450,8 +458,8 @@ struct PanelView: View, SizeChangeView {
         return device.batteryPercent.map { "\($0)%" } ?? ""
     }
 
-    private func bluetoothTile(devices: [BluetoothDevice]) -> AnyView {
-        AnyView(PanelTile(
+    private func bluetoothTile(devices: [BluetoothDevice]) -> some View {
+        PanelTile(
             label: "component.bluetooth".localized().uppercased(),
             aux: "\(devices.count)"
         ) {
@@ -466,7 +474,7 @@ struct PanelView: View, SizeChangeView {
                 }
             }
             Spacer(minLength: 0)
-        })
+        }
     }
 
     private func pairRows(_ views: [AnyView]) -> some View {
@@ -486,7 +494,7 @@ struct PanelView: View, SizeChangeView {
 
     /// right-click → hide; hiding is point-of-use, restore lives in
     /// Settings · General (design §4.7)
-    private func hideable(_ kind: PanelTileKind, _ view: AnyView) -> AnyView {
+    private func hideable(_ kind: PanelTileKind, _ view: some View) -> AnyView {
         AnyView(view.contextMenu {
             Button(String(format: "panel.tile.hide".localized(), kind.localizedDescription)) {
                 preferenceStore.hideTile(kind)
@@ -502,9 +510,9 @@ struct PanelView: View, SizeChangeView {
 
         if !hidden(.cpu) {
             if cpuIsExpanded {
-                fullWidth.append(hideable(.cpu, AnyView(cpuTile())))
+                fullWidth.append(hideable(.cpu, cpuTile()))
             } else {
-                rest.append(hideable(.cpu, AnyView(cpuTile())))
+                rest.append(hideable(.cpu, cpuTile()))
             }
         }
         if !hidden(.memory) {
@@ -547,16 +555,19 @@ struct PanelView: View, SizeChangeView {
     private var lensPicker: some View {
         HStack(spacing: 2) {
             ForEach(UIStore.ProcLens.allCases) { lens in
-                Text(lens.localizedDescription)
-                    .font(.system(size: 10, weight: .semibold))
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 3)
-                    .background(uiStore.panelLens == lens ? Color.primary.opacity(0.15) : Color.clear)
-                    .cornerRadius(5)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        uiStore.panelLens = lens
-                    }
+                Button(action: {
+                    uiStore.panelLens = lens
+                }) {
+                    Text(lens.localizedDescription)
+                        .font(.system(size: 10, weight: .semibold))
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 3)
+                        .background(uiStore.panelLens == lens ? Color.primary.opacity(0.15) : Color.clear)
+                        .cornerRadius(5)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
             }
         }
         .padding(2)

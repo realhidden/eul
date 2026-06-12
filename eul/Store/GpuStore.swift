@@ -17,7 +17,6 @@ class GpuStore: ObservableObject, Refreshable {
 
     @Published var gpus = [GPU]()
     @Published var gpuStatistics = [GPU.Statistic]()
-    @Published var usageHistory: [Double] = []
 
     var usageAverage: Double? {
         #if arch(arm64)
@@ -85,11 +84,9 @@ class GpuStore: ObservableObject, Refreshable {
             // the panel reads this store regardless of pinned components
             || SharedStore.ui.menuOpened
         else {
-            usageHistory = []
             return
         }
 
         gpuStatistics = GPU.getInfo() ?? []
-        usageHistory = (usageHistory + [usageAverage ?? 0]).suffix(LineChart.defaultMaxPointCount)
     }
 }

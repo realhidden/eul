@@ -19,7 +19,6 @@ class CpuStore: ObservableObject, Refreshable {
     @Published var logicalCores = 0
     @Published var upTime: (days: Int, hrs: Int, mins: Int, secs: Int)?
     @Published var thermalLevel: System.ThermalLevel = .Unknown
-    @Published var usageHistory: [Double] = []
     @Published var coreUsages: [Double] = []
     @Published var coreLabels: [String] = []
 
@@ -70,13 +69,8 @@ class CpuStore: ObservableObject, Refreshable {
     }
 
     private func getInfo() {
-        physicalCores = System.physicalCores()
-        logicalCores = System.logicalCores()
         upTime = System.uptime()
         thermalLevel = System.thermalLevel()
-        #if arch(arm64)
-            efficiencyCoreCount = Self.sysctlInt("hw.perflevel1.physicalcpu")
-        #endif
     }
 
     private static func sysctlInt(_ name: String) -> Int {
@@ -90,7 +84,6 @@ class CpuStore: ObservableObject, Refreshable {
         let usage = Info.system.usageCPU()
         usageCPU = usage
         loadAverage = System.loadAverage()
-        usageHistory = (usageHistory + [usage.system + usage.user]).suffix(LineChart.defaultMaxPointCount)
         coreUsages = computePerCoreUsage()
     }
 
@@ -154,9 +147,8 @@ class CpuStore: ObservableObject, Refreshable {
     }
 
     private func getTemp() {
-        temp = (SmcControl.shared.cpuDieTemperature ?? 0) > 0
-            ? SmcControl.shared.cpuDieTemperature
-            : SmcControl.shared.cpuProximityTemperature
+        let die = SmcControl.shared.cpuDieTemperature
+        temp = (die ?? 0) > 0 ? die : SmcControl.shared.cpuProximityTemperature
     }
 
     @objc func refresh() {
@@ -167,6 +159,9 @@ class CpuStore: ObservableObject, Refreshable {
     }
 
     func writeToContainer() {
+        guard WidgetReloader.shouldWrite(kind: CpuEntry.kind) else {
+            return
+        }
         Container.set(CpuEntry(
             temp: temp,
             usageSystem: usageCPU?.system,
@@ -177,6 +172,12 @@ class CpuStore: ObservableObject, Refreshable {
     }
 
     init() {
+        // immutable hardware facts — read once instead of every tick
+        physicalCores = System.physicalCores()
+        logicalCores = System.logicalCores()
+        #if arch(arm64)
+            efficiencyCoreCount = Self.sysctlInt("hw.perflevel1.physicalcpu")
+        #endif
         initObserver(for: .StoreShouldRefresh)
     }
 }

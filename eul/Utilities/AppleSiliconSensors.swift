@@ -46,9 +46,15 @@ class AppleSiliconSensors {
     private let serviceClientCopyProperty: IOHIDServiceClientCopyPropertyFunc
 
     private var systemClient: IOHIDEventSystemClientRef?
-    // Strong reference so the cached service pointers below stay valid
+    /// Strong reference so the cached service pointers below stay valid
     private var servicesArray: CFArray?
-    private var cachedServices: [IOHIDServiceClientRef] = []
+    /// Sensor names are immutable; caching them at setup saves one mach IPC
+    /// (CopyProperty) per sensor on every read
+    private var cachedServices: [(service: IOHIDServiceClientRef, name: String)] = []
+    /// One IOHID scan per refresh tick: SmcControl invalidates this at the top
+    /// of its refresh(), every store/view then reads the same snapshot.
+    /// All producers/consumers are main-thread, so no locking is needed.
+    private var cachedReadings: [AppleSiliconSensorReading]?
 
     private init?() {
         guard let handle = dlopen("/System/Library/Frameworks/IOKit.framework/IOKit", RTLD_NOW) else {
@@ -104,7 +110,12 @@ class AppleSiliconSensors {
 
         for index in 0..<CFArrayGetCount(services) {
             if let pointer = CFArrayGetValueAtIndex(services, index) {
-                cachedServices.append(IOHIDServiceClientRef(mutating: pointer))
+                let service = IOHIDServiceClientRef(mutating: pointer)
+                // services without a name never produce readings — skip them
+                guard let name = serviceClientCopyProperty(service, "Product" as CFString)?.takeRetainedValue() as String? else {
+                    continue
+                }
+                cachedServices.append((service: service, name: name))
             }
         }
 
@@ -115,19 +126,24 @@ class AppleSiliconSensors {
         shared = AppleSiliconSensors()
     }
 
+    /// Drops the cached readings so the next read performs a fresh IOHID scan.
+    func invalidate() {
+        cachedReadings = nil
+    }
+
     func getAllTemperatures() -> [AppleSiliconSensorReading] {
+        if let cachedReadings = cachedReadings {
+            return cachedReadings
+        }
+
         var results: [AppleSiliconSensorReading] = []
 
-        for service in cachedServices {
+        for (service, name) in cachedServices {
             guard let event = serviceClientCopyEvent(service, Int64(kIOHIDEventTypeTemperature), 0, 0) else {
                 continue
             }
             // Copy-rule (+1) return travels through a raw pointer, so balance it manually
             defer { Unmanaged<AnyObject>.fromOpaque(event).release() }
-
-            guard let name = serviceClientCopyProperty(service, "Product" as CFString)?.takeRetainedValue() as String? else {
-                continue
-            }
 
             // IOHIDEventGetFloatValue field = (type << 16) | offset
             let value = eventGetFloatValue(event, UInt32(kIOHIDEventTypeTemperature << 16))
@@ -137,15 +153,18 @@ class AppleSiliconSensors {
             }
         }
 
-        return results.sorted { $0.name < $1.name }
+        let sorted = results.sorted { $0.name < $1.name }
+        cachedReadings = sorted
+        return sorted
     }
 
     /// Average of the per-die PMU temperature sensors; sensor naming varies by
-    /// chip generation, hence the prefix fallbacks.
+    /// chip generation, hence the prefix fallbacks (one scan, three lookups).
     var cpuTemperature: Double? {
-        average(ofSensorsWithPrefix: "PMU tdie")
-            ?? average(ofSensorsWithPrefix: "PMU2 tdie")
-            ?? average(ofSensorsWithPrefix: "SOC MTR Temp Sensor")
+        let readings = getAllTemperatures()
+        return average(of: readings, withPrefix: "PMU tdie")
+            ?? average(of: readings, withPrefix: "PMU2 tdie")
+            ?? average(of: readings, withPrefix: "SOC MTR Temp Sensor")
     }
 
     /// CPU and GPU share the die on Apple Silicon; the GPU-specific sensors
@@ -158,8 +177,8 @@ class AppleSiliconSensors {
         cpuTemperature
     }
 
-    private func average(ofSensorsWithPrefix prefix: String) -> Double? {
-        let matched = getAllTemperatures().filter { $0.name.hasPrefix(prefix) }
+    private func average(of readings: [AppleSiliconSensorReading], withPrefix prefix: String) -> Double? {
+        let matched = readings.filter { $0.name.hasPrefix(prefix) }
         guard !matched.isEmpty else {
             return nil
         }

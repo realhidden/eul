@@ -71,6 +71,19 @@ struct StalenessProvider<WidgetEntry: SharedWidgetEntry & StaleRenderable>: Time
     }
 }
 
+/// extensions linked against the macOS 14+ SDK must adopt containerBackground
+/// or WidgetKit refuses to render; `.background` matches what macOS 13 draws
+/// automatically, and the gate keeps macOS 13 output bit-identical
+private extension View {
+    @ViewBuilder func widgetContainerBackground() -> some View {
+        if #available(macOS 14.0, *) {
+            containerBackground(.background, for: .widget)
+        } else {
+            self
+        }
+    }
+}
+
 // MARK: shared pieces
 
 private func glyphState(forLevel level: Int) -> EyesGlyph.HealthState {
@@ -165,6 +178,7 @@ struct HealthWidgetView: View {
             }
         }
         .padding(14)
+        .widgetContainerBackground()
     }
 }
 
@@ -176,6 +190,9 @@ struct HealthWidget: Widget {
         .configurationDisplayName(NSLocalizedString("widget.health.title", comment: ""))
         .description(NSLocalizedString("widget.health.description", comment: ""))
         .supportedFamilies([.systemSmall])
+        // keep the hand-tuned .padding(14) as the only inset on macOS 14+
+        // (back-deployed; inert before 14)
+        .contentMarginsDisabledIfAvailable()
     }
 }
 
@@ -225,6 +242,7 @@ struct TrendsWidgetView: View {
             }
         }
         .padding(14)
+        .widgetContainerBackground()
     }
 }
 
@@ -236,6 +254,21 @@ struct TrendsWidget: Widget {
         .configurationDisplayName(NSLocalizedString("widget.trends.title", comment: ""))
         .description(NSLocalizedString("widget.trends.description", comment: ""))
         .supportedFamilies([.systemMedium])
+        // keep the hand-tuned .padding(14) as the only inset on macOS 14+
+        // (back-deployed; inert before 14)
+        .contentMarginsDisabledIfAvailable()
+    }
+}
+
+private extension WidgetConfiguration {
+    /// contentMarginsDisabled() is annotated macOS 12+ even though margins only
+    /// exist on macOS 14+; gate it so the macOS 11 deployment floor still compiles
+    func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
+        if #available(macOS 12.0, *) {
+            return contentMarginsDisabled()
+        } else {
+            return self
+        }
     }
 }
 

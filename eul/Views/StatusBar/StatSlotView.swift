@@ -18,15 +18,90 @@ import SwiftUI
 struct StatSlotView: View {
     let component: EulComponent
 
+    var body: some View {
+        // one leaf per component, each subscribing only to the stores it
+        // reads — @EnvironmentObject subscribes regardless of which switch
+        // branch runs, so a shared body would invalidate every slot on
+        // every store tick (and the network tick is a separate cadence)
+        switch component {
+        case .CPU:
+            CpuSlot()
+        case .Memory:
+            MemorySlot()
+        case .GPU:
+            GpuSlot()
+        case .Disk:
+            DiskSlot()
+        case .Battery:
+            BatterySlot()
+        case .Fan:
+            FanSlot()
+        case .Network:
+            NetworkSlotContainer()
+        }
+    }
+}
+
+private struct CpuSlot: View {
     @EnvironmentObject var cpuStore: CpuStore
-    @EnvironmentObject var memoryStore: MemoryStore
-    @EnvironmentObject var gpuStore: GpuStore
-    @EnvironmentObject var diskStore: DiskStore
-    @EnvironmentObject var batteryStore: BatteryStore
-    @EnvironmentObject var fanStore: FanStore
-    @EnvironmentObject var networkStore: NetworkStore
-    @EnvironmentObject var preferenceStore: PreferenceStore
     @EnvironmentObject var healthStore: HealthStore
+
+    var body: some View {
+        SlotText(label: "CPU", value: cpuStore.usageString, worstCase: "100%", tint: healthStore.abnormalComponent == .CPU ? healthStore.level.accent : nil)
+    }
+}
+
+private struct MemorySlot: View {
+    @EnvironmentObject var memoryStore: MemoryStore
+    @EnvironmentObject var healthStore: HealthStore
+
+    var body: some View {
+        SlotText(label: "MEM", value: memoryStore.usedPercentageString, worstCase: "100%", tint: healthStore.abnormalComponent == .Memory ? healthStore.level.accent : nil)
+    }
+}
+
+private struct GpuSlot: View {
+    @EnvironmentObject var gpuStore: GpuStore
+
+    var body: some View {
+        SlotText(label: "GPU", value: gpuStore.usageAverageString ?? "N/A", worstCase: "100%")
+    }
+}
+
+private struct DiskSlot: View {
+    @EnvironmentObject var diskStore: DiskStore
+    @EnvironmentObject var healthStore: HealthStore
+
+    var body: some View {
+        SlotText(label: "DISK", value: diskStore.freeString, worstCase: "888.8 GB", tint: healthStore.abnormalComponent == .Disk ? healthStore.level.accent : nil)
+    }
+}
+
+private struct BatterySlot: View {
+    @EnvironmentObject var batteryStore: BatteryStore
+
+    /// the same cue the panel tile carries, in the bar (§5.2: health colors
+    /// only): charge thresholds while on battery power
+    private var tint: Color? {
+        guard !batteryStore.acPowered else {
+            return nil
+        }
+        if batteryStore.charge <= 0.1 {
+            return HealthLevel.critical.accent
+        }
+        if batteryStore.charge <= 0.2 {
+            return HealthLevel.elevated.accent
+        }
+        return nil
+    }
+
+    var body: some View {
+        SlotText(label: "BATT", value: batteryStore.charge.percentageString, worstCase: "100%", tint: tint)
+    }
+}
+
+private struct FanSlot: View {
+    @EnvironmentObject var fanStore: FanStore
 
     private var fanAverageString: String {
         let speeds = fanStore.fans.compactMap { $0.currentSpeed }
@@ -36,45 +111,20 @@ struct StatSlotView: View {
         return "\(speeds.reduce(0, +) / speeds.count)"
     }
 
-    /// the same cue the panel tile carries, in the bar (§5.2: health colors
-    /// only): health-engine attribution for CPU/MEM/DISK, charge thresholds
-    /// for BATT while on battery power
-    private var tint: Color? {
-        if component == .Battery {
-            guard !batteryStore.acPowered else {
-                return nil
-            }
-            if batteryStore.charge <= 0.1 {
-                return HealthLevel.critical.accent
-            }
-            if batteryStore.charge <= 0.2 {
-                return HealthLevel.elevated.accent
-            }
-            return nil
-        }
-        return healthStore.abnormalComponent == component ? healthStore.level.accent : nil
+    var body: some View {
+        SlotText(label: "FAN", value: fanAverageString, worstCase: "8888")
     }
+}
+
+private struct NetworkSlotContainer: View {
+    @EnvironmentObject var networkStore: NetworkStore
+    @EnvironmentObject var preferenceStore: PreferenceStore
 
     var body: some View {
-        switch component {
-        case .CPU:
-            SlotText(label: "CPU", value: cpuStore.usageString, worstCase: "100%", tint: tint)
-        case .Memory:
-            SlotText(label: "MEM", value: memoryStore.usedPercentageString, worstCase: "100%", tint: tint)
-        case .GPU:
-            SlotText(label: "GPU", value: gpuStore.usageAverageString ?? "N/A", worstCase: "100%")
-        case .Disk:
-            SlotText(label: "DISK", value: diskStore.freeString, worstCase: "888.8 GB", tint: tint)
-        case .Battery:
-            SlotText(label: "BATT", value: batteryStore.charge.percentageString, worstCase: "100%", tint: tint)
-        case .Fan:
-            SlotText(label: "FAN", value: fanAverageString, worstCase: "8888")
-        case .Network:
-            NetworkSlot(
-                down: ByteUnit(networkStore.inSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits),
-                up: ByteUnit(networkStore.outSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits)
-            )
-        }
+        NetworkSlot(
+            down: ByteUnit(networkStore.inSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits),
+            up: ByteUnit(networkStore.outSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits)
+        )
     }
 }
 

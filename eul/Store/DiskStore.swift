@@ -91,7 +91,12 @@ class DiskStore: ObservableObject, Refreshable {
             return
         }
 
-        rootVolume = Self.readRootVolume()
+        // the boot-volume capacity query is an XPC round trip and only feeds
+        // the no-selection fallback (including a selected volume ejecting,
+        // which nils selectedDisk within one tick) — skip it otherwise
+        if selectedDisk == nil {
+            rootVolume = Self.readRootVolume()
+        }
         loadDisks()
     }
 

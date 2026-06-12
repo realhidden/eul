@@ -8,6 +8,20 @@
 
 import SwiftUI
 
+/// VoiceOver name + value for the fan sliders; gated since the accessibility
+/// modifiers are macOS 11+ and the app floor is 10.15 (the control surface
+/// itself only renders on macOS 13+ at runtime)
+private extension View {
+    @ViewBuilder
+    func fanSliderAccessibility(label: String, value: String) -> some View {
+        if #available(macOS 11.0, *) {
+            accessibilityLabel(Text(label)).accessibilityValue(Text(value))
+        } else {
+            self
+        }
+    }
+}
+
 /// Expanded FANS tile content (design §2.7/§4.6): readings always; on
 /// macOS 13+ either the single quiet "Control fans…" affordance (locked) or
 /// the per-fan Auto/Manual/Boost surface with the permanent safety strip.
@@ -43,16 +57,19 @@ struct FanControlSurface: View {
     private func modePicker(modes: [FanControlStore.Mode], current: FanControlStore.Mode, onSelect: @escaping (FanControlStore.Mode) -> Void) -> some View {
         HStack(spacing: 2) {
             ForEach(modes, id: \.rawValue) { mode in
-                Text(modeLabel(mode))
-                    .font(.system(size: 10, weight: .semibold))
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 3)
-                    .background(current == mode ? Color.primary.opacity(0.15) : Color.clear)
-                    .cornerRadius(5)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        onSelect(mode)
-                    }
+                Button(action: {
+                    onSelect(mode)
+                }) {
+                    Text(modeLabel(mode))
+                        .font(.system(size: 10, weight: .semibold))
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 3)
+                        .background(current == mode ? Color.primary.opacity(0.15) : Color.clear)
+                        .cornerRadius(5)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
             }
         }
         .padding(2)
@@ -184,6 +201,10 @@ struct FanControlSurface: View {
                             pendingLinkedPercent = nil
                         }
                     })
+                    .fanSliderAccessibility(
+                        label: "component.fan".localized(),
+                        value: "\(Int(pendingLinkedPercent ?? snapped(linkedCurrentPercent)))%"
+                    )
                     Text("100%")
                         .font(DesignTokens.Typo.sub)
                         .foregroundColor(secondary)
@@ -225,6 +246,10 @@ struct FanControlSurface: View {
                             pendingTargets.removeValue(forKey: fan.id)
                         }
                     })
+                    .fanSliderAccessibility(
+                        label: "\("component.fan".localized()) \(fan.id + 1)",
+                        value: "\(Int(pendingTargets[fan.id] ?? fanControl.overrides[fan.id]?.target ?? Double(fan.currentSpeed ?? minSpeed))) rpm"
+                    )
                     Text("\(maxSpeed)")
                         .font(DesignTokens.Typo.sub)
                         .foregroundColor(secondary)
@@ -282,6 +307,7 @@ struct FanControlSurface: View {
                     .padding(.vertical, 5)
                     .background(Color.primary.opacity(0.1))
                     .cornerRadius(7)
+                    .pointingHandCursor()
                 }
             case .enabled:
                 if fanControl.helperUnreachable {
@@ -306,6 +332,7 @@ struct FanControlSurface: View {
                         .padding(.vertical, 5)
                         .background(Color.primary.opacity(0.1))
                         .cornerRadius(7)
+                        .pointingHandCursor()
                     }
                 }
                 if showLinked {
@@ -341,6 +368,7 @@ struct FanControlSurface: View {
                             .foregroundColor(secondary)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                     if fanStore.fans.count > 1, !linkableFans.isEmpty {
                         Button(action: {
                             pendingLinkedPercent = nil
@@ -353,6 +381,7 @@ struct FanControlSurface: View {
                                 .foregroundColor(secondary)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .pointingHandCursor()
                     }
                     Spacer()
                     if fanControl.overrideActive {
@@ -367,6 +396,7 @@ struct FanControlSurface: View {
                         .padding(.vertical, 5)
                         .background(Color.primary.opacity(0.1))
                         .cornerRadius(7)
+                        .pointingHandCursor()
                     }
                 }
                 .padding(.top, 8)
@@ -443,6 +473,7 @@ struct FanCeremonyOverlay: View {
                 .padding(.vertical, 6)
                 .background(Color.primary.opacity(0.08))
                 .cornerRadius(7)
+                .pointingHandCursor()
                 Button(action: {
                     fanControl.installHelper()
                 }) {
@@ -455,6 +486,7 @@ struct FanCeremonyOverlay: View {
                 .padding(.vertical, 6)
                 .background(Color.primary)
                 .cornerRadius(7)
+                .pointingHandCursor()
             }
             .padding(.top, 6)
         }
@@ -480,6 +512,7 @@ struct FanCeremonyOverlay: View {
                 .padding(.vertical, 6)
                 .background(Color.primary.opacity(0.08))
                 .cornerRadius(7)
+                .pointingHandCursor()
                 Spacer()
                 Button(action: {
                     fanControl.openApprovalSettings()
@@ -492,6 +525,7 @@ struct FanCeremonyOverlay: View {
                 .padding(.vertical, 6)
                 .background(Color.primary.opacity(0.08))
                 .cornerRadius(7)
+                .pointingHandCursor()
             }
             .padding(.top, 6)
         }

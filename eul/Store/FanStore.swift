@@ -12,6 +12,10 @@ class FanStore: ObservableObject, Refreshable {
     @Published var fans: [FanData] = []
 
     @objc func refresh() {
+        // fanless Macs: both arrays stay empty forever — skip the publish
+        if fans.isEmpty, SmcControl.shared.fans.isEmpty {
+            return
+        }
         fans = SmcControl.shared.fans
     }
 
