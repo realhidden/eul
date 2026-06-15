@@ -9,7 +9,7 @@
       <tr><td>HealthGlyph</td><td>The eyes; template / elevated / critical variants. Sized 22 pt (bar), 16 pt (panel header), scalable (widget)</td><td>health engine <span class="tag tag-infra">new infra</span></td><td>anchor, panel, widget</td></tr>
       <tr><td>StatSlot</td><td>Label (9 pt caps) + tabular value with worst-case width reservation; single- or two-row (network) layouts</td><td>any monitor's headline figure</td><td>strip</td></tr>
       <tr><td>Tile</td><td>Panel module: label, hero value, one auxiliary element, expandable; abnormal variant carries the surface's only color</td><td>per-monitor summaries</td><td>panel</td></tr>
-      <tr><td>Sparkline</td><td>10-min ring buffer, ~120 samples max, monochrome line + 12% fill, no tweening, truncates at last real sample</td><td>history buffers <span class="tag tag-data">new data</span></td><td>panel tiles, Trends widget</td></tr>
+      <tr><td>Sparkline</td><td>10-min ring buffer, ~120 samples max, monochrome line + 12% fill, panel morphs between samples (Reduce-Motion-gated; widget snaps), truncates at last real sample</td><td>history buffers <span class="tag tag-data">new data</span></td><td>panel tiles, Trends widget</td></tr>
       <tr><td>SegmentBar</td><td>Stacked horizontal bar; segments differentiated by opacity steps, never hue</td><td>memory breakdown, disk capacity</td><td>panel, widget</td></tr>
       <tr><td>CoreGrid</td><td>Per-core micro-columns grouped and labeled E / P</td><td>per-core usage (exists)</td><td>CPU tile expanded</td></tr>
       <tr><td>ProcessRow</td><td>App icon (NSRunningApplication) + name + tabular value; culprit variant pins to top with duration ("3 m above threshold")</td><td>top-N by CPU / MEM / NET (exists)</td><td>panel</td></tr>

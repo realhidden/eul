@@ -31,6 +31,7 @@
 		6C1FA4B124A712BB00CA7F71 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B024A712BB00CA7F71 /* DesignTokens.swift */; };
 		6C1FA4B324A712BB00CA7F71 /* EyesGlyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B224A712BB00CA7F71 /* EyesGlyph.swift */; };
 		6C1FA4B524A712BB00CA7F71 /* Sparkline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B424A712BB00CA7F71 /* Sparkline.swift */; };
+		6CDA7A1500000000000000B1 /* AnimatedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CDA7A1500000000000000A1 /* AnimatedValue.swift */; };
 		6C1FA4B724A712BB00CA7F71 /* HealthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B624A712BB00CA7F71 /* HealthStore.swift */; };
 		6C1FA4B924A712BB00CA7F71 /* StatSlotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B824A712BB00CA7F71 /* StatSlotView.swift */; };
 		6C1FA4BB24A712BB00CA7F71 /* StatusBarPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4BA24A712BB00CA7F71 /* StatusBarPanel.swift */; };
@@ -423,6 +424,7 @@
 		6C1FA4B024A712BB00CA7F71 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		6C1FA4B224A712BB00CA7F71 /* EyesGlyph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EyesGlyph.swift; sourceTree = "<group>"; };
 		6C1FA4B424A712BB00CA7F71 /* Sparkline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkline.swift; sourceTree = "<group>"; };
+		6CDA7A1500000000000000A1 /* AnimatedValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedValue.swift; sourceTree = "<group>"; };
 		6C1FA4B624A712BB00CA7F71 /* HealthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthStore.swift; sourceTree = "<group>"; };
 		6C1FA4B824A712BB00CA7F71 /* StatSlotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatSlotView.swift; sourceTree = "<group>"; };
 		6C1FA4BA24A712BB00CA7F71 /* StatusBarPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarPanel.swift; sourceTree = "<group>"; };
@@ -686,6 +688,7 @@
 			children = (
 				6C1FA4B224A712BB00CA7F71 /* EyesGlyph.swift */,
 				6C1FA4B424A712BB00CA7F71 /* Sparkline.swift */,
+				6CDA7A1500000000000000A1 /* AnimatedValue.swift */,
 				6C192536256D5C38006B0D73 /* HorizontalOrganizingView.swift */,
 			);
 			path = Components;
@@ -1544,6 +1547,7 @@
 				6C1FA4B124A712BB00CA7F71 /* DesignTokens.swift in Sources */,
 				6C1FA4B324A712BB00CA7F71 /* EyesGlyph.swift in Sources */,
 				6C1FA4B524A712BB00CA7F71 /* Sparkline.swift in Sources */,
+				6CDA7A1500000000000000B1 /* AnimatedValue.swift in Sources */,
 				6C1FA4B724A712BB00CA7F71 /* HealthStore.swift in Sources */,
 				6C1FA4B924A712BB00CA7F71 /* StatSlotView.swift in Sources */,
 				6C1FA4BB24A712BB00CA7F71 /* StatusBarPanel.swift in Sources */,

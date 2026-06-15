@@ -28,11 +28,19 @@ enum DesignTokens {
         )
     }
 
-    /// §5.5 — the only two animations in the product; everything else
-    /// re-renders at the refresh cadence with no tweening
+    /// §5.5 — structural motion (panel open, tile expand) plus, in the panel
+    /// only, value-update motion: numbers roll, bars/sparklines tween, text
+    /// cross-dissolves. The panel is mounted transiently, so this costs power
+    /// only while the user is looking; the always-on bar and the widgets still
+    /// re-render at the refresh cadence with no tweening. All value-update
+    /// motion is gated by Reduce Motion (see `Motion`).
     enum Timing {
         static let panelOpen: TimeInterval = 0.18
         static let tileExpand: TimeInterval = 0.16
+        /// a hero/mid number counting to its new value
+        static let valueRoll: TimeInterval = 0.24
+        /// a non-numeric figure cross-dissolving
+        static let valueCrossfade: TimeInterval = 0.2
     }
 
     enum Panel {

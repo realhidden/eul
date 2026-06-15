@@ -29,7 +29,7 @@ struct PanelTile<Content: View>: View {
                     .foregroundColor(.primary.opacity(0.55))
                 Spacer()
                 if let aux = aux {
-                    Text(aux)
+                    CrossfadeText(aux)
                         .font(DesignTokens.Typo.sub)
                         .foregroundColor(accent ?? .primary.opacity(0.55))
                 }
@@ -55,13 +55,22 @@ struct SegmentBar: View {
     /// (fraction of full width, opacity)
     var segments: [(fraction: Double, opacity: Double)]
 
+    /// the segment widths tween to their new fractions (§5.5, revised);
+    /// opacities are static so only the geometry animates
+    @State private var displayed: [Double] = []
+
+    private func fraction(_ index: Int) -> Double {
+        let value = displayed.indices.contains(index) ? displayed[index] : segments[index].fraction
+        return min(max(value, 0), 1)
+    }
+
     var body: some View {
         GeometryReader { geometry in
             HStack(spacing: 0) {
                 ForEach(0..<segments.count, id: \.self) { index in
                     Rectangle()
                         .fill(Color.primary.opacity(segments[index].opacity))
-                        .frame(width: max(0, geometry.size.width * CGFloat(min(max(segments[index].fraction, 0), 1))))
+                        .frame(width: max(0, geometry.size.width * CGFloat(fraction(index))))
                 }
                 Spacer(minLength: 0)
             }
@@ -70,6 +79,14 @@ struct SegmentBar: View {
         .background(Color.primary.opacity(0.12))
         .clipShape(Capsule())
         .padding(.top, 4)
+        .onAppear { displayed = segments.map { $0.fraction } }
+        .onChange(of: segments.map { $0.fraction }) { newValue in
+            if Motion.reduceMotionEnabled {
+                displayed = newValue
+            } else {
+                withAnimation(.eulTween) { displayed = newValue }
+            }
+        }
     }
 }
 
@@ -79,22 +96,31 @@ struct CoreGrid: View {
     var labels: [String]
     var accent: Color?
 
+    /// per-core column heights tween to their new usage (§5.5, revised)
+    @State private var displayed: [Double] = []
+
     private struct Cluster {
         let label: String
-        let values: [Double]
+        /// global core index → so the tweened height can be read by index
+        let coreIndices: [Int]
     }
 
     private var clusters: [Cluster] {
-        var groups: [(String, [Double])] = []
-        for (index, usage) in usages.enumerated() {
+        var groups: [(label: String, indices: [Int])] = []
+        for index in usages.indices {
             let prefix = String(labels[safe: index]?.prefix(1) ?? "C")
-            if let last = groups.last, last.0 == prefix {
-                groups[groups.count - 1].1.append(usage)
+            if let last = groups.last, last.label == prefix {
+                groups[groups.count - 1].indices.append(index)
             } else {
-                groups.append((prefix, [usage]))
+                groups.append((prefix, [index]))
             }
         }
-        return groups.map { Cluster(label: $0.0, values: $0.1) }
+        return groups.map { Cluster(label: $0.label, coreIndices: $0.indices) }
+    }
+
+    private func usage(_ index: Int) -> Double {
+        let value = displayed.indices.contains(index) ? displayed[index] : (usages[safe: index] ?? 0)
+        return min(max(value / 100, 0), 1)
     }
 
     var body: some View {
@@ -105,17 +131,25 @@ struct CoreGrid: View {
                         .font(.system(size: 9, weight: .semibold))
                         .tracking(0.5)
                         .foregroundColor(.primary.opacity(0.35))
-                    ForEach(0..<clusters[clusterIndex].values.count, id: \.self) { coreIndex in
+                    ForEach(clusters[clusterIndex].coreIndices, id: \.self) { coreIndex in
                         ZStack(alignment: .bottom) {
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(Color.primary.opacity(0.12))
                             RoundedRectangle(cornerRadius: 2)
                                 .fill(accent ?? Color.primary.opacity(0.85))
-                                .frame(height: 30 * CGFloat(min(max(clusters[clusterIndex].values[coreIndex] / 100, 0), 1)))
+                                .frame(height: 30 * CGFloat(usage(coreIndex)))
                         }
                         .frame(width: 9, height: 30)
                     }
                 }
+            }
+        }
+        .onAppear { displayed = usages }
+        .onChange(of: usages) { newValue in
+            if Motion.reduceMotionEnabled {
+                displayed = newValue
+            } else {
+                withAnimation(.eulTween) { displayed = newValue }
             }
         }
     }
@@ -149,7 +183,7 @@ struct PanelProcessRow: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
             Spacer()
-            Text(value)
+            CrossfadeText(value)
                 .font(Font.system(size: 12, weight: .semibold).monospacedDigit())
         }
         .padding(.vertical, 6)

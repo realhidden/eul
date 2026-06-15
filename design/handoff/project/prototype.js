@@ -29,7 +29,7 @@
     },
     time: {
       refreshMs: 2000,           /* default cadence — doc §4.4 (range 1–10 s) */
-      panelOpenMs: 180,          /* the only two animations in the product — doc §5.5 */
+      panelOpenMs: 180,          /* structural panel animations; the panel also rolls/tweens value updates (Reduce-Motion-gated) — doc §5.5 */
       tileExpandMs: 160
     },
     fans: {
@@ -432,9 +432,11 @@
   function renderBarIfLive() { if (document.getElementById('barHost')) renderBar(); }
 
   /* ---------------- refresh cadence ----------------
-     Everything updates here, every T.time.refreshMs — nothing renders
-     between ticks (doc §5.5). The browser timer stands in for the
-     native push-update pipeline. */
+     Everything updates here, every T.time.refreshMs. The bar and widgets
+     render only at the tick; the open panel additionally animates value
+     updates between ticks — rolling numbers, tweening bars/sparklines,
+     cross-dissolving text (Reduce-Motion-gated) — doc §5.5. The browser
+     timer stands in for the native push-update pipeline. */
   function tick(first) {
     if (!first) {
       S.cpu.shift(); S.net.shift();

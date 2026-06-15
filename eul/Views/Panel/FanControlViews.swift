@@ -180,7 +180,7 @@ struct FanControlSurface: View {
                         Text("\(fan.id + 1)")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(secondary)
-                        Text(fan.currentSpeedString)
+                        RollingNumber(fan.currentSpeed.map(Double.init)) { "\(Int($0)) rpm" }
                             .font(DesignTokens.Typo.sub)
                             .foregroundColor(secondary)
                     }
@@ -344,7 +344,7 @@ struct FanControlSurface: View {
                                 Text("\(fan.id + 1)")
                                     .font(.system(size: 12, weight: .semibold))
                                     .foregroundColor(secondary)
-                                Text(fan.currentSpeedString)
+                                RollingNumber(fan.currentSpeed.map(Double.init)) { "\(Int($0)) rpm" }
                                     .font(DesignTokens.Typo.sub)
                                     .foregroundColor(secondary)
                                 Spacer()

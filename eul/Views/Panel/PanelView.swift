@@ -83,14 +83,10 @@ struct PanelView: View, SizeChangeView {
     }
 
     private var subtitleText: String {
-        var parts: [String] = []
-        if let upTime = cpuStore.upTimeString {
-            parts.append(String(format: "panel.up".localized(), upTime))
+        guard let upTime = cpuStore.upTimeString else {
+            return ""
         }
-        if healthStore.level == .normal {
-            parts.append("panel.nothing_needs_you".localized())
-        }
-        return parts.joined(separator: " · ")
+        return String(format: "panel.up".localized(), upTime)
     }
 
     /// update discovery moved here from the deleted bar badge/menu header
@@ -99,79 +95,97 @@ struct PanelView: View, SizeChangeView {
         preferenceStore.upgradeMethod != .none && preferenceStore.isUpdateAvailable == true
     }
 
-    private var header: some View {
+    /// compact pill action (Preferences / Quit) — kept fixed-width so the
+    /// title column flexes around them
+    private func headerAction(_ title: String, tint: Color, background: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 10.5, weight: .medium))
+                .foregroundColor(tint)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, 9)
+        .padding(.vertical, 4)
+        .background(background)
+        .cornerRadius(6)
+        .pointingHandCursor()
+    }
+
+    private var titleRow: some View {
         HStack(spacing: 10) {
             EyesGlyph(state: healthStore.glyphState, width: 17)
             VStack(alignment: .leading, spacing: 1) {
                 Text(healthStore.verdictText)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(verdictColor)
-                Text(subtitleText)
-                    .font(.system(size: 11))
-                    .foregroundColor(secondary)
-                if showUpdateRow, let url = preferenceStore.latestReleaseURL {
-                    Button(action: {
-                        NSWorkspace.shared.open(url)
-                    }) {
-                        Text("\("ui.new_version".localized()) — \("ui.download".localized())")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Color.accentColor)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .pointingHandCursor()
-                    .padding(.top, 1)
-                }
-                // an active override must be impossible to forget (§2.7) —
-                // second header line with one-click revert
-                if fanControl.overrideActive {
-                    HStack(spacing: 6) {
-                        Text("\("fan.control.override".localized()) · \(fanControl.overrideMinutes)m")
-                        Button(action: {
-                            fanControl.revertAllToAuto()
-                        }) {
-                            Text("fan.control.revert".localized())
-                                .underline()
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .pointingHandCursor()
-                    }
-                    .font(.system(size: 10.5))
-                    .foregroundColor(secondary)
-                    .padding(.top, 1)
+                    .fixedSize(horizontal: false, vertical: true)
+                if !subtitleText.isEmpty {
+                    Text(subtitleText)
+                        .font(.system(size: 11))
+                        .foregroundColor(secondary)
+                        .lineLimit(1)
                 }
             }
-            Spacer()
+            Spacer(minLength: 8)
             // both actions one click away, no submenu; quit is immediate —
             // the helper's revert machinery makes quitting always safe
             HStack(spacing: 6) {
-                Button(action: {
+                headerAction("menu.preferences".localized(), tint: secondary, background: Color.primary.opacity(0.08)) {
                     AppDelegate.openPreferences()
-                }) {
-                    Text("menu.preferences".localized())
-                        .font(.system(size: 10.5, weight: .medium))
-                        .foregroundColor(secondary)
                 }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.horizontal, 9)
-                .padding(.vertical, 4)
-                .background(Color.primary.opacity(0.08))
-                .cornerRadius(6)
-                .pointingHandCursor()
-                Button(action: {
+                headerAction("menu.quit".localized(), tint: DesignTokens.Health.critical, background: DesignTokens.Health.critical.opacity(0.12)) {
                     AppDelegate.quit()
-                }) {
-                    Text("menu.quit".localized())
-                        .font(.system(size: 10.5, weight: .medium))
-                        .foregroundColor(DesignTokens.Health.critical)
                 }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.horizontal, 9)
-                .padding(.vertical, 4)
-                .background(DesignTokens.Health.critical.opacity(0.12))
-                .cornerRadius(6)
-                .pointingHandCursor()
             }
             .fixedSize()
+        }
+    }
+
+    /// update discovery and the fan-override notice are panel-wide rows below
+    /// the title — at this width they would wrap if squeezed beside the buttons
+    private func updateRow(_ url: URL) -> some View {
+        Button(action: {
+            NSWorkspace.shared.open(url)
+        }) {
+            Text("\("ui.new_version".localized()) — \("ui.download".localized())")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(Color.accentColor)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .pointingHandCursor()
+    }
+
+    /// an active override must be impossible to forget (§2.7) — its own row
+    /// with one-click revert
+    private var overrideRow: some View {
+        HStack(spacing: 6) {
+            Text("\("fan.control.override".localized()) · \(fanControl.overrideMinutes)m")
+                .lineLimit(1)
+            Spacer(minLength: 8)
+            Button(action: {
+                fanControl.revertAllToAuto()
+            }) {
+                Text("fan.control.revert".localized())
+                    .underline()
+                    .lineLimit(1)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
+            .fixedSize()
+        }
+        .font(.system(size: 10.5))
+        .foregroundColor(secondary)
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            titleRow
+            if showUpdateRow, let url = preferenceStore.latestReleaseURL {
+                updateRow(url)
+            }
+            if fanControl.overrideActive {
+                overrideRow
+            }
         }
         .padding(EdgeInsets(top: 2, leading: 4, bottom: 12, trailing: 4))
     }
@@ -198,10 +212,10 @@ struct PanelView: View, SizeChangeView {
             aux: cpuStore.temp?.temperatureString,
             severity: severity
         ) {
-            Text(cpuStore.usageString)
+            RollingNumber(cpuStore.usage) { String(format: "%.0f%%", $0) }
                 .font(DesignTokens.Typo.hero)
                 .foregroundColor(severity.accent ?? .primary)
-            Sparkline(values: healthStore.cpuHistory, maxValue: 100, color: severity.accent ?? .primary)
+            Sparkline(values: healthStore.cpuHistory, maxValue: 100, color: severity.accent ?? .primary, animation: Motion.reduceMotionEnabled ? nil : .eulTween)
                 .frame(height: 22)
                 .padding(.top, 2)
             Text(severity != .normal ? healthStore.verdictText : String(format: "panel.cores".localized(), cpuStore.logicalCores))
@@ -243,7 +257,7 @@ struct PanelView: View, SizeChangeView {
             aux: "\("memory.swap".localized()) \(memoryStore.swapUsed.memoryString)",
             severity: severity
         ) {
-            Text(memoryStore.usedPercentageString)
+            RollingNumber(total > 0 ? memoryStore.usedPercentage : nil) { String(format: "%.0f%%", $0) }
                 .font(DesignTokens.Typo.hero)
                 .foregroundColor(severity.accent ?? .primary)
             SegmentBar(segments: total > 0 ? [
@@ -262,12 +276,18 @@ struct PanelView: View, SizeChangeView {
     /// bits ⇄ bytes is a stored choice made in Settings · General · Units
     /// (design §4.7) and applied everywhere a rate renders
     private func rateText(_ bytesPerSecond: Double) -> some View {
-        let parts = ByteUnit(bytesPerSecond).readableParts(inBits: preferenceStore.networkRateInBits)
-        return HStack(alignment: .firstTextBaseline, spacing: 2) {
-            Text(parts.value).font(DesignTokens.Typo.mid)
-            Text("\(parts.unit)/s")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundColor(secondary)
+        let inBits = preferenceStore.networkRateInBits
+        // value and unit are derived from the same rolling number, so they can
+        // never disagree mid-roll (e.g. a transient "900 MB/s" while the value
+        // is still crossing the KB→MB boundary)
+        return RollingValue(bytesPerSecond) { value in
+            let parts = ByteUnit(value).readableParts(inBits: inBits)
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text(parts.value).font(DesignTokens.Typo.mid)
+                Text("\(parts.unit)/s")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(secondary)
+            }
         }
     }
 
@@ -284,7 +304,7 @@ struct PanelView: View, SizeChangeView {
                 Text("↑").foregroundColor(secondary).font(.system(size: 11))
                 rateText(networkStore.outSpeedInByte)
             }
-            Sparkline(values: healthStore.networkHistory, maxValue: historyMax)
+            Sparkline(values: healthStore.networkHistory, maxValue: historyMax, animation: Motion.reduceMotionEnabled ? nil : .eulTween)
                 .frame(height: 22)
                 .padding(.top, 2)
         }
@@ -300,7 +320,7 @@ struct PanelView: View, SizeChangeView {
             label: "component.gpu".localized().uppercased(),
             aux: gpuStore.temperatureAverage?.temperatureString
         ) {
-            Text(gpuStore.usageAverageString ?? "N/A")
+            RollingNumber(gpuStore.usageAverage) { String(format: "%.0f%%", $0) }
                 .font(DesignTokens.Typo.hero)
             Spacer(minLength: 0)
             Text(sub)
@@ -324,7 +344,7 @@ struct PanelView: View, SizeChangeView {
             severity: severity
         ) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(diskStore.freeString)
+                RollingNumber(diskStore.freeBytes.map(Double.init)) { ByteUnit($0, kilo: 1000).readable }
                     .font(Font.system(size: 19, weight: .semibold).monospacedDigit())
                     .foregroundColor(severity.accent ?? .primary)
                 Text("text_component.free".localized().lowercased())
@@ -367,7 +387,7 @@ struct PanelView: View, SizeChangeView {
                         Text("\(fan.id + 1)")
                             .font(.system(size: 11))
                             .foregroundColor(secondary)
-                        Text(fan.currentSpeedString)
+                        RollingNumber(fan.currentSpeed.map(Double.init)) { "\(Int($0)) rpm" }
                             .font(DesignTokens.Typo.mid)
                     }
                 }
@@ -384,7 +404,7 @@ struct PanelView: View, SizeChangeView {
                             Text("\(fan.id + 1)")
                                 .font(.system(size: 11))
                                 .foregroundColor(secondary)
-                            Text(fan.currentSpeedString)
+                            RollingNumber(fan.currentSpeed.map(Double.init)) { "\(Int($0)) rpm" }
                                 .font(DesignTokens.Typo.mid)
                         }
                     }
@@ -431,7 +451,7 @@ struct PanelView: View, SizeChangeView {
             aux: batteryStore.timeRemaining,
             severity: severity
         ) {
-            Text(batteryStore.charge.percentageString)
+            RollingNumber(batteryStore.charge) { $0.percentageString }
                 .font(DesignTokens.Typo.hero)
                 .foregroundColor(severity.accent ?? .primary)
             Spacer(minLength: 0)
