@@ -344,7 +344,7 @@ struct PanelView: View, SizeChangeView {
             severity: severity
         ) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                RollingNumber(diskStore.freeBytes.map(Double.init)) { ByteUnit($0, kilo: 1000).readable }
+                RollingNumber(diskStore.freeBytes.map { Double($0) }) { ByteUnit($0, kilo: 1000).readable }
                     .font(Font.system(size: 19, weight: .semibold).monospacedDigit())
                     .foregroundColor(severity.accent ?? .primary)
                 Text("text_component.free".localized().lowercased())
