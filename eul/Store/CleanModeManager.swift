@@ -79,9 +79,6 @@ final class CleanModeManager: ObservableObject {
         needsPermission = !KeyboardLock.hasPermission()
         phase = .confirming
         overlay.show(manager: self)
-        if needsPermission {
-            startPermissionPolling()
-        }
     }
 
     func cancel() {
@@ -93,12 +90,18 @@ final class CleanModeManager: ObservableObject {
         overlay.hide()
     }
 
-    /// Confirming-screen action when permission is missing: prompt + open the
-    /// Input Monitoring pane, then poll until it's granted and unlock Start.
+    /// Confirming-screen action when permission is missing. The overlay sits at
+    /// screen-saver level, so the TCC prompt and the System Settings window
+    /// would open *behind* it, invisible — dismiss the overlay first so the
+    /// user can actually grant permission, then re-tap Clean when they're back
+    /// (nothing is dimmed or locked yet in this state, so there's nothing to
+    /// restore).
     func openPermissionSettings() {
+        stopPermissionPolling()
+        phase = .idle
+        overlay.hide()
         KeyboardLock.requestPermission()
         KeyboardLock.openSettings()
-        startPermissionPolling()
     }
 
     private func startPermissionPolling() {
