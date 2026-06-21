@@ -27,6 +27,10 @@
 		6C1FA41024AA1D4400CA7F71 /* FanStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA40F24AA1D4400CA7F71 /* FanStore.swift */; };
 		6C1FA41224AA1DC100CA7F71 /* MemoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */; };
 		6C1FA4A124A712BB00CA7F71 /* AppleSiliconSensors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */; };
+		C1EA0000000000000000B001 /* KeyboardLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA0000000000000000F001 /* KeyboardLock.swift */; };
+		C1EA0000000000000000B002 /* DisplayBrightness.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA0000000000000000F002 /* DisplayBrightness.swift */; };
+		C1EA0000000000000000B003 /* CleanModeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA0000000000000000F003 /* CleanModeManager.swift */; };
+		C1EA0000000000000000B004 /* CleanModeOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1EA0000000000000000F004 /* CleanModeOverlay.swift */; };
 		6C1FA4A324A712BB00CA7F71 /* WidgetReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */; };
 		6C1FA4B124A712BB00CA7F71 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B024A712BB00CA7F71 /* DesignTokens.swift */; };
 		6C1FA4B324A712BB00CA7F71 /* EyesGlyph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1FA4B224A712BB00CA7F71 /* EyesGlyph.swift */; };
@@ -420,6 +424,10 @@
 		6C1FA40F24AA1D4400CA7F71 /* FanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanStore.swift; sourceTree = "<group>"; };
 		6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStore.swift; sourceTree = "<group>"; };
 		6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSiliconSensors.swift; sourceTree = "<group>"; };
+		C1EA0000000000000000F001 /* KeyboardLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardLock.swift; sourceTree = "<group>"; };
+		C1EA0000000000000000F002 /* DisplayBrightness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayBrightness.swift; sourceTree = "<group>"; };
+		C1EA0000000000000000F003 /* CleanModeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanModeManager.swift; sourceTree = "<group>"; };
+		C1EA0000000000000000F004 /* CleanModeOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanModeOverlay.swift; sourceTree = "<group>"; };
 		6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetReloader.swift; sourceTree = "<group>"; };
 		6C1FA4B024A712BB00CA7F71 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		6C1FA4B224A712BB00CA7F71 /* EyesGlyph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EyesGlyph.swift; sourceTree = "<group>"; };
@@ -885,6 +893,8 @@
 				6CAEED6424A62DF800C39597 /* SMC.swift */,
 				6C1FA3FF24A712AA00CA7F71 /* SmcControl.swift */,
 				6C1FA4A024A712BB00CA7F71 /* AppleSiliconSensors.swift */,
+				C1EA0000000000000000F001 /* KeyboardLock.swift */,
+				C1EA0000000000000000F002 /* DisplayBrightness.swift */,
 				6C1FA4A224A712BB00CA7F71 /* WidgetReloader.swift */,
 				6C1FA4C424A712BB00CA7F71 /* GlobalHotKey.swift */,
 				6C831368253DCF1F00914BB0 /* Print.swift */,
@@ -990,6 +1000,7 @@
 				6C572D7E254EFD4700EF9904 /* DiskStore.swift */,
 				6C1FA40F24AA1D4400CA7F71 /* FanStore.swift */,
 				7C1FA40B24A712BB00CA7F71 /* FanControlStore.swift */,
+				C1EA0000000000000000F003 /* CleanModeManager.swift */,
 				6CFAB80125BC4D9A002F5F48 /* GpuStore.swift */,
 				6C1FA4B624A712BB00CA7F71 /* HealthStore.swift */,
 				6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */,
@@ -1023,6 +1034,7 @@
 				6CDE6C7124F0007D00463114 /* StatusBarItem.swift */,
 				6CDE6C7524F10C8000463114 /* StatusBarManager.swift */,
 				6C1FA4BA24A712BB00CA7F71 /* StatusBarPanel.swift */,
+				C1EA0000000000000000F004 /* CleanModeOverlay.swift */,
 			);
 			path = StatusBar;
 			sourceTree = "<group>";
@@ -1601,6 +1613,10 @@
 				6C7DB6D124E0300E00133B06 /* NetworkStore.swift in Sources */,
 				6C76846F25D1884A00E987BB /* AutoUpdate.swift in Sources */,
 				6C02715F25BD40EA006C54E6 /* SystemProfiler.swift in Sources */,
+				C1EA0000000000000000B001 /* KeyboardLock.swift in Sources */,
+				C1EA0000000000000000B002 /* DisplayBrightness.swift in Sources */,
+				C1EA0000000000000000B003 /* CleanModeManager.swift in Sources */,
+				C1EA0000000000000000B004 /* CleanModeOverlay.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -301,3 +301,21 @@ Copyright © 2020 Gao Sun. All rights reserved.
 "settings.title" = "Inställningar";
 "fan.control.unlink" = "Styr separat";
 "fan.control.link" = "Länka fläktar";
+
+/* Clean Mode (hardware wipe) */
+"menu.clean_mode" = "Clean Mode";
+"clean_mode.action" = "Clean";
+"clean_mode.title" = "Clean Mode";
+"clean_mode.subtitle" = "Black out the screen and switch off the keyboard so you can wipe them — without typing or changing a thing.";
+"clean_mode.guide.heading" = "HOW TO FINISH";
+"clean_mode.guide.hold" = "Press and hold anywhere on the trackpad or mouse for a couple of seconds.";
+"clean_mode.guide.restore" = "Your brightness and keyboard come back on their own — you'll never need a key.";
+"clean_mode.guide.auto" = "Do nothing and it restores by itself after a minute.";
+"clean_mode.permission.heading" = "ONE-TIME PERMISSION";
+"clean_mode.permission.body" = "To switch the keyboard off, macOS needs you to allow eul under Input Monitoring. Turn eul on, then come back and start.";
+"clean_mode.open_settings" = "Open Settings";
+"clean_mode.start" = "Start Cleaning";
+"clean_mode.cancel" = "Cancel";
+"clean_mode.reminder" = "Wipe away — press and hold anywhere to finish.";
+"clean_mode.releasing" = "Keep holding to finish…";
+"clean_mode.auto_exit" = "Restores in %@";

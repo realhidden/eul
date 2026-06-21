@@ -102,6 +102,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         print("🤚 should terminate")
         // best-effort; the helper's watchdog covers crashes and force-quits
         SharedStore.fanControl.revertAllOnQuit()
+        // restore brightness + re-enable the keyboard if quit lands mid-clean
+        // (the event tap also dies with the process, but this is the tidy path)
+        SharedStore.cleanMode.forceExit()
         SmcControl.shared.close()
         return .terminateNow
     }
@@ -180,6 +183,14 @@ extension AppDelegate {
 
     static func quit() {
         NSApplication.shared.terminate(self)
+    }
+
+    /// Clean Mode (hardware wipe): close the panel so the overlay owns the
+    /// screen, then show the confirmation + restoration guide. Reachable from
+    /// the panel header and the status-bar context menu.
+    static func enterCleanMode() {
+        PanelManager.shared.close()
+        SharedStore.cleanMode.enter()
     }
 }
 

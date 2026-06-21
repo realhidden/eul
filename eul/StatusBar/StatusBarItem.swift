@@ -22,6 +22,7 @@ class BaseStatusItem: NSObject {
     let item: NSStatusItem
     let autosaveNameString: String
     private let contextMenu = NSMenu()
+    private var cleanModeMenuItem: NSMenuItem?
 
     /// AppKit deletes "NSStatusItem Preferred Position" when an item is
     /// hidden, so the user's dragged position is stashed across hide/show
@@ -98,6 +99,7 @@ class BaseStatusItem: NSObject {
         if isContextClick {
             // titles are snapshots — refresh in case the language changed
             contextMenu.items.first?.title = "menu.preferences".localized()
+            cleanModeMenuItem?.title = "menu.clean_mode".localized()
             contextMenu.items.last?.title = "menu.quit".localized()
             // a permanently-assigned menu would own left-click too, so assign
             // it only for the duration of this click
@@ -117,10 +119,18 @@ class BaseStatusItem: NSObject {
         AppDelegate.quit()
     }
 
+    @objc private func enterCleanMode() {
+        AppDelegate.enterCleanMode()
+    }
+
     fileprivate func setupButton() {
         let preferencesItem = NSMenuItem(title: "menu.preferences".localized(), action: #selector(openPreferences), keyEquivalent: ",")
         preferencesItem.target = self
         contextMenu.addItem(preferencesItem)
+        let cleanModeItem = NSMenuItem(title: "menu.clean_mode".localized(), action: #selector(enterCleanMode), keyEquivalent: "")
+        cleanModeItem.target = self
+        contextMenu.addItem(cleanModeItem)
+        cleanModeMenuItem = cleanModeItem
         contextMenu.addItem(NSMenuItem.separator())
         let quitItem = NSMenuItem(title: "menu.quit".localized(), action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self

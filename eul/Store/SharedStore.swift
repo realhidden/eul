@@ -24,6 +24,7 @@ enum SharedStore {
     static let ui = UIStore()
     static let health = HealthStore()
     static let fanControl = FanControlStore()
+    static let cleanMode = CleanModeManager()
     static let components = ComponentsStore<EulComponent>(
         defaultComponents: EulComponent.defaultComponents,
         onDidChange: visibilityCheckClosure
@@ -49,5 +50,6 @@ extension View {
             .environmentObject(SharedStore.topStore)
             .environmentObject(SharedStore.health)
             .environmentObject(SharedStore.fanControl)
+            .environmentObject(SharedStore.cleanMode)
     }
 }
