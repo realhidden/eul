@@ -95,20 +95,22 @@ struct PanelView: View, SizeChangeView {
         preferenceStore.upgradeMethod != .none && preferenceStore.isUpdateAvailable == true
     }
 
-    /// compact pill action (Preferences / Quit) — kept fixed-width so the
-    /// title column flexes around them
-    private func headerAction(_ title: String, tint: Color, background: Color, action: @escaping () -> Void) -> some View {
+    /// compact icon action (Clean / Preferences / Quit) — square so three fit
+    /// where one text pill used to, leaving the title column room to breathe.
+    /// The symbol carries a tooltip + a11y label since the word is gone.
+    private func headerIcon(_ symbol: String, label: String, tint: Color, background: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title)
-                .font(.system(size: 10.5, weight: .medium))
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .medium))
                 .foregroundColor(tint)
+                .frame(width: 24, height: 22)
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.horizontal, 9)
-        .padding(.vertical, 4)
         .background(background)
         .cornerRadius(6)
         .pointingHandCursor()
+        .help(label)
+        .accessibilityLabel(Text(label))
     }
 
     private var titleRow: some View {
@@ -130,13 +132,13 @@ struct PanelView: View, SizeChangeView {
             // both actions one click away, no submenu; quit is immediate —
             // the helper's revert machinery makes quitting always safe
             HStack(spacing: 6) {
-                headerAction("clean_mode.action".localized(), tint: secondary, background: Color.primary.opacity(0.08)) {
+                headerIcon("sparkles", label: "clean_mode.action".localized(), tint: secondary, background: Color.primary.opacity(0.08)) {
                     AppDelegate.enterCleanMode()
                 }
-                headerAction("menu.preferences".localized(), tint: secondary, background: Color.primary.opacity(0.08)) {
+                headerIcon("gearshape", label: "menu.preferences".localized(), tint: secondary, background: Color.primary.opacity(0.08)) {
                     AppDelegate.openPreferences()
                 }
-                headerAction("menu.quit".localized(), tint: DesignTokens.Health.critical, background: DesignTokens.Health.critical.opacity(0.12)) {
+                headerIcon("power", label: "menu.quit".localized(), tint: DesignTokens.Health.critical, background: DesignTokens.Health.critical.opacity(0.12)) {
                     AppDelegate.quit()
                 }
             }
