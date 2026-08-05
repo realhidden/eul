@@ -20,7 +20,7 @@ class NetworkTopStore: ObservableObject {
         }
 
         var description: String {
-            fatalError("not implemented")
+            "NetworkSpeed(in: \(inSpeedInByte), out: \(outSpeedInByte))"
         }
     }
 

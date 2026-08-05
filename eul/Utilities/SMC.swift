@@ -103,6 +103,14 @@ extension Double {
         let sign = bytes.0 & 0x80 == 0 ? 1.0 : -1.0
         self = sign * Double(bytes.0 & 0x7F) // AND to mask sign bit
     }
+
+    init(fromFLT bytes: FLT) {
+        // Convert the SMCBytes to a float value (used on Apple Silicon)
+        let byteArray: [UInt8] = [bytes.0, bytes.1, bytes.2, bytes.3]
+        var resultValue: Float = 0.0
+        memcpy(&resultValue, byteArray, 4)
+        self = Double(resultValue)
+    }
 }
 
 // Thanks to Airspeed Velocity for the great idea!
@@ -197,7 +205,7 @@ public struct SMCParamStruct {
 
     public struct SMCKeyInfoData {
         /// How many bytes written to SMCParamStruct.bytes
-        var dataSize: IOByteCount = 0
+        var dataSize: UInt32 = 0
 
         /// Type of data written to SMCParamStruct.bytes. This lets us know how
         /// to interpret it (translate it to human readable)
@@ -333,7 +341,7 @@ public enum SMCKit {
         let outputStruct = try callDriver(&inputStruct)
 
         return DataType(type: outputStruct.keyInfo.dataType,
-                        size: UInt32(outputStruct.keyInfo.dataSize))
+                        size: outputStruct.keyInfo.dataSize)
     }
 
     /// Get information about the key at index
@@ -355,7 +363,7 @@ public enum SMCKit {
         var inputStruct = SMCParamStruct()
 
         inputStruct.key = key.code
-        inputStruct.keyInfo.dataSize = IOByteCount(UInt32(key.info.size))
+        inputStruct.keyInfo.dataSize = UInt32(key.info.size)
         inputStruct.data8 = SMCParamStruct.Selector.kSMCReadKey.rawValue
 
         let outputStruct = try callDriver(&inputStruct)
@@ -369,7 +377,7 @@ public enum SMCKit {
 
         inputStruct.key = key.code
         inputStruct.bytes = data
-        inputStruct.keyInfo.dataSize = IOByteCount(UInt32(key.info.size))
+        inputStruct.keyInfo.dataSize = UInt32(key.info.size)
         inputStruct.data8 = SMCParamStruct.Selector.kSMCWriteKey.rawValue
 
         _ = try callDriver(&inputStruct)
@@ -441,7 +449,11 @@ public extension SMCKit {
     static func isKeyFound(_ code: FourCharCode) throws -> Bool {
         do {
             _ = try keyInformation(code)
-        } catch SMCError.keyNotFound { return false }
+        } catch {
+            // keyNotFound (Intel Macs querying Apple Silicon keys, or vice versa)
+            // and any other SMC error both mean the key is unavailable here.
+            return false
+        }
 
         return true
     }
@@ -479,6 +491,16 @@ public enum TemperatureSensors {
     public static let CPU_0_PROXIMITY =
         TemperatureSensor(name: "CPU_0_PROXIMITY",
                           code: FourCharCode(fromStaticString: "TC0P"))
+
+    // Apple Silicon (M-series) temperature sensors
+    public static let CPU_PCORE = TemperatureSensor(name: "CPU_PCORE",
+                                                    code: FourCharCode(fromStaticString: "Tp09"))
+    public static let CPU_ECORE = TemperatureSensor(name: "CPU_ECORE",
+                                                    code: FourCharCode(fromStaticString: "Tp0T"))
+    public static let CPU_PACKAGE = TemperatureSensor(name: "CPU_PACKAGE",
+                                                      code: FourCharCode(fromStaticString: "Tp05"))
+    public static let GPU_APPLE_SILICON = TemperatureSensor(name: "GPU_APPLE_SILICON",
+                                                            code: FourCharCode(fromStaticString: "Tg05"))
     public static let ENCLOSURE_BASE_0 =
         TemperatureSensor(name: "ENCLOSURE_BASE_0",
                           code: FourCharCode(fromStaticString: "TB0T"))
@@ -513,6 +535,10 @@ public enum TemperatureSensors {
     public static let MEM_SLOTS_PROXIMITY =
         TemperatureSensor(name: "MEM_SLOTS_PROXIMITY",
                           code: FourCharCode(fromStaticString: "TM0P"))
+    // Apple Silicon (M-series) memory proximity temperature sensor
+    public static let MEM_APPLE_SILICON =
+        TemperatureSensor(name: "MEM_APPLE_SILICON",
+                          code: FourCharCode(fromStaticString: "Ts0C"))
     public static let MISC_PROXIMITY = TemperatureSensor(name: "MISC_PROXIMITY",
                                                          code: FourCharCode(fromStaticString: "Tm0P"))
     public static let NORTHBRIDGE = TemperatureSensor(name: "NORTHBRIDGE",
@@ -541,6 +567,10 @@ public enum TemperatureSensors {
                              CPU_0_DIODE.code: CPU_0_DIODE,
                              CPU_0_HEATSINK.code: CPU_0_HEATSINK,
                              CPU_0_PROXIMITY.code: CPU_0_PROXIMITY,
+                             CPU_PCORE.code: CPU_PCORE,
+                             CPU_ECORE.code: CPU_ECORE,
+                             CPU_PACKAGE.code: CPU_PACKAGE,
+                             GPU_APPLE_SILICON.code: GPU_APPLE_SILICON,
                              ENCLOSURE_BASE_0.code: ENCLOSURE_BASE_0,
                              ENCLOSURE_BASE_1.code: ENCLOSURE_BASE_1,
                              ENCLOSURE_BASE_2.code: ENCLOSURE_BASE_2,
@@ -554,6 +584,7 @@ public enum TemperatureSensors {
                              HEATSINK_2.code: HEATSINK_2,
                              MEM_SLOT_0.code: MEM_SLOT_0,
                              MEM_SLOTS_PROXIMITY.code: MEM_SLOTS_PROXIMITY,
+                             MEM_APPLE_SILICON.code: MEM_APPLE_SILICON,
                              PALM_REST.code: PALM_REST,
                              LCD_PROXIMITY.code: LCD_PROXIMITY,
                              MISC_PROXIMITY.code: MISC_PROXIMITY,
@@ -583,7 +614,7 @@ public extension SMCKit {
         let keys = try allKeys()
 
         return keys.filter { $0.code.toString().hasPrefix("T") &&
-            $0.info == DataTypes.SP78 &&
+            ($0.info == DataTypes.SP78 || $0.info == DataTypes.FLT) &&
             TemperatureSensors.all[$0.code] == nil
         }
         .map { TemperatureSensor(name: "Unknown", code: $0.code) }
@@ -593,9 +624,31 @@ public extension SMCKit {
     static func temperature(_ sensorCode: FourCharCode,
                             unit: TemperatureUnit = .celius) throws -> Double
     {
-        let data = try readData(SMCKey(code: sensorCode, info: DataTypes.SP78))
+        var temperatureInCelius: Double
 
-        let temperatureInCelius = Double(fromSP78: (data.0, data.1))
+        // Query the key's actual data type, then parse accordingly.
+        // Intel Macs use `sp78` (2-byte fixed-point); Apple Silicon (M-series)
+        // sensors report `flt ` (4-byte float). Reading with the wrong type
+        // silently returns garbage bytes, so we must check the real type first
+        // instead of blindly trying SP78.
+        let info = try keyInformation(sensorCode)
+
+        if info == DataTypes.SP78 {
+            let data = try readData(SMCKey(code: sensorCode, info: info))
+            temperatureInCelius = Double(fromSP78: (data.0, data.1))
+        } else if info == DataTypes.FLT {
+            let data = try readData(SMCKey(code: sensorCode, info: info))
+            temperatureInCelius = Double(fromFLT: (data.0, data.1, data.2, data.3))
+        } else {
+            // Unknown type — fall back to SP78, then FLT
+            do {
+                let data = try readData(SMCKey(code: sensorCode, info: DataTypes.SP78))
+                temperatureInCelius = Double(fromSP78: (data.0, data.1))
+            } catch {
+                let data = try readData(SMCKey(code: sensorCode, info: DataTypes.FLT))
+                temperatureInCelius = Double(fromFLT: (data.0, data.1, data.2, data.3))
+            }
+        }
 
         switch unit {
         case .celius:

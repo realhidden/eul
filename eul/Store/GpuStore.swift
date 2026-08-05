@@ -45,7 +45,21 @@ class GpuStore: ObservableObject, Refreshable {
 
     func getStatustic(for gpu: GPU) -> GPU.Statistic? {
         gpuStatistics.first {
-            $0.pciMatch.lowercased().contains(gpu.deviceId.deletingPrefix("0x"))
+            // For Intel GPUs, match by device ID in PCI match string
+            // For Apple Silicon GPUs, match by "apple" keyword in PCI match
+            let deviceIdLower = gpu.deviceId.deletingPrefix("0x").lowercased()
+            let pciMatchLower = $0.pciMatch.lowercased()
+
+            // Check if it's an Apple Silicon GPU (deviceId contains "apple" or " m")
+            let isAppleSilicon = deviceIdLower.contains("apple") || deviceIdLower.contains(" m")
+
+            if isAppleSilicon {
+                // For Apple Silicon, match if pciMatch is "apple"
+                return pciMatchLower == "apple"
+            } else {
+                // For Intel GPUs, match by device ID
+                return pciMatchLower.contains(deviceIdLower)
+            }
         }
     }
 
