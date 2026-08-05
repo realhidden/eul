@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache SPM
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: SwiftFormat lint
+        run: swift run -c release swiftformat ../ --lint
+        working-directory: ./BuildTools
+
+      - name: Build
+        run: |
+          xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx build \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" \
+            CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" \
+            -derivedDataPath ./build
+
+      - name: Ad-hoc sign
+        run: |
+          APP="./build/Build/Products/Debug/eul.app"
+          codesign --force --deep --sign - "$APP"
+          # Verify signature
+          codesign --verify --verbose=2 "$APP" || true
+
+      - name: Package
+        run: |
+          cd ./build/Build/Products/Debug
+          zip -r -y "$GITHUB_WORKSPACE/eul.app.zip" eul.app
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: eul.app.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false

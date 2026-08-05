@@ -21,7 +21,12 @@ macOS 10.15 minimum for SwiftUI support
 
 ### Download
 
-Download the [latest release](https://github.com/gao-sun/eul/releases/latest/download/eul.app.zip) directly and drag `.app` file into your `Application` folder.
+Download the [latest release](https://github.com/miaoweiwei/eul/releases/latest/download/eul.app.zip) directly and drag `.app` file into your `Application` folder.
+
+Note: The app is ad-hoc signed (not notarized). On first launch macOS will block it. To open:
+
+1. Right-click `eul.app` → **Open** → **Open** in the dialog, or
+2. Run `xattr -cr /Applications/eul.app` in Terminal, then double-click to open.
 
 ### Homebrew Cask
 
