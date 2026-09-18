@@ -14,15 +14,21 @@ cd BuildTools && swift run -c release swiftformat ../
 # Lint format (CI check)
 cd BuildTools && swift run -c release swiftformat ../ --lint
 
+# Widget extensions are NOT part of the `eul` scheme — building `eul` alone
+# compiles none of their code. Build each by its own scheme:
+xcodebuild -scheme CpuWidgetExtension -project ./eul.xcodeproj -sdk macosx build
+# (same for MemoryWidgetExtension, NetworkWidgetExtension, BatteryWidgetExtension,
+#  EulWidgetsExtension — only EulWidgetsExtension is embedded in the app bundle)
+
 # Release build (no signing)
 xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO"
 ```
 
-CI runs on `macos-latest` with Xcode 12.4 (for Big Sur compatibility). Open `eul.xcodeproj` in Xcode to run/debug.
+CI runs on `macos-latest` with the latest stable Xcode. Open `eul.xcodeproj` in Xcode to run/debug.
 
 ## Architecture
 
-**eul** is a macOS menu bar hardware monitor built with SwiftUI (min deployment: macOS 10.15).
+**eul** is a macOS menu bar hardware monitor built with SwiftUI (min deployment: macOS 13.0).
 
 ### Targets
 

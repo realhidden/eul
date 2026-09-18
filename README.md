@@ -7,22 +7,29 @@
 A calm system monitor for the macOS menu bar — this fork revives and redesigns [gao-sun/eul](https://github.com/gao-sun/eul) for modern macOS and Apple Silicon, rebuilt around one idea: **glanceable when things are fine, useful when they aren't.**
 
 <p align="center">
-  <img src="design/screenshots/panel.png" width="390" alt="The eul menu bar strip and investigation panel" />
+  <img src="design/screenshots/menubar-smart.png" width="620" alt="The eul menu bar strip in its smart slot style" />
+</p>
+
+<p align="center">
+  <img src="design/screenshots/panel.png" width="390" alt="The eul investigation panel" />
 </p>
 
 ## Highlights
 
 - **One entry point in the bar.** Your pinned metrics render as a single strip; when the menu bar gets crowded, a width governor collapses it slot by slot down to the eyes — eul never silently disappears.
-- **An investigation panel, not a dropdown.** Click the strip for a top-down read: verdict, metric tiles with sparklines, top processes by CPU / memory / network, and eul's own footprint reported on every open.
+- **An investigation panel, not a dropdown.** Click the strip for a top-down read: verdict, metric tiles with history charts, top processes by CPU / memory / network (with PIDs), and eul's own footprint reported on every open.
 - **A health engine instead of a Christmas tree.** Surfaces stay monochrome until a *sustained* signal trips — thermal pressure, memory pressure, disk almost full, runaway process — then exactly the responsible metric tints amber or red, in the bar and in the panel.
 - **Fan control with a real safety model.** A privileged helper (macOS 13+, approved by you in System Settings) drives the fans: linked by default with one stepped slider, Auto / Manual / Boost per fan if you unlink. Targets are clamped to hardware limits, macOS can always cool past your setting, and fans revert to Auto whenever eul isn't running — enforced by the helper's own dead-man watchdog, not by good intentions.
 - **Honest widgets.** Health and Trends widgets that say how old their data is instead of pretending to be live.
 - **Native, cheap sampling.** Metrics come from syscalls, not shelled-out tools; container writes and widget reloads are skipped when nothing consumes them; refresh cadence (1–10 s) is one slider with its energy cost stated next to it.
-- **Personalization without a layout editor.** Hide tiles you don't care about (right-click), value-only bar slots, °C/°F and MB/s ⇄ Mb/s units, 23 languages.
+- **Three slot styles, previewed live.** *Full* spells out `CPU 63%`, *Value only* drops the label, and *Smart* trades it for the component's glyph and tucks a history histogram under each number. Settings renders all three against live data, so you pick by looking rather than by reading three words.
+- **One chart language everywhere.** The same zero-based histogram draws in the bar, the panel and the widgets. Zero-based on purpose: scaling a chart to its own window minimum makes an idle GPU look busy, which is the opposite of what a chart is for.
+- **Your addresses, one click away.** The network tile expands to every adapter and its bound addresses — loopback included — ordered by your configured service order. Click one to copy it.
+- **Personalization without a layout editor.** Hide tiles you don't care about (right-click), °C/°F and MB/s ⇄ Mb/s units, 23 languages.
 
 ## OS Requirement
 
-macOS 10.15+ (Catalina) for the app. Fan control requires macOS 13+ and a signed build. Big Sur 11+ for widgets. Universal: Apple Silicon + Intel.
+macOS 13+ (Ventura) — every target in the project builds against a 13.0 deployment target. Fan control additionally needs a signed build so the privileged helper can be approved. Universal: Apple Silicon + Intel.
 
 ## Installation
 
