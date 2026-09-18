@@ -146,7 +146,10 @@ enum Info {
     }
 
     static func getActiveInterfaces() -> [String] {
-        shell("ifconfig")?.split(separator: "\n").map { String($0) }.reduce([InterfaceStatus]()) {
+        let physicalInterfacePrefixes = ["en", "ap"]
+        let excludedInterfaces = ["lo0", "awdl", "llw", "utun"]
+
+        return shell("ifconfig")?.split(separator: "\n").map { String($0) }.reduce([InterfaceStatus]()) {
             // new interface
             if !$1.hasPrefix("\t") {
                 guard let colonIndex = $1.firstIndex(of: ":") else {
@@ -162,12 +165,12 @@ enum Info {
             }
 
             return $0.dropLast().appending(InterfaceStatus(name: lastInterface.name, status: splitted[1]))
-        }.compactMap {
-            $0.status == "active" ? $0.name : nil
+        }.compactMap { iface in
+            iface.status == "active" && (physicalInterfacePrefixes.contains { iface.name.hasPrefix($0) }) ? iface.name : nil
         } ?? []
     }
 
-    static func getNetworkUsage(forDevice: String?, _ onData: @escaping (NetworkUsage, [NetworkPort], NetworkPort?) -> Void) {
+    static func getNetworkUsage(forDevice _: String?, _ onData: @escaping (NetworkUsage, [NetworkPort], NetworkPort?) -> Void) {
         // TO-DO: use Combine
         shellAsync("networksetup -listnetworkserviceorder") {
             let services = $0?.split(separator: "\n").map(String.init).compactMap(Info.findPort) ?? []
@@ -181,21 +184,16 @@ enum Info {
             var inBytes: UInt64?
             var outBytes: UInt64?
 
-            let device = forDevice ?? currentActivePort?.device ?? "en0"
-
-            if
-                let rows = shell("netstat -bI \(device)")?.split(separator: "\n").map({ String($0) }),
-                rows.count > 1
-            {
-                let headers = rows[0].splittedByWhitespace
-                let values = rows[1].splittedByWhitespace
-
-                if let raw = String.getValue(of: "ibytes", in: values, of: headers), let bytes = UInt64(raw) {
-                    inBytes = bytes
-                }
-
-                if let raw = String.getValue(of: "obytes", in: values, of: headers), let bytes = UInt64(raw) {
-                    outBytes = bytes
+            // Use nettop to read per-process connection-level byte counters.
+            // This works on all hardware including USB WiFi adapters whose
+            // drivers don't report interface-level statistics to netstat.
+            if let output = shell("nettop -J bytes_in,bytes_out -P -x -l 1 -n") {
+                let lines = output.components(separatedBy: "\n")
+                for line in lines.dropFirst() { // skip header line
+                    let parts = line.splittedByWhitespace
+                    guard parts.count >= 3 else { continue }
+                    inBytes = (inBytes ?? 0) + (UInt64(parts[parts.count - 2]) ?? 0)
+                    outBytes = (outBytes ?? 0) + (UInt64(parts[parts.count - 1]) ?? 0)
                 }
             }
 

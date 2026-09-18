@@ -62,6 +62,7 @@ struct CpuWidgetEntryView: View {
                 WidgetNotAvailbleView(text: "widget.not_available".localized())
             }
         }
+        .preferredColorScheme(preferenceEntry.colorScheme)
     }
 }
 

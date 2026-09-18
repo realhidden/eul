@@ -29,6 +29,7 @@ struct Provider: StandardProvider {
 }
 
 struct BatteryWidgetEntryView: View {
+    var preferenceEntry = Container.get(PreferenceEntry.self) ?? PreferenceEntry()
     var entry: Provider.Entry
 
     var body: some View {
@@ -67,6 +68,7 @@ struct BatteryWidgetEntryView: View {
                 WidgetNotAvailbleView(text: "widget.not_available".localized())
             }
         }
+        .preferredColorScheme(preferenceEntry.colorScheme)
     }
 }
 

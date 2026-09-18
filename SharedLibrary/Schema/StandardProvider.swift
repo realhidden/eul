@@ -8,12 +8,12 @@
 
 import WidgetKit
 
-@available(OSXApplicationExtension 11, *)
+@available(macOSApplicationExtension 11, *)
 public protocol StandardProvider: TimelineProvider {
     associatedtype WidgetEntry: SharedWidgetEntry
 }
 
-@available(OSXApplicationExtension 11, *)
+@available(macOSApplicationExtension 11, *)
 public extension StandardProvider {
     func placeholder(in _: Context) -> WidgetEntry {
         Container.get(WidgetEntry.self) ?? WidgetEntry.sample

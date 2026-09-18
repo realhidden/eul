@@ -26,7 +26,7 @@ class PreferenceStore: ObservableObject {
     }
 
     private let userDefaultsKey = "preference"
-    private let repo = "gao-sun/eul"
+    private let repo = "sclarkca/eul"
     private var cancellable: AnyCancellable?
     var repoURL: URL? {
         URL(string: "https://github.com/\(repo)")
@@ -197,7 +197,7 @@ class PreferenceStore: ObservableObject {
     }
 
     func writeToContainer() {
-        Container.set(PreferenceEntry(temperatureUnit: temperatureUnit))
+        Container.set(PreferenceEntry(temperatureUnit: temperatureUnit, appearanceMode: appearanceMode.rawValue))
         if #available(OSX 11, *) {
             WidgetCenter.shared.reloadAllTimelines()
         }
