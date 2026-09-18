@@ -48,3 +48,9 @@ Carthage/Build/
 BuildTools/.build
 BuildTools/.swiftpm
 
+# SwiftPM / Xcode build output. The root .build was tracked by accident:
+# 1618 files, 569 MB of SourcePackages checkouts, module caches and an
+# .sdkstatcache that is rewritten on every build.
+.build/
+*.xcactivitylog
+
