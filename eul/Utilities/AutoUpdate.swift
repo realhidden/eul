@@ -59,7 +59,7 @@ enum AutoUpdate {
     }
 
     static func downloadLatest(completion: @escaping (Bool) -> Void) {
-        guard let url = URL(string: "https://github.com/sclarkca/eul/releases/latest/download/eul.app.zip") else {
+        guard let url = URL(string: "https://github.com/realhidden/eul/releases/latest/download/eul.app.zip") else {
             completion(false)
             return
         }

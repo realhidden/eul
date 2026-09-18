@@ -52,7 +52,7 @@ class PreferenceStore: ObservableObject {
     }
 
     private let userDefaultsKey = "preference"
-    private let repo = "sclarkca/eul"
+    private let repo = "realhidden/eul"
     private var cancellable: AnyCancellable?
     private var temperatureUnitCancellable: AnyCancellable?
     var repoURL: URL? {
