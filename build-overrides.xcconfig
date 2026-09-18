@@ -1,2 +1,8 @@
 MACOSX_DEPLOYMENT_TARGET = 13.0
 CODE_SIGN_IDENTITY = -
+
+// Ad-hoc signing has no Team ID, so hardened runtime's library validation
+// rejects the app's own embedded SharedLibrary.framework ("mapping process and
+// mapped file have different Team IDs") and dyld aborts at launch. Xcode's
+// debug runs bypass this; a copy in /Applications does not.
+ENABLE_HARDENED_RUNTIME = NO
