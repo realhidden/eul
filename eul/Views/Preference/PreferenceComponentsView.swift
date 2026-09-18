@@ -57,7 +57,11 @@ extension Preference {
                     ) {
                         Picker("", selection: $preference.slotStyle) {
                             ForEach(Preference.slotStyle.allCases) {
+                                // the tag must carry the selection's own type;
+                                // StringEnum's id is a String, so relying on
+                                // ForEach's implicit tag leaves the popup blank
                                 Text($0.description)
+                                    .tag($0)
                             }
                         }
                         .labelsHidden()

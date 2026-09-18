@@ -222,7 +222,7 @@ struct PanelView: View, SizeChangeView {
             RollingNumber(cpuStore.usage) { String(format: "%.0f%%", $0) }
                 .font(DesignTokens.Typo.hero)
                 .foregroundColor(severity.accent ?? .primary)
-            PanelBars(values: healthStore.cpuHistory, color: severity.accent ?? .primary)
+            PanelBars(values: healthStore.cpuHistory, ceiling: 100, color: severity.accent ?? .primary)
                 .frame(height: 22)
                 .padding(.top, 2)
             Text(severity != .normal ? healthStore.verdictText : String(format: "panel.cores".localized(), cpuStore.logicalCores))
@@ -281,7 +281,7 @@ struct PanelView: View, SizeChangeView {
                 .foregroundColor(secondary)
                 .lineLimit(1)
                 .padding(.top, 2)
-            PanelBars(values: healthStore.memoryHistory, color: severity.accent ?? .primary)
+            PanelBars(values: healthStore.memoryHistory, ceiling: 100, color: severity.accent ?? .primary)
                 .frame(height: 16)
                 .padding(.top, 3)
         }
@@ -422,7 +422,7 @@ struct PanelView: View, SizeChangeView {
         ) {
             RollingNumber(gpuStore.usageAverage) { String(format: "%.0f%%", $0) }
                 .font(DesignTokens.Typo.hero)
-            PanelBars(values: healthStore.gpuHistory)
+            PanelBars(values: healthStore.gpuHistory, ceiling: 100)
                 .frame(height: 16)
                 .padding(.top, 3)
             Spacer(minLength: 0)
@@ -634,11 +634,10 @@ struct PanelView: View, SizeChangeView {
         let hidden = preferenceStore.isTileHidden
 
         if !hidden(.cpu) {
-            if cpuIsExpanded {
-                fullWidth.append(hideable(.cpu, cpuTile()))
-            } else {
-                rest.append(hideable(.cpu, cpuTile()))
-            }
+            // the CPU tile carries a hero number, a history chart AND the core
+            // grid; in a half-width pair it towered over whatever sat beside
+            // it, so it always takes the full row now
+            fullWidth.append(hideable(.cpu, cpuTile()))
         }
         if !hidden(.memory) {
             rest.append(hideable(.memory, memoryTile()))

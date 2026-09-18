@@ -67,7 +67,8 @@ private struct CpuSlot: View {
             worstCase: "100%",
             tint: healthStore.abnormalComponent == .CPU ? healthStore.level.accent : nil,
             component: .CPU,
-            history: healthStore.cpuHistory
+            history: healthStore.cpuHistory,
+            historyCeiling: 100
         )
     }
 }
@@ -83,7 +84,8 @@ private struct MemorySlot: View {
             worstCase: "100%",
             tint: healthStore.abnormalComponent == .Memory ? healthStore.level.accent : nil,
             component: .Memory,
-            history: healthStore.memoryHistory
+            history: healthStore.memoryHistory,
+            historyCeiling: 100
         )
     }
 }
@@ -98,7 +100,8 @@ private struct GpuSlot: View {
             value: gpuStore.usageAverageString ?? "N/A",
             worstCase: "100%",
             component: .GPU,
-            history: healthStore.gpuHistory
+            history: healthStore.gpuHistory,
+            historyCeiling: 100
         )
     }
 }
@@ -236,32 +239,37 @@ struct SmartNetworkSlot: View {
 
 /// The smart style's history strip: a row of micro bars under a slot value.
 ///
-/// Normalised against the window's OWN range, not the metric's ceiling. A
-/// 0–100 scale looks correct and is useless: a CPU sitting at 87% draws every
-/// bar at 87% height, i.e. a uniform comb. The number above already carries
-/// the level — the chart's job is to show movement, so the window's min..max
-/// is the scale that earns its 5 pt.
+/// Zero-based, like the panel's PanelBars. Scaling from the window's own
+/// minimum made an idle metric draw a full-height chart, which contradicts
+/// the number beside it. The top still adapts to the window so movement
+/// shows, and `ceiling` caps it for metrics that have one.
 struct MicroBars: View {
     let values: [Double]
     /// matches the value column so the chart never widens the slot
     let width: CGFloat
+    /// natural maximum, when the metric has one (100 for percentages)
+    var ceiling: Double?
 
     private static let barWidth: CGFloat = 1.5
     private static let gap: CGFloat = 1.2
     private static let height: CGFloat = 5
-    /// a flat window still draws this, so idle reads as a baseline instead of
-    /// vanishing into the menu bar
+    /// a flat window still draws this, so idle reads as a baseline
     private static let floor: CGFloat = 1
+
+    private func scaleTop(_ peak: Double) -> Double {
+        guard let ceiling = ceiling else {
+            return max(peak * 1.1, .leastNonzeroMagnitude)
+        }
+        return min(max(peak * 1.1, ceiling * 0.08), ceiling)
+    }
 
     var body: some View {
         let slots = max(Int((width + Self.gap) / (Self.barWidth + Self.gap)), 1)
         let window = Array(values.suffix(slots))
-        let top = window.max() ?? 0
-        let bottom = window.min() ?? 0
-        let span = top - bottom
+        let top = scaleTop(window.max() ?? 0)
         return HStack(alignment: .bottom, spacing: Self.gap) {
             ForEach(0..<window.count, id: \.self) { index in
-                let level = span > 0 ? (window[index] - bottom) / span : 0
+                let level = top > 0 ? min(max(window[index] / top, 0), 1) : 0
                 RoundedRectangle(cornerRadius: 0.5)
                     .fill(Color.primary.opacity(0.4))
                     .frame(
@@ -305,6 +313,8 @@ struct SlotText: View {
     var component: EulComponent?
     /// smart style: recent samples for the chart, oldest first
     var history: [Double] = []
+    /// smart style: natural maximum for `history`, when the metric has one
+    var historyCeiling: Double?
     /// smart style: 0...1 level, used where a ceiling is meaningful
     var level: Double?
 
@@ -339,7 +349,7 @@ struct SlotText: View {
             if let level = level {
                 MicroLevel(fraction: level, width: columnWidth)
             } else if history.count > 1 {
-                MicroBars(values: history, width: columnWidth)
+                MicroBars(values: history, width: columnWidth, ceiling: historyCeiling)
             }
         }
     }

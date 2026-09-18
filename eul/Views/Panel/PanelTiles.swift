@@ -35,9 +35,15 @@ struct PanelTile<Content: View>: View {
                     .foregroundColor(.primary.opacity(0.55))
                 Spacer()
                 if let aux = aux {
+                    // a long value (the network adapter's full name) used to
+                    // wrap to four lines and shove the tile's real content
+                    // out; aux is a label, so it gets one line and an ellipsis
                     CrossfadeText(aux)
                         .font(DesignTokens.Typo.sub)
                         .foregroundColor(accent ?? .primary.opacity(0.55))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .layoutPriority(-1)
                 }
             }
             content()
@@ -94,33 +100,41 @@ struct ComponentGlyph: View {
 /// Panel-scale sibling of the menu bar's `MicroBars` — the same histogram
 /// language at a size that can carry a health accent.
 ///
-/// Like MicroBars it normalises against the window's OWN range rather than the
-/// metric's ceiling. A 0–100 scale is technically correct and visually useless:
-/// a CPU sitting at 81% draws every bar at 81% height, i.e. a filled block. The
-/// hero number directly above already carries the level, so the chart's job is
-/// to show movement.
-///
-/// Unlike the line it replaces, a bar chart holds its shape at small sizes and
-/// matches what the bar renders, so the two surfaces read as one system.
+/// The scale is ZERO-BASED. Normalising against the window's own minimum
+/// invents drama out of noise: an idle GPU pinned at 0% drew a full-height
+/// chart, which reads as "busy" next to a hero number saying 0%. The top of
+/// the scale still adapts to the window so a quiet stretch is not flattened
+/// into nothing, and `ceiling` caps it where the metric has one (100 for a
+/// percentage), which also stops a 1% wobble filling the tile.
 struct PanelBars: View {
     var values: [Double]
+    /// natural maximum, when the metric has one (100 for percentages)
+    var ceiling: Double?
     var color: Color = .primary
     var barWidth: CGFloat = 3
     var gap: CGFloat = 2
-    /// drawn even for a flat window, so an idle stretch reads as a baseline
-    /// rather than an empty tile
+    /// drawn even for an all-zero window, so idle reads as a baseline rather
+    /// than an empty tile
     var floor: CGFloat = 1.5
+
+    /// headroom above the window's peak so the tallest bar isn't flush with
+    /// the top; floored at a fraction of the ceiling so near-zero data stays
+    /// visibly near zero instead of being amplified
+    private func scaleTop(_ peak: Double) -> Double {
+        guard let ceiling = ceiling else {
+            return max(peak * 1.1, .leastNonzeroMagnitude)
+        }
+        return min(max(peak * 1.1, ceiling * 0.08), ceiling)
+    }
 
     var body: some View {
         GeometryReader { geometry in
             let slots = max(Int((geometry.size.width + gap) / (barWidth + gap)), 1)
             let window = Array(values.suffix(slots))
-            let top = window.max() ?? 0
-            let bottom = window.min() ?? 0
-            let span = top - bottom
+            let top = scaleTop(window.max() ?? 0)
             HStack(alignment: .bottom, spacing: gap) {
                 ForEach(0..<window.count, id: \.self) { index in
-                    let level = span > 0 ? (window[index] - bottom) / span : 0
+                    let level = top > 0 ? min(max(window[index] / top, 0), 1) : 0
                     RoundedRectangle(cornerRadius: 1)
                         .fill(color.opacity(0.55))
                         .frame(

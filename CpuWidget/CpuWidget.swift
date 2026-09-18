@@ -51,7 +51,7 @@ struct CpuWidgetEntryView: View {
                 }
                 .padding(.top, 1)
                 Spacer(minLength: 8)
-                WidgetBars(values: entry.history)
+                WidgetBars(values: entry.history, ceiling: 100)
                     .frame(height: 34)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
