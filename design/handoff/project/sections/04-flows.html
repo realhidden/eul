@@ -1,0 +1,82 @@
+<section id="flows" data-screen-label="4 Key UX flows">
+  <span class="sec-no">04</span>
+  <h2>Key UX flows</h2>
+  <p class="sec-lede">Wireframe fidelity by design — the pixels for the bar and panel are in §2. Each flow is written as the steps a user actually takes.</p>
+
+  <h3>4.1 First run — value in under 30 seconds</h3>
+  <div class="flow">
+    <div class="step"><div><b>Open eul.</b><p>No onboarding window, no permission dialogs — the core monitors need none. The anchor and the default strip (CPU, NET) appear in the bar within one refresh tick.</p></div></div>
+    <div class="step"><div><b>One coach mark.</b><p>A small popover anchored to the glyph: "eul lives here. Click for detail." with a secondary "Choose what to show…" link into Menu Bar settings. Dismisses on any interaction; never shown again.</p></div></div>
+    <div class="step"><div><b>First click.</b><p>The panel opens; everything is visible without configuration. Login-item enrollment is offered here as a single line at the panel's first-run footer ("Start eul at login — Enable"), not as a dialog.</p></div></div>
+  </div>
+  <div class="wire">
+    <div class="wire-row">
+      <div class="wire-box" style="flex:2;"><b>menu bar</b><span>[ eyes ] [CPU 9%] [↓↑ net] ← appears immediately</span></div>
+      <div class="wire-box" style="flex:3;"><b>coach popover (once)</b><span>"eul lives here. Click for detail."</span><span>[Choose what to show…]</span></div>
+    </div>
+    <p class="wire-cap">Direct-download and App Store first runs are identical; the App Store build simply has fewer monitors everywhere (no temps/fans), with zero ceremony about it.</p>
+  </div>
+
+  <h3>4.2 The glance — what 500 ms delivers</h3>
+  <div class="flow">
+    <div class="step"><div><b>Peripheral pass.</b><p>Glyph monochrome → all normal; nothing else needs reading. This is the whole product for 95% of glances.</p></div></div>
+    <div class="step"><div><b>Chosen numbers.</b><p>If pinned, CPU and NET read as stable-width figures — no flapping, no color, no motion to catch the eye when nothing changed.</p></div></div>
+    <div class="step"><div><b>Exception.</b><p>Amber or red eye → the glance has a verb: click. The bar itself never explains; explanation is the panel's job.</p></div></div>
+  </div>
+
+  <h3>4.3 The investigation — "why is my fan spinning?"</h3>
+  <div class="flow">
+    <div class="step"><div><b>Click the anchor (interaction 1).</b><p>The panel opens already answering: the header reads the verdict ("CPU elevated — Xcode"), the CPU tile is the only colored object, auto-expanded, with per-core load and the culprit process pinned with its icon and core-equivalent figure.</p></div></div>
+    <div class="step"><div><b>Optionally, go one deeper (interaction 2).</b><p>Switch the process lens (CPU / Memory / Network) or expand another tile. The 10-minute sparkline answers "did this just start?" without any further navigation.</p></div></div>
+  </div>
+  <p>Two interactions is the budget (P1); the common case resolves in one. Quitting the runaway process stays Activity Monitor's job in v2.0 — eul diagnoses, it does not operate.</p>
+
+  <h3>4.4 Configuration — three panes, no assembly</h3>
+  <div class="wire">
+    <div class="wire-row">
+      <div class="wire-box" style="flex:1;"><b>General</b><span>· Start at login [✓]</span><span>· Refresh: 2 s ─●──── 10 s (energy cost stated inline)</span><span>· Units &amp; formats: network Mb/s ⇄ MB/s · temps °C ⇄ °F (mirrors in-place unit clicks, §4.7)</span><span>· Hidden tiles: restore [Memory…]</span><span>· Language: System</span><span>· build footnote: "Temps &amp; fans require the direct download" + Learn more</span></div>
+      <div class="wire-box" style="flex:1.4;"><b>Menu Bar</b><span>· Anchor: always shown (not a setting)</span><span>· Pinned monitors, drag to set priority:</span><span>&nbsp;&nbsp;⠿ CPU&nbsp;&nbsp;⠿ Network&nbsp;&nbsp;＋ Add (MEM, GPU, DISK, BATT, BT)</span><span>· When space is tight: drop lowest priority (fixed behavior, explained not configurable)</span></div>
+      <div class="wire-box" style="flex:1;"><b>Health</b><span>· Thermal pressure [✓]</span><span>· Runaway process [✓]</span><span>· Memory pressure [✓]</span><span>· Disk almost full [✓]</span><span>each row shows its plain-language trigger; no numeric editors</span></div>
+    </div>
+    <p class="wire-cap">Wireframe-only by agreement. Deleted from 1.x: component ordering, font picker, per-monitor refresh, icon toggles. The philosophy: settings choose among good states (P5).</p>
+  </div>
+
+  <h3>4.5 The abnormal moment — signaling without interrupting</h3>
+  <div class="flow">
+    <div class="step"><div><b>Threshold trips (sustained).</b><p>The anchor's right eye fills amber on the next refresh tick. No animation, no sound, no notification, no badge. If pinned, the related slot does not change — color stays unique to the anchor so it reads even at anchor-only width.</p></div></div>
+    <div class="step"><div><b>User clicks when ready.</b><p>The panel opens pre-sorted on the cause (§4.3). If the user never clicks, eul never escalates: critical (red) is reserved for OS-reported heavy thermal/memory pressure or a nearly-dead boot disk — states where acting matters.</p></div></div>
+    <div class="step"><div><b>Condition clears.</b><p>Hysteresis holds the state until the signal stays below threshold for 2× its window, then the eye quietly empties. No "all clear" celebration.</p></div></div>
+  </div>
+  <p><strong>Interruption policy, complete:</strong> eul may post exactly one kind of notification (it became unreachable, §2.5), may never steal focus, may never animate to attract attention, and may use color only via the health engine. This policy is a principle (P3), not a preference.</p>
+
+  <h3>4.6 Enabling fan control — the P6 ceremony</h3>
+  <p>Live in the panel prototype (Exhibit C: FANS tile → “Control fans…”). The binding constraint: the privileged-helper request happens <strong>only at the moment the user first enables control</strong> — never at launch, never during onboarding, never as a badge or banner.</p>
+  <div class="flow">
+    <div class="step"><div><b>Discovery, without nagging.</b><p>The FANS tile always shows readings. Its expanded view contains one quiet affordance: “Control fans…”. Users who want control find it exactly where the temperatures that motivate it live; everyone else never learns the feature exists.</p></div></div>
+    <div class="step"><div><b>The explainer.</b><p>One sheet, four short lines: what installs (a small helper that talks to the SMC), why admin approval is required (writing to hardware), that targets are clamped and macOS can always cool past them, and how to remove it. Buttons: “Not now” / “Install Helper…”. No urgency, no preselection.</p></div></div>
+    <div class="step"><div><b>The handoff.</b><p>macOS takes over (System Settings → Login Items &amp; Extensions). The sheet waits, stating where the approval is happening. Approval unlocks the controls in place — no restart, no second dialog.</p></div></div>
+    <div class="step"><div><b>Denial is a non-event.</b><p>The sheet closes back to readings. The affordance remains, unchanged; a later attempt replays the same explainer. eul never re-asks on its own, never counts attempts, never nags.</p></div></div>
+    <div class="step"><div><b>Using it.</b><p>Per-fan Auto / Manual / Boost. Manual exposes a slider clamped to the hardware’s real min/max and reports <em>target vs. actual</em> — divergence is the safety model made visible (the system is cooling past you). The safety strip (“Clamped to hardware limits · macOS can always cool past your setting · Reverts to Auto when eul quits”) is permanently attached to the controls — three capsules, never a dialog, never dismissible.</p></div></div>
+    <div class="step"><div><b>Removal is first-class.</b><p>“Remove helper…” lives in the same expanded tile where enabling lived (mirrored by a Settings row). One click uninstalls the daemon, reverts fans to Auto, and confirms in plain language. Removing root components must be easier than installing them — that asymmetry is the trust message.</p></div></div>
+  </div>
+
+  <h3>4.7 Personalization — user stories, and the line between taste and assembly</h3>
+  <p>1.x conflated two different needs. <strong>Assembly</strong> — reordering text components, picking fonts, per-monitor refresh rates — is deleted (P5): that was the user building the product. <strong>Taste</strong> — which units the numbers speak, which monitors matter to <em>this</em> person, when eul speaks up — is legitimate and now designed properly. The fence, quotably: <em>you choose what eul shows, which units it speaks, and when it speaks up; eul chooses how it looks.</em></p>
+
+  <p>The stories below are mined from the issue tracker and drive every personalization decision. Each answer lives in one of exactly three mechanisms — <strong>point-of-use</strong> (interact with the thing itself), <strong>pinning</strong> (Menu Bar settings), or <strong>toggles</strong> (Health settings). No fourth mechanism is permitted.</p>
+
+  <table>
+    <thead><tr><th>User story</th><th>Design answer</th><th>Mechanism</th></tr></thead>
+    <tbody>
+      <tr><td style="white-space:normal; font-weight:500;">“I think in megabits — show me <span class="mono">Mb/s</span>, not <span class="mono">MB/s</span>.”</td><td>Units are <strong>clickable where they appear</strong>: click the unit suffix on any value in the panel (rates, temperatures) to flip it — bits ↔ bytes, °C ↔ °F. The choice is stored once and applies everywhere: bar, panel, widgets, CSV export. Mirrored as “Units &amp; formats” rows in Settings · General for discoverability. Defaults derive from locale. Live in Exhibit C — click “MB/s” or “62°C”. <span class="tag tag-infra">new infra</span></td><td>point-of-use</td></tr>
+      <tr><td style="white-space:normal; font-weight:500;">“I'm on a Mac mini — battery rows are noise.”</td><td>Hardware-aware defaults: no battery tile on desktops, no Fans tile on fanless Macs, no Bluetooth tile with no devices — absent, never empty. Beyond that, right-click any tile → “Hide Memory”; restore from Settings · General.</td><td>point-of-use</td></tr>
+      <tr><td style="white-space:normal; font-weight:500;">“My bar is crowded — I want eul tiny.”</td><td>Pin fewer slots, or none: anchor-only is a designed state (§2.3, state C), not a degradation. A “Value-only slots” toggle drops the CPU/NET labels for the dense-bar minority — one decision, not a layout editor.</td><td>pinning</td></tr>
+      <tr><td style="white-space:normal; font-weight:500;">“Disk warnings, yes; the runaway-process eye, no.”</td><td>Per-signal on/off in Settings · Health, each described in plain language. Thresholds themselves stay fixed in v2.0 — you choose <em>whether</em> eul speaks, not <em>when</em>.</td><td>toggles</td></tr>
+      <tr><td style="white-space:normal; font-weight:500;">“I read eul in Persian.”</td><td>23 languages, full RTL mirroring (arrows are semantic, not glyphs), localized numerals — with width reservations recomputed per locale so the stability law survives translation.</td><td>follows system</td></tr>
+      <tr><td style="white-space:normal; font-weight:500;">“I measure everything — 1 s cadence, raw data out.”</td><td>Global cadence slider (1–10 s) in Settings · General with its energy cost stated inline; CSV export of the ring buffers in v2.x (§3).</td><td>toggles</td></tr>
+      <tr><td style="white-space:normal; font-weight:500;">“I don't want to configure anything.”</td><td>The contract that protects everyone above: zero-config eul is the designed product (§2.8), and every personalization is a deviation you can see and undo. “Reset to defaults” is one button, per pane.</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <p>Explicitly not personalizable, forever-quotable: fonts, colors, slot internals, tile layouts, per-monitor refresh rates, animation. “Show Mb/s” passes P5 — one decision, applied everywhere. “Let me reorder the text inside the CPU slot” does not — that is assembly, and assembly is eul's job.</p>
+</section>

@@ -14,6 +14,32 @@ import SharedLibrary
 import SwiftyJSON
 import WidgetKit
 
+/// identity of a panel tile for hide/restore (design §4.7): hiding is
+/// point-of-use (right-click the tile), restoring lives in Settings · General
+enum PanelTileKind: String, CaseIterable, Identifiable {
+    case cpu
+    case memory
+    case network
+    case gpu
+    case disk
+    case fans
+    case battery
+    case bluetooth
+
+    var id: String {
+        rawValue
+    }
+
+    var localizedDescription: String {
+        switch self {
+        case .fans:
+            return "component.fan".localized()
+        default:
+            return "component.\(rawValue)".localized()
+        }
+    }
+}
+
 class PreferenceStore: ObservableObject {
     enum UpgradeMethod: String, CaseIterable {
         case none
@@ -28,6 +54,7 @@ class PreferenceStore: ObservableObject {
     private let userDefaultsKey = "preference"
     private let repo = "sclarkca/eul"
     private var cancellable: AnyCancellable?
+    private var temperatureUnitCancellable: AnyCancellable?
     var repoURL: URL? {
         URL(string: "https://github.com/\(repo)")
     }
@@ -46,21 +73,44 @@ class PreferenceStore: ObservableObject {
         }
     }
 
+    /// rates speak bits or bytes (design §4.7, ask 18) — one choice, applied
+    /// everywhere: bar slot, panel, process rows, Trends widget
+    @Published var networkRateInBits = false
+
+    /// drops the CPU/NET caps labels in the strip for the dense-bar minority
+    /// (design §4.7) — one decision, not a layout editor
+    @Published var valueOnlySlots = false
+
+    /// panel tiles hidden via right-click (design §4.7, "battery rows are
+    /// noise" story); raw PanelTileKind values
+    @Published var hiddenTiles: [String] = []
+
+    func isTileHidden(_ kind: PanelTileKind) -> Bool {
+        hiddenTiles.contains(kind.rawValue)
+    }
+
+    func hideTile(_ kind: PanelTileKind) {
+        guard !isTileHidden(kind) else {
+            return
+        }
+        hiddenTiles.append(kind.rawValue)
+    }
+
+    func restoreTile(_ kind: PanelTileKind) {
+        hiddenTiles.removeAll { $0 == kind.rawValue }
+    }
+
     @Published var language = Localize.currentLanguage() {
         willSet {
             Localize.setCurrentLanguage(newValue)
         }
     }
 
-    @Published var textDisplay = Preference.TextDisplay.compact
-    @Published var fontDesign: Preference.FontDesign = .default
     @Published var smcRefreshRate = 3
     @Published var networkRefreshRate = 3
+    /// no longer user-facing — kept persisted because the one-time
+    /// ComponentConfigStore.convertIfNeeded() migration reads it
     @Published var showIcon = true
-    @Published var showCPUTopActivities = true
-    @Published var showRAMTopActivities = false
-    @Published var showNetworkTopActivities = false
-    @Published var cpuMenuDisplay: Preference.CpuMenuDisplay = .usagePercentage
     @Published var checkStatusItemVisibility = true
     @Published var upgradeMethod = UpgradeMethod.showInStatusBar
     @Published var isUpdateAvailable: Bool? = false
@@ -70,16 +120,13 @@ class PreferenceStore: ObservableObject {
     var json: JSON {
         JSON([
             "temperatureUnit": temperatureUnit.rawValue,
+            "networkRateInBits": networkRateInBits,
+            "valueOnlySlots": valueOnlySlots,
+            "hiddenTiles": hiddenTiles,
             "language": language,
-            "textDisplay": textDisplay.rawValue,
-            "fontDesign": fontDesign.rawValue,
             "smcRefreshRate": smcRefreshRate,
             "networkRefreshRate": networkRefreshRate,
             "showIcon": showIcon,
-            "showCPUTopActivities": showCPUTopActivities,
-            "showRAMTopActivities": showRAMTopActivities,
-            "showNetworkTopActivities": showNetworkTopActivities,
-            "cpuMenuDisplay": cpuMenuDisplay.rawValue,
             "checkStatusItemVisibility": checkStatusItemVisibility,
             "appearance": appearanceMode.rawValue,
             "upgradeMethod": upgradeMethod.rawValue,
@@ -94,6 +141,13 @@ class PreferenceStore: ObservableObject {
         cancellable = objectWillChange.sink {
             DispatchQueue.main.async {
                 self.saveToDefaults()
+            }
+        }
+        // PreferenceEntry's only field is temperatureUnit — rewrite the
+        // container (and wake widgets) only when that actually changes, not on
+        // every unrelated @Published mutation (e.g. the hourly checkUpdate)
+        temperatureUnitCancellable = $temperatureUnit.removeDuplicates().dropFirst().sink { _ in
+            DispatchQueue.main.async {
                 self.writeToContainer()
             }
         }
@@ -142,35 +196,26 @@ class PreferenceStore: ObservableObject {
                 if let raw = data["temperatureUnit"].string, let value = TemperatureUnit(rawValue: raw) {
                     temperatureUnit = value
                 }
+                if let value = data["networkRateInBits"].bool {
+                    networkRateInBits = value
+                }
+                if let value = data["valueOnlySlots"].bool {
+                    valueOnlySlots = value
+                }
+                if let array = data["hiddenTiles"].array {
+                    hiddenTiles = array.compactMap { $0.string }
+                }
                 if let value = data["language"].string {
                     language = value
                 }
-                if let raw = data["textDisplay"].string, let value = Preference.TextDisplay(rawValue: raw) {
-                    textDisplay = value
-                }
                 if let value = data["showIcon"].bool {
                     showIcon = value
-                }
-                if let raw = data["fontDesign"].string, let value = Preference.FontDesign(rawValue: raw) {
-                    fontDesign = value
                 }
                 if let value = data["smcRefreshRate"].int {
                     smcRefreshRate = value
                 }
                 if let value = data["networkRefreshRate"].int {
                     networkRefreshRate = value
-                }
-                if let value = data["showCPUTopActivities"].bool {
-                    showCPUTopActivities = value
-                }
-                if let value = data["showRAMTopActivities"].bool {
-                    showRAMTopActivities = value
-                }
-                if let value = data["showNetworkTopActivities"].bool {
-                    showNetworkTopActivities = value
-                }
-                if let raw = data["cpuMenuDisplay"].string, let value = Preference.CpuMenuDisplay(rawValue: raw) {
-                    cpuMenuDisplay = value
                 }
                 if let value = data["checkStatusItemVisibility"].bool {
                     checkStatusItemVisibility = value
@@ -197,9 +242,7 @@ class PreferenceStore: ObservableObject {
     }
 
     func writeToContainer() {
-        Container.set(PreferenceEntry(temperatureUnit: temperatureUnit, appearanceMode: appearanceMode.rawValue))
-        if #available(OSX 11, *) {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
+        Container.set(PreferenceEntry(temperatureUnit: temperatureUnit))
+        WidgetReloader.requestReloadAll()
     }
 }

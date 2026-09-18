@@ -1,0 +1,321 @@
+/* 
+Localizable.strings
+eul
+
+Created by Gao Sun on 2020/9/12.
+Modified by Tekrific on 2021/24/01
+Copyright © 2020 Gao Sun. All rights reserved.
+
+*/
+
+// MARK: Battery
+"battery" = "Batteri";
+"battery.charge" = "Laddning";
+"battery.power_source" = "Strömkälla";
+"battery.power_source.battery" = "Batteri";
+"battery.power_source.acPower" = "AC ström";
+"battery.power_source.unknown" = "Okänd";
+"battery.is_charging" = "Laddas";
+"battery.to_full_charge" = "till fulladning";
+"battery.to_empty" = "till tömt";
+"battery.health" = "Hälsa";
+"battery.max_capacity" = "Max kapac.";
+"battery.design_capacity" = "Design kapac.";
+"battery.health_percentage" = "Hälsa procent";
+"battery.cycle_count" = "Cykelräknare";
+"battery.cycle" = "Cykel";
+"battery.condition" = "Tillstånd";
+"battery.condition.good" = "Bra";
+"battery.condition.fair" = "Ok";
+"battery.condition.poor" = "Dåligt";
+
+// MARK: CPU / Info
+"cpu.usage" = "Användning";
+"cpu.idle" = "Inaktiv";
+"cpu.temperature" = "Temp";
+"gpu.temperature" = "GPU Temp";
+"cpu.info" = "Info";
+"cpu.physical_cores" = "Fysisk kärna";
+"cpu.logical_cores" = "Logisk kärna";
+"cpu.up_time" = "Upp tid";
+"cpu.thermal_level" = "Termisk nivå";
+"cpu.system" = "System";
+"cpu.user" = "Användare";
+"cpu.nice" = "Nice";
+"cpu.waiting_status_report" = "Väntar på statusrapport";
+
+// MARK: Fan
+"fan" = "Fläkt";
+"fan.current" = "Nuvarande";
+"fan.min" = "min";
+"fan.max" = "max";
+
+// MARK: Memory
+"memory" = "Minne";
+"memory.total" = "Total";
+"memory.free" = "Tillgängligt";
+"memory.cached_files" = "cachelagrade filer";
+"memory.temp" = "Temp";
+"memory.usage" = "Användning";
+"memory.app" = "App";
+"memory.wired" = "Kärna";
+"memory.compressed" = "Komprimerat";
+
+// MARK: Network
+"network" = "Nätverk";
+"network.in" = "Ingående";
+"network.out" = "Utgående";
+"network.no_activity" = "Ingen aktivitet";
+
+// MARK: Menu
+"menu.summary" = "Översikt";
+"menu.yes" = "ja";
+"menu.no" = "nej";
+"menu.preferences" = "Inställningar";
+"menu.quit" = "Avsluta eul";
+"menu.show_cpu_top_activities" = "Visa CPUs toppaktiviteter";
+"menu.show_ram_top_activities" = "Show RAM top activities";
+"menu.show_network_top_activities" = "Visa nätverkets toppaktiviteter";
+
+// MARK: Temperature
+"temp.temperature" = "Temperatur";
+"temp.celsius" = "Celsius";
+"temp.fahrenheit" = "Fahrenheit";
+"temp.kelvin" = "Kelvin";
+
+// MARK: Text Display
+"text_display" = "Textvisning";
+"text_display.compact" = "kompakt";
+"text_display.single_line" = "Enskild rad";
+
+// MARK: Font Design
+"font_design" = "Typsnitt";
+"font_design.default" = "standard";
+"font_design.monospaced" = "monospaced";
+
+// MARK: Appearance
+"appearance.mode" = "Appearance";
+"appearance.light" = "light";
+"appearance.dark" = "dark";
+"appearance.auto" = "auto";
+
+// MARK: Component
+"component.status_bar" = "Statusrad";
+"component.drag_to_reorder" = "Dra för att omordna";
+"component.available" = "Tillgänglig";
+"component.click_to_append" = "Klicka för att lägga till";
+"component.cpu" = "CPU";
+"component.fan" = "Fläkt";
+"component.memory" = "Minne";
+"component.battery" = "Batteri";
+"component.network" = "Nätverk";
+"component.disk" = "Hårddisk";
+
+// MARK: Process
+"process" = "process";
+"process.bring_to_front" = "Lägg främst";
+"process.reveal_in_finder" = "Visa";
+"process.terminate" = "Avsluta";
+"process.force_terminate" = "Tvinga avslut";
+"process.terminate_alert.text.%@" = "Vill du vverkligen avsluta @p?";
+"process.terminate_alert.command.%@" = "kommando: %@";
+"process.terminate_alert.cancel" = "Avbryt";
+
+// MARK: Language
+"language" = "Språk";
+"language.ar" = "العربية";
+"language.en" = "English";
+"language.zh-Hans" = "简体中文";
+"language.zh-Hant" = "繁體中文";
+"language.de" = "Deutsch";
+"language.ru" = "Русский";
+"language.es" = "Español";
+"language.pt" = "Português";
+"language.ja" = "日本語";
+"language.fr" = "Français";
+"language.mn" = "Монгол";
+"language.ko" = "한국어";
+"language.da" = "Dansk";
+"language.sv" = "Svenska";
+"language.hu" = "Magyar";
+
+// MARK: General UI
+"ui.app" = "App";
+"ui.general" = "generell";
+"ui.version" = "version";
+"ui.checking_update" = "Letar efter uppdateringar";
+"ui.up_to_date" = "Uppdaterad";
+"ui.new_version" = "Uppdatering tillgänlig";
+"ui.download" = "Hämtar";
+"ui.launch_at_login" = "start med login";
+"ui.display" = "Skärm";
+"ui.components" = "Komponenter";
+"ui.show_components_in_status_bar" = "Visa komponenter i statusraden";
+"ui.show_icon" = "Visa ikoner";
+"ui.refresh_rate" = "Uppdateringshastighet";
+"ui.smc" = "SMC";
+"ui.network" = "Nätverk";
+"ui.menu_view" = "Menyvisning";
+"ui.empty" = "Tom";
+"ui.hidden_by_system.title" = "eul menyelement är dolda av systemet";
+"ui.hidden_by_system.message" = "Öppna inställningar, och reducera antalet komponenter";
+"ui.hidden_by_system.open" = "att öppna";
+"ui.hidden_by_system.dismiss" = "avfärda";
+
+//MARK: Widget
+"widget.not_available" = "eul är inte tillgängligt";
+"widget.cpu.title" = "CPU Widget";
+"widget.cpu.description" = "Visa CPU-detaljer";
+"widget.memory.title" = "Lagring Widget";
+"widget.memory.description" = "Visa lagringsdetaljer";
+"widget.battery.title" = "Batteri Widget";
+"widget.battery.description" = "Visa batteri detaljer";
+"widget.network.title" = "Nätverks Widget";
+"widget.network.description" = "Visa nätverksdetaljer";
+
+/* Untranslated keys — English fallback values (Localize-Swift renders raw keys for missing entries). Translations welcome! */
+"battery.time_remaining" = "Time Rem.";
+"network.port.auto" = "Auto-detect";
+"network.port.select" = "Port";
+"component.gpu" = "GPU";
+"component.bluetooth" = "Bluetooth";
+"bluetooth" = "Bluetooth";
+"disk.eject" = "Eject";
+"disk.select" = "Select disk";
+"disk.all" = "All Disks";
+"language.fa" = "فارسی";
+"language.pl" = "Polski";
+"language.uk" = "Українська";
+"language.cs" = "Čeština";
+"language.it" = "Italiano";
+"language.my" = "မြန်မာဘာသာ";
+"language.th" = "ไทย";
+"language.tr" = "Türkçe";
+"ui.check_status_item_visibility" = "Check status item visibility";
+"ui.upgrade_method" = "Upgrade";
+"ui.upgrade_method.none" = "none";
+"ui.upgrade_method.none.description" = "eul will not check upgrade";
+"ui.upgrade_method.showInStatusBar" = "show in status bar";
+"ui.upgrade_method.showInStatusBar.description" = "Show upgrade icon when new version available";
+"ui.upgrade_method.autoUpdate" = "auto update";
+"ui.upgrade_method.autoUpdate.description" = "Perform upgrade automatically";
+"component.show_icon" = "Show icon";
+"component.show_graph" = "Show graph";
+"component.show_text" = "Show text";
+"text_component.free" = "Free";
+"text_component.usage" = "Usage";
+"text_component.total" = "Total";
+"text_component.usagePercentage" = "Usage Percentage";
+"text_component.temperature" = "Temperature";
+"text_component.upload" = "Upload";
+"text_component.download" = "Download";
+"text_component.percentage" = "Percentage";
+"text_component.mah" = "mAh";
+"text_component.loadAverage1Min" = "Load Average (1 min)";
+"text_component.loadAverage5Min" = "Load Average (5 min)";
+"text_component.loadAverage15Min" = "Load Average (15 min)";
+"text_component.average" = "Average";
+"text_component.timeRemaining" = "Time Remaining";
+"cpu_display_mode" = "CPU Display Mode";
+"cpu_display_mode.usage_percentage" = "Usage %";
+"cpu_display_mode.load_average" = "Load Average";
+"cpu.cores" = "CPU Cores";
+"memory.swap" = "Swap";
+"ui.health" = "Health";
+"health.thermal" = "Thermal pressure";
+"health.thermal.desc" = "When macOS reports sustained thermal pressure";
+"health.memory" = "Memory pressure";
+"health.memory.desc" = "When macOS reports sustained memory pressure";
+"health.disk" = "Disk almost full";
+"health.disk.desc" = "When the boot disk falls below 10% or 15 GB free";
+"health.verdict.normal" = "All systems normal";
+"health.verdict.thermal" = "Thermal pressure elevated";
+"health.verdict.memory" = "Memory pressure elevated";
+"health.verdict.disk" = "Boot disk almost full";
+"panel.nothing_needs_you" = "nothing needs you";
+"panel.up" = "up %@";
+"panel.cores" = "%d cores";
+"panel.of" = "of %@";
+"panel.load" = "load";
+"panel.battery.sub" = "health %@ · %@ cycles";
+"panel.fans.system_managed" = "system managed";
+"panel.top_processes" = "Top Processes";
+"panel.collecting" = "Collecting…";
+"panel.updated_every" = "Updated every %@";
+"panel.self_usage" = "eul is using %@ CPU";
+"notification.hidden.title" = "eul is hidden";
+"notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
+"ui.menu_bar" = "Menu Bar";
+"menu_bar.priority_note" = "Drag to set priority. When space is tight, the last monitor drops first — the eyes never disappear.";
+"ui.notify_when_hidden" = "Notify me when macOS hides eul";
+"ui.refresh_energy_note" = "Faster refresh uses more energy.";
+"ui.data_sources" = "Data Sources";
+"disk.boot_volume" = "Boot Volume";
+"fan.mode.auto" = "Auto";
+"fan.mode.manual" = "Manual";
+"fan.mode.boost" = "Boost";
+"fan.control.cta" = "Control fans…";
+"fan.control.managed_by_macos" = "Fans are managed by macOS.";
+"fan.control.target" = "target %@ · actual %@ rpm";
+"fan.control.safety.clamped" = "Clamped to hardware limits";
+"fan.control.safety.system" = "macOS can always cool past your setting";
+"fan.control.safety.revert" = "Reverts to Auto when eul quits";
+"fan.control.revert" = "Revert to Auto";
+"fan.control.remove" = "Remove helper…";
+"fan.control.override" = "Manual fan override";
+"fan.control.explainer.title" = "Install the Fan Helper?";
+"fan.control.explainer.body" = "Controlling fans means writing to your Mac's hardware (SMC), which macOS only allows through a small privileged helper.";
+"fan.control.explainer.point1" = "Installs one helper, approved by you in System Settings";
+"fan.control.explainer.point2" = "Targets are clamped to the fan's real limits; macOS can always cool past them";
+"fan.control.explainer.point3" = "Fans revert to Auto whenever eul isn't running";
+"fan.control.explainer.point4" = "Remove it anytime: Fans → Remove helper…";
+"fan.control.not_now" = "Not now";
+"fan.control.install" = "Install Helper…";
+"fan.control.waiting.title" = "Waiting for approval…";
+"fan.control.waiting.body" = "macOS is asking for your approval in System Settings → Login Items & Extensions.";
+"fan.control.open_settings" = "Open System Settings";
+"fan.control.install_failed" = "macOS declined the registration — the helper needs a properly signed build.";
+"health.runaway" = "Runaway process";
+"health.runaway.desc" = "When one process stays above 150% of a core for 2 minutes";
+"health.verdict.runaway" = "Runaway process — %@";
+"widget.health.title" = "Health";
+"widget.health.description" = "The eyes, the verdict, and your headline figures — honest about freshness";
+"widget.trends.title" = "Trends";
+"widget.trends.description" = "10-minute CPU, memory, and network history at a glance";
+"widget.no_data" = "Open eul to start monitoring";
+
+// eul 2.0 — units engine, settings redesign, personalization (design §4.4/§4.7)
+"settings.refresh" = "Uppdatera var %@ s";
+"settings.units" = "Enheter och format";
+"settings.units.rates" = "Nätverkshastigheter";
+"settings.hidden_tiles" = "Dolda rutor";
+"settings.restore" = "Återställ";
+"settings.reset" = "Återställ till standard";
+"settings.value_only" = "Endast värden";
+"settings.value_only.desc" = "Ta bort CPU/NET-etiketterna för en tätare rad";
+"menu_bar.anchor_note" = "Ögonen stannar i raden oavsett — de är euls ingång.";
+"panel.tile.hide" = "Dölj %@";
+"fan.control.unsigned" = "Det här bygget är osignerat — macOS installerar bara hjälpare från signerade appar. Signera eul med ett utvecklingsteam för att aktivera styrning.";
+"fan.control.unreachable" = "Hjälparen svarar inte — macOS blockerar den installerade kopian. Reparera registrerar den igen.";
+"fan.control.repair" = "Reparera";
+"settings.title" = "Inställningar";
+"fan.control.unlink" = "Styr separat";
+"fan.control.link" = "Länka fläktar";
+
+/* Clean Mode (hardware wipe) */
+"menu.clean_mode" = "Clean Mode";
+"clean_mode.action" = "Clean";
+"clean_mode.title" = "Clean Mode";
+"clean_mode.subtitle" = "Black out the screen and switch off the keyboard so you can wipe them — without typing or changing a thing.";
+"clean_mode.guide.heading" = "HOW TO FINISH";
+"clean_mode.guide.hold" = "Press and hold anywhere on the trackpad or mouse for a couple of seconds.";
+"clean_mode.guide.restore" = "Your brightness and keyboard come back on their own — you'll never need a key.";
+"clean_mode.guide.auto" = "Do nothing and it restores by itself after a minute.";
+"clean_mode.permission.heading" = "ONE-TIME PERMISSION";
+"clean_mode.permission.body" = "To switch the keyboard off, macOS needs you to allow eul under Input Monitoring. Turn eul on, then come back and start.";
+"clean_mode.open_settings" = "Open Settings";
+"clean_mode.start" = "Start Cleaning";
+"clean_mode.cancel" = "Cancel";
+"clean_mode.reminder" = "Wipe away — press and hold anywhere to finish.";
+"clean_mode.releasing" = "Keep holding to finish…";
+"clean_mode.auto_exit" = "Restores in %@";

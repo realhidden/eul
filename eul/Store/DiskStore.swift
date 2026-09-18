@@ -15,7 +15,6 @@ class DiskStore: ObservableObject, Refreshable {
     private var activeCancellable: AnyCancellable?
 
     @ObservedObject var componentsStore = SharedStore.components
-    @ObservedObject var menuComponentsStore = SharedStore.menuComponents
     var config: EulComponentConfig {
         SharedStore.componentConfig[EulComponent.Disk]
     }
@@ -29,29 +28,30 @@ class DiskStore: ObservableObject, Refreshable {
         return list?.disks.filter { $0.name == config.diskSelection }.first
     }
 
-    private var rootAttributes: (size: UInt64, free: UInt64)? {
+    /// With no explicit selection, report the boot volume instead of summing
+    /// every mounted volume — APFS volumes share one container, so the sum
+    /// counted the same space several times (#250, #182). Cached per refresh:
+    /// the capacity query is too expensive for per-render property access.
+    private var rootVolume: (size: UInt64, free: UInt64)?
+
+    private static func readRootVolume() -> (size: UInt64, free: UInt64)? {
+        let url = URL(fileURLWithPath: "/")
         guard
-            let attrs = try? FileManager.default.attributesOfFileSystem(forPath: "/"),
-            let size = attrs[.systemSize] as? UInt64,
-            let free = attrs[.systemFreeSize] as? UInt64
+            let values = try? url.resourceValues(forKeys: [.volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey]),
+            let size = values.volumeTotalCapacity, size >= 0,
+            let free = values.volumeAvailableCapacityForImportantUsage, free >= 0
         else {
             return nil
         }
-        return (size, free)
+        return (UInt64(size), UInt64(free))
     }
 
     var ceilingBytes: UInt64? {
-        if let selected = selectedDisk {
-            return selected.size
-        }
-        return rootAttributes?.size
+        selectedDisk.map { $0.size } ?? rootVolume?.size
     }
 
     var freeBytes: UInt64? {
-        if let selected = selectedDisk {
-            return selected.freeSize
-        }
-        return rootAttributes?.free
+        selectedDisk.map { $0.freeSize } ?? rootVolume?.free
     }
 
     var usageString: String {
@@ -85,11 +85,24 @@ class DiskStore: ObservableObject, Refreshable {
     @objc func refresh() {
         guard
             componentsStore.activeComponents.contains(.Disk)
-            || menuComponentsStore.activeComponents.contains(.Disk)
+            // the panel reads this store regardless of pinned components
+            || SharedStore.ui.menuOpened
         else {
             return
         }
 
+        // the boot-volume capacity query is an XPC round trip and only feeds
+        // the no-selection fallback (including a selected volume ejecting,
+        // which nils selectedDisk within one tick) — skip it otherwise
+        if selectedDisk == nil {
+            rootVolume = Self.readRootVolume()
+        }
+        loadDisks()
+    }
+
+    /// ungated volume enumeration — the settings Data Sources picker needs
+    /// the list even when no Disk component is pinned and the panel is closed
+    func loadDisks() {
         guard let volumes = (try? FileManager.default.contentsOfDirectory(atPath: DiskList.volumesPath)) else {
             list = nil
             return
@@ -123,8 +136,7 @@ class DiskStore: ObservableObject, Refreshable {
     init() {
         initObserver(for: .StoreShouldRefresh)
         // refresh immediately to prevent "N/A"
-        activeCancellable = Publishers
-            .CombineLatest(componentsStore.$activeComponents, menuComponentsStore.$activeComponents)
+        activeCancellable = componentsStore.$activeComponents
             .sink { _ in
                 DispatchQueue.main.async {
                     self.refresh()

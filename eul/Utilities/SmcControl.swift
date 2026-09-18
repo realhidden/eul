@@ -16,55 +16,35 @@ class SmcControl: Refreshable {
     var sensors: [TemperatureData] = []
     var fans: [FanData] = []
     var tempUnit: TemperatureUnit = .celius
+    /// SMC die/proximity keys exist on Intel only; on Apple Silicon the same
+    /// readings come from IOHID PMU sensors (AppleSiliconSensors.shared is nil
+    /// on Intel, so each getter falls through to nil there as before).
     var cpuDieTemperature: Double? {
-        // Try Intel sensors first
         if let temp = sensors.first(where: { $0.sensor.name == "CPU_0_DIE" })?.temp, temp > 0 {
             return temp
         }
-        // Fallback to Apple Silicon sensors
-        if let temp = sensors.first(where: { $0.sensor.name == "CPU_PCORE" })?.temp, temp > 0 {
-            return temp
-        }
-        if let temp = sensors.first(where: { $0.sensor.name == "CPU_PACKAGE" })?.temp, temp > 0 {
-            return temp
-        }
-        return nil
+        return AppleSiliconSensors.shared?.cpuTemperature
     }
 
     var cpuProximityTemperature: Double? {
-        // Try Intel sensor first
         if let temp = sensors.first(where: { $0.sensor.name == "CPU_0_PROXIMITY" })?.temp, temp > 0 {
             return temp
         }
-        // Fallback to Apple Silicon E-core sensor
-        if let temp = sensors.first(where: { $0.sensor.name == "CPU_ECORE" })?.temp, temp > 0 {
-            return temp
-        }
-        return nil
+        return AppleSiliconSensors.shared?.cpuTemperature
     }
 
     var gpuProximityTemperature: Double? {
-        // Try Intel sensor first
         if let temp = sensors.first(where: { $0.sensor.name == "GPU_0_PROXIMITY" })?.temp, temp > 0 {
             return temp
         }
-        // Fallback to Apple Silicon GPU sensor
-        if let temp = sensors.first(where: { $0.sensor.name == "GPU_APPLE_SILICON" })?.temp, temp > 0 {
-            return temp
-        }
-        return nil
+        return AppleSiliconSensors.shared?.gpuTemperature
     }
 
     var memoryProximityTemperature: Double? {
-        // Try Intel sensor first
         if let temp = sensors.first(where: { $0.sensor.name == "MEM_SLOTS_PROXIMITY" })?.temp, temp > 0 {
             return temp
         }
-        // Fallback to Apple Silicon memory sensor
-        if let temp = sensors.first(where: { $0.sensor.name == "MEM_APPLE_SILICON" })?.temp, temp > 0 {
-            return temp
-        }
-        return nil
+        return AppleSiliconSensors.shared?.socTemperature
     }
 
     var isFanValid: Bool {
@@ -76,6 +56,11 @@ class SmcControl: Refreshable {
     }
 
     init() {
+        #if arch(arm64)
+            AppleSiliconSensors.initialize()
+        #endif
+        // Keep the SMC path on both architectures: Apple Silicon has no
+        // CPU/GPU temperature keys but still exposes fans through SMC.
         do {
             try SMCKit.open()
             sensors = try SMCKit.allKnownTemperatureSensors().map { .init(sensor: $0) }
@@ -102,13 +87,27 @@ class SmcControl: Refreshable {
     }
 
     @objc func refresh() {
+        // one IOHID scan per tick: drop the snapshot here so every store/view
+        // reading this refresh shares a single fresh read (nil on Intel)
+        AppleSiliconSensors.shared?.invalidate()
         for sensor in sensors {
             do {
                 sensor.temp = try SMCKit.temperature(sensor.sensor.code, unit: tempUnit)
+                sensor.consecutiveFailedReads = 0
+                sensor.hasEverRead = true
             } catch {
                 sensor.temp = 0
-                print("error while getting temperature", error)
+                sensor.consecutiveFailedReads += 1
             }
+        }
+        // Apple Silicon lists a few SMC keys that always fail to read; drop
+        // them instead of logging the same error every tick. Sensors that have
+        // ever read successfully are kept — a transient bad patch (e.g. right
+        // after wake) must not remove a working sensor for the whole session.
+        let unreadable = sensors.filter { $0.consecutiveFailedReads >= 3 && !$0.hasEverRead }
+        if !unreadable.isEmpty {
+            print("dropping unreadable SMC sensors", unreadable.map { $0.sensor.name })
+            sensors.removeAll { $0.consecutiveFailedReads >= 3 && !$0.hasEverRead }
         }
         fans = fans.map {
             FanData(

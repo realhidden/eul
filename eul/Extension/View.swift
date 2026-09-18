@@ -8,7 +8,50 @@
 
 import SwiftUI
 
+/// pointing-hand cursor on hover — the push/pop idiom from
+/// HorizontalOrganizingView; the onDisappear pop prevents a stuck cursor
+/// when the panel orders out under the pointer
+private struct PointingHandCursorModifier: ViewModifier {
+    @State private var isHovering = false
+
+    func body(content: Content) -> some View {
+        content
+            .onHover { hovering in
+                if hovering, !isHovering {
+                    isHovering = true
+                    NSCursor.pointingHand.push()
+                } else if !hovering, isHovering {
+                    isHovering = false
+                    NSCursor.pop()
+                }
+            }
+            .onDisappear {
+                if isHovering {
+                    isHovering = false
+                    NSCursor.pop()
+                }
+            }
+    }
+}
+
 extension View {
+    func pointingHandCursor() -> some View {
+        modifier(PointingHandCursorModifier())
+    }
+
+    /// VoiceOver cue for tap-to-expand tiles; gated since the accessibility
+    /// modifiers are macOS 11+ and the app floor is 10.15
+    @ViewBuilder
+    func a11yExpandButton(label: String) -> some View {
+        if #available(macOS 11.0, *) {
+            accessibilityElement(children: .contain)
+                .accessibilityAddTraits(.isButton)
+                .accessibilityLabel(Text(label))
+        } else {
+            self
+        }
+    }
+
     func menuInfo() -> some View {
         font(.system(size: 14, weight: .regular))
             .foregroundColor(.info)

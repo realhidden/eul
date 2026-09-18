@@ -1,0 +1,16 @@
+<section id="phasing" data-screen-label="9 Phasing">
+  <span class="sec-no">09</span>
+  <h2>Phasing</h2>
+  <p class="sec-lede">v2.0 is the revamp: the bar model, the panel, and the health engine. v2.x is depth on the same skeleton — no surface added later, only filled in.</p>
+
+  <table>
+    <thead><tr><th>Release</th><th>Ships</th><th>Sized for</th></tr></thead>
+    <tbody>
+      <tr><td>v2.0</td><td>Anchor + strip, width governor, health engine, panel (with per-core CPU, sparklines, processes), recovery flow, settings rebuild, token palette dark/light, App Store degradation, i18n hardening. Should-haves if green: fan control (manual + Boost, helper ceremony, removal flow), the two widgets, BT battery tile, process icons.</td><td>Small community team, months. The riskiest items (occlusion detection, two-item ordering) are prototyped first — they gate the architecture (§10, asks 3–4).</td></tr>
+      <tr><td>v2.x</td><td>Fan curves / smart cooling (only after manual control earns trust), widget configurability, sensors surface, CSV export, network identity monitors (IP/SSID/Rosetta), disk I/O tile, panel pop-out, Audio Graphs.</td><td>One theme per point release; each is additive to an existing surface, none changes the IA.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>macOS floor — recommendation, not fact</h3>
+  <p>Design against <strong>14</strong>; ratify at review. Elements that hard-require 13+/14+ are tagged <span class="tag tag-14">14+</span> throughout. The honest retreat cost to 13: none of the IA changes; to 12 or lower: the panel host (<span class="mono">MenuBarExtra</span> window style), modern widget configurability, and Audio Graph support all need bespoke replacements — at that point the floor is cheaper to raise than the workarounds are to maintain. The App Store/no-SMC question is orthogonal to the floor and handled entirely in §3's must row.</p>
+</section>

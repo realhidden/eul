@@ -1,0 +1,21 @@
+<section id="widgets" data-screen-label="6 Widget strategy">
+  <span class="sec-no">06</span>
+  <h2>Widget strategy</h2>
+  <p class="sec-lede">Two widgets instead of four, both honest about time. WidgetKit budgets reloads, and eul coalesces them to protect the energy budget — so freshness is 15–60 s, and the design says so instead of pretending.</p>
+
+  <table>
+    <thead><tr><th>Widget</th><th>Sizes</th><th>Contents</th><th>Staleness honesty</th></tr></thead>
+    <tbody>
+      <tr><td>Health</td><td>small</td><td>The eyes + verdict line ("All normal" / "CPU elevated"), CPU and MEM figures</td><td>Footer timestamp, relative ("42 s ago"); past 90 s the values dim to secondary and the stamp becomes the loudest element</td></tr>
+      <tr><td>Trends</td><td>medium</td><td>CPU / MEM / NET 10-minute sparklines with current values</td><td>Same stamp rule; sparklines truncate at the last real sample — no extrapolated tails, ever</td></tr>
+    </tbody>
+  </table>
+
+  <div class="exhibit" data-screen-label="Exhibit D — widgets">
+    <div class="exhibit-bar"><b>Exhibit D</b><small>widgets · dark · staleness states</small></div>
+    <div class="exhibit-body exhibit-wall" id="widgetStage"></div>
+  </div>
+  <p class="exhibit-note">Left: fresh. Right: the same widget at 2 minutes stale — values recede, the timestamp leads. Trust is rebuilt by admitting age, not by hiding it.</p>
+
+  <p>Theming follows the system (WidgetKit constraint — accepted, not fought). Configurability (choose monitors per widget, via App Intents) is designed-for but deferred to v2.x <span class="tag tag-infra">new infra</span> <span class="tag tag-14">14+</span>. Timeline entries carry their capture timestamp so the relative stamp renders without waking the app <span class="tag tag-infra">new infra</span>.</p>
+</section>

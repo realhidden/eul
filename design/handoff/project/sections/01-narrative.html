@@ -1,0 +1,39 @@
+<section id="narrative" data-screen-label="1 Narrative & principles">
+  <span class="sec-no">01</span>
+  <h2>Product narrative &amp; principles</h2>
+  <p class="sec-lede">eul 2.0 is your Mac's vital signs, worn in the menu bar. It is one glyph that knows whether anything is wrong, a strip of numbers you chose to always see, and a panel — one click away — that answers <em>why</em>. It costs less than the things it watches, it never interrupts, and it never disappears. It is not a dashboard, not a tuner, and not a toy: it is the quiet instrument Apple never shipped.</p>
+
+  <p>Five principles, written to be quoted when rejecting feature requests:</p>
+
+  <div class="principles">
+    <div class="principle">
+      <div><b>The glance is the product.</b>
+      <p>Every surface is judged by what it delivers in half a second. Anything that cannot be read at a glance, or reached within two interactions from the bar, does not ship.</p></div>
+    </div>
+    <div class="principle">
+      <div><b>Never disappear.</b>
+      <p>Presence is the contract. At minimum width eul is one 22 pt glyph; no notch, no crowded bar, no state may remove the user's path into eul. Degradation is designed, never delegated to macOS.</p></div>
+    </div>
+    <div class="principle">
+      <div><b>Quiet until it matters.</b>
+      <p>Monochrome is the color of health. Color exists only for states that deserve action, defined by thresholds with hysteresis — never by a single noisy sample. eul never steals focus, never plays sound, never bounces.</p></div>
+    </div>
+    <div class="principle">
+      <div><b>Lighter than what it monitors.</b>
+      <p>No continuous animation, no 60 fps rendering, no work while closed. Expensive collectors run only while their surface is visible. A feature that cannot live inside the energy budget is declined, not optimized later.</p></div>
+    </div>
+    <div class="principle">
+      <div><b>Strong defaults over deep settings.</b>
+      <p>eul makes the design decisions; settings choose among good states, they do not assemble the product. Any request answerable by a better default is not a setting.</p></div>
+    </div>
+    <div class="principle">
+      <div><b>Observation is the default; intervention is a ceremony.</b>
+      <p>eul's verb is to watch. Where eul gains the power to change the machine (fan control), that power is opt-in at the exact moment of intent, visibly active for as long as it is used, reversible in one action, and entirely absent from builds and hardware where it cannot exist honestly. eul never requests a privilege it is not about to use.</p></div>
+    </div>
+  </div>
+
+  <h3>Does fan control change what eul is?</h3>
+  <p>Asked directly, answered directly: no — provided it is fenced, and P6 is the fence. eul remains a monitor; fan control is the one place where the monitor, explicitly invited, may act on the subsystem it watches most closely. The identity holds because the fence is structural, not rhetorical: control lives inside the surface where the temperatures that justify it live (§2.7), it is acquired through a deliberate ceremony rather than an onboarding prompt (§4.6), an active override is impossible to forget (§2.7), and walking away — quit, crash, uninstall — always returns the machine to the system's care. A second interventionist feature would need to clear P6 the same way; most won't, and that is the point.</p>
+
+  <div class="callout"><b>How to use these.</b> "Per-monitor font picker" fails P5. "Animated bar graph in the menu bar" fails P4. "Alert me when CPU passes 50%" fails P3 unless it clears a sustained threshold. "Just hide eul when the bar is full" fails P2 — that is the 1.x bug, not a behavior. "Ask for the fan helper during onboarding" fails P6 — privilege is requested at the moment of intent, never before. "Show Mb/s instead of MB/s" <em>passes</em> P5 — taste is one decision applied everywhere (§4.7); assembly is eul's job.</div>
+</section>

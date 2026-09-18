@@ -29,7 +29,7 @@ public extension String {
     }
 
     var splittedByWhitespace: [String] {
-        split(separator: " ").filter { !$0.isEmpty }.map { String($0) }
+        split(separator: " ").map { String($0) }
     }
 
     var numericOnly: String {

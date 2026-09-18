@@ -14,13 +14,17 @@ class GpuStore: ObservableObject, Refreshable {
     private var activeCancellable: AnyCancellable?
 
     @ObservedObject var componentsStore = SharedStore.components
-    @ObservedObject var menuComponentsStore = SharedStore.menuComponents
 
     @Published var gpus = [GPU]()
     @Published var gpuStatistics = [GPU.Statistic]()
-    @Published var usageHistory: [Double] = []
 
     var usageAverage: Double? {
+        #if arch(arm64)
+            // single shared-die GPU; statistics carry no PCI ID to match against
+            if let stat = gpuStatistics.first {
+                return Double(stat.usagePercentage)
+            }
+        #endif
         let stats = gpus.compactMap { getStatustic(for: $0) }
         guard stats.count > 0 else {
             return nil
@@ -36,6 +40,14 @@ class GpuStore: ObservableObject, Refreshable {
     }
 
     var temperatureAverage: Double? {
+        #if arch(arm64)
+            if let temp = gpuStatistics.first?.temperature {
+                return temp
+            }
+            if let temp = AppleSiliconSensors.shared?.gpuTemperature {
+                return temp
+            }
+        #endif
         let temps = gpus.compactMap { getStatustic(for: $0)?.temperature }
         guard temps.count > 0 else {
             return nil
@@ -44,22 +56,13 @@ class GpuStore: ObservableObject, Refreshable {
     }
 
     func getStatustic(for gpu: GPU) -> GPU.Statistic? {
-        gpuStatistics.first {
-            // For Intel GPUs, match by device ID in PCI match string
-            // For Apple Silicon GPUs, match by "apple" keyword in PCI match
-            let deviceIdLower = gpu.deviceId.deletingPrefix("0x").lowercased()
-            let pciMatchLower = $0.pciMatch.lowercased()
-
-            // Check if it's an Apple Silicon GPU (deviceId contains "apple" or " m")
-            let isAppleSilicon = deviceIdLower.contains("apple") || deviceIdLower.contains(" m")
-
-            if isAppleSilicon {
-                // For Apple Silicon, match if pciMatch is "apple"
-                return pciMatchLower == "apple"
-            } else {
-                // For Intel GPUs, match by device ID
-                return pciMatchLower.contains(deviceIdLower)
+        #if arch(arm64)
+            if gpu.deviceId.hasPrefix("apple-silicon-") {
+                return gpuStatistics.first
             }
+        #endif
+        return gpuStatistics.first {
+            $0.pciMatch.lowercased().contains(gpu.deviceId.deletingPrefix("0x"))
         }
     }
 
@@ -67,8 +70,7 @@ class GpuStore: ObservableObject, Refreshable {
         gpus = GPU.getGPUs() ?? []
         initObserver(for: .StoreShouldRefresh)
         // refresh immediately to prevent "N/A"
-        activeCancellable = Publishers
-            .CombineLatest(componentsStore.$activeComponents, menuComponentsStore.$activeComponents)
+        activeCancellable = componentsStore.$activeComponents
             .sink { _ in
                 DispatchQueue.main.async {
                     self.refresh()
@@ -79,13 +81,12 @@ class GpuStore: ObservableObject, Refreshable {
     @objc func refresh() {
         guard
             componentsStore.activeComponents.contains(.GPU)
-            || menuComponentsStore.activeComponents.contains(.GPU)
+            // the panel reads this store regardless of pinned components
+            || SharedStore.ui.menuOpened
         else {
-            usageHistory = []
             return
         }
 
         gpuStatistics = GPU.getInfo() ?? []
-        usageHistory = (usageHistory + [usageAverage ?? 0]).suffix(LineChart.defaultMaxPointCount)
     }
 }

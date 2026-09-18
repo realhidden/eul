@@ -22,7 +22,7 @@ extension StringEnum {
         rawValue.unicodeScalars.reduce("") {
             if CharacterSet.uppercaseLetters.contains($1) {
                 if $0.count > 0 {
-                    return ($0 + " " + String($1).lowercased())
+                    return $0 + " " + String($1).lowercased()
                 }
             }
             return $0 + String($1)

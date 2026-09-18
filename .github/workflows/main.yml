@@ -11,20 +11,24 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Select latest stable Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
       - uses: actions/cache@v4
         with:
-          path: .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          path: BuildTools/.build
+          key: ${{ runner.os }}-spm-${{ hashFiles('BuildTools/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
-      - name: SwiftFormat # this is necessary since we'll format files in build phase
-        run: swift run -c release swiftformat ../ --lint
+      - name: Install xcbeautify
+        run: brew install xcbeautify
+      - name: SwiftFormat (lint)
+        run: swift run -c release swiftformat .. --lint
         working-directory: ./BuildTools
       - name: Build
         run: |
-          xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx build \
+          set -o pipefail
+          xcodebuild -scheme eul -project ./eul.xcodeproj build \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" \
-            CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" \
-            | xcpretty && exit ${PIPESTATUS[0]}
+            CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" | xcbeautify

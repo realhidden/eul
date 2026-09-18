@@ -1,0 +1,214 @@
+/* ============================================================
+   eul 2.0 — interactive prototype styles
+   Component styles (panel, tiles, bar items) come from mockups.css.
+   This file adds: stage layout, the width-pressure rig, fan controls,
+   the helper-install sheet, and the recovery notification.
+
+   DESIGN TOKENS live in two places, deliberately:
+   - CSS custom props below (visual tokens — mirror doc §5)
+   - prototype.js `T` object (layout widths, timing — mirror doc §2.3, §5.5)
+   Keep both in sync with the direction document.
+   ============================================================ */
+
+:root {
+  /* — token: semantic health colors (doc §5.2) — */
+  --tk-health-elevated-dark:  oklch(0.78 0.145 80);
+  --tk-health-elevated-light: oklch(0.70 0.145 75);
+  --tk-health-critical-dark:  oklch(0.64 0.19 27);
+  --tk-health-critical-light: oklch(0.55 0.19 27);
+  /* — token: timing (doc §5.5) — duplicated in prototype.js T.time — */
+  --tk-panel-open-ms: 180ms;
+  --tk-tile-expand-ms: 160ms;
+  color-scheme: light;
+}
+
+body.proto {
+  margin: 0;
+  background: #f6f6f7;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  color: #1d1d1f;
+}
+
+/* the panel needs its own positioning context for the helper sheet veil */
+.panel { position: relative; }
+
+/* ---------- panel-only embed stage ---------- */
+#panelHost { display: flex; justify-content: center; padding: 28px 20px 36px; }
+.display.has-notif { min-height: 130px; }
+
+/* ---------- mode-specific rig visibility ---------- */
+body.mode-panel .rig-width-row { display: none; }
+
+/* ---------- the simulated display ---------- */
+.display {
+  position: relative;
+  overflow: hidden;
+  /* WEB-FREEDOM: wallpaper is illustrative context, not product UI */
+  background: linear-gradient(118deg, #232c44 0%, #3c3154 55%, #54344c 100%);
+}
+.display.light { background: linear-gradient(118deg, #b6c5da 0%, #cfc3d6 55%, #dcc9c9 100%); }
+.display-scale { transform-origin: 0 0; }
+
+/* the bar itself reuses .mbbar/.mi from mockups.css */
+.proto-bar-wrap { width: 1512px; position: relative; }
+
+/* eul items get a click affordance in the prototype only.
+   WEB-FREEDOM: NSStatusItem has a pressed state but no hover state —
+   this hover highlight is a web affordance to aid the reviewer. */
+.eul-anchor { cursor: pointer; border-radius: 4px; }
+.eul-anchor:hover { background: rgba(127, 127, 127, 0.22); }
+
+/* governor readout strip under the bar (doc chrome, not product) */
+.gov-readout {
+  display: flex; gap: 18px; align-items: center;
+  padding: 10px 16px 12px;
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 11px; color: rgba(255, 255, 255, 0.78);
+}
+.display.light .gov-readout { color: rgba(0, 0, 0, 0.6); }
+.gov-readout span { white-space: nowrap; }
+.gov-readout { flex-wrap: wrap; }
+.gov-readout b { font-weight: 700; }
+
+/* ---------- panel placement ---------- */
+.panel-anchor {
+  position: absolute;
+  top: 30px;
+  z-index: 30;
+  transform-origin: top right;
+}
+.panel-pop {
+  animation: panelIn var(--tk-panel-open-ms) ease-out;
+}
+@keyframes panelIn {
+  /* doc §5.5: one of the two animations the product is allowed.
+     Removed entirely under prefers-reduced-motion (below). */
+  from { opacity: 0; transform: translateY(-4px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel-pop { animation: none; }
+  .tile { transition: none !important; }
+}
+
+/* ---------- controls rail (doc chrome — not product UI) ---------- */
+.rig {
+  max-width: 1040px; margin: 0 auto; padding: 18px 24px 40px;
+}
+.rig-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.rig-label {
+  font: 600 11px "SF Mono", ui-monospace, monospace;
+  letter-spacing: 0.04em; color: #86868b; text-transform: uppercase;
+  width: 170px; flex: none;
+}
+.rig input[type="range"] { flex: 1; max-width: 420px; accent-color: #1d1d1f; }
+.rig-val { font: 600 12px "SF Mono", ui-monospace, monospace; color: #1d1d1f; min-width: 200px; }
+.rig-btn {
+  font: 600 12px -apple-system, sans-serif; color: #3a3a3e;
+  background: #fff; border: 1px solid #d9d9de; border-radius: 100px;
+  padding: 6px 14px; cursor: pointer;
+}
+.rig-btn:hover { background: #f0f0f2; }
+.rig-btn[aria-pressed="true"] { background: #1d1d1f; color: #fff; border-color: #1d1d1f; }
+.rig-note { font-size: 12px; color: #86868b; max-width: 720px; line-height: 1.5; }
+.rig-note code { font-family: "SF Mono", ui-monospace, monospace; font-size: 11px; }
+.rig hr { border: none; border-top: 1px solid #e3e3e6; margin: 16px 0; }
+
+/* unit chips — personalization at the point of use (doc §4.7).
+   WEB-FREEDOM: dotted hover hint is a web affordance; native is plain
+   clickable text mirrored by Settings · General → Units & formats. */
+.uchip {
+  background: none; border: none; padding: 0; margin: 0;
+  font: inherit; color: inherit; cursor: pointer;
+  border-bottom: 1px dotted transparent;
+  font-variant-numeric: tabular-nums;
+}
+.uchip:hover { border-bottom-color: currentColor; }
+
+/* ---------- fan control surface (inside the fans tile, expanded) ---------- */
+.fan-rows { display: flex; flex-direction: column; gap: 10px; }
+.fan-row { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid var(--pp-sep); }
+.fan-row-top { display: flex; align-items: center; gap: 8px; }
+.fan-name { font-size: 12px; font-weight: 600; flex: 1; }
+.fan-rpm { font-size: 11px; color: var(--pp-ink2); font-variant-numeric: tabular-nums; }
+.fan-modes { display: flex; background: var(--pp-fill2); border-radius: 7px; padding: 2px; gap: 2px; }
+.fan-modes button {
+  border: none; background: none; color: var(--pp-ink2); cursor: pointer;
+  font: 600 10px -apple-system, sans-serif; padding: 3px 9px; border-radius: 5px;
+}
+.fan-modes button[aria-pressed="true"] { background: var(--pp-bg); color: var(--pp-ink); box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+.panel.light .fan-modes button[aria-pressed="true"] { background: #fff; }
+.fan-slider { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--pp-ink2); font-variant-numeric: tabular-nums; }
+.fan-slider input[type="range"] { flex: 1; accent-color: var(--pp-ink); height: 14px; }
+.fan-target { font-size: 10.5px; color: var(--pp-ink2); font-variant-numeric: tabular-nums; }
+.fan-target b { color: var(--pp-ink); font-weight: 600; }
+
+/* safety strip — always visible with controls (doc §4.6) */
+.safety {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+}
+.safety span {
+  font-size: 9.5px; color: var(--pp-ink2);
+  background: var(--pp-fill); border: 1px solid var(--pp-sep);
+  border-radius: 100px; padding: 3px 9px;
+}
+.fan-admin { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.fan-link {
+  background: none; border: none; cursor: pointer; padding: 2px 0;
+  font: 500 10.5px -apple-system, sans-serif; color: var(--pp-ink2); text-decoration: underline;
+}
+.fan-link:hover { color: var(--pp-ink); }
+.fan-cta {
+  border: none; cursor: pointer; border-radius: 7px; padding: 6px 12px;
+  font: 600 11px -apple-system, sans-serif;
+  background: var(--pp-fill2); color: var(--pp-ink);
+}
+.fan-cta:hover { background: var(--pp-sep); }
+
+/* override line in panel header */
+.p-override { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--pp-ink2); margin-top: 2px; }
+.p-override .fan-link { font-size: 10.5px; }
+
+/* ---------- helper-install sheet ---------- */
+.sheet-veil {
+  position: absolute; inset: 0; border-radius: 16px; z-index: 5;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex; align-items: center; justify-content: center;
+}
+.sheet {
+  width: 296px; border-radius: 13px; padding: 18px;
+  background: var(--pp-bg);
+  /* WEB-FREEDOM: approximates NSVisualEffectView sheet material */
+  backdrop-filter: blur(40px) saturate(1.6);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  color: var(--pp-ink);
+}
+.sheet h5 { margin: 0 0 8px; font-size: 13px; font-weight: 650; }
+.sheet p { margin: 0 0 8px; font-size: 11.5px; line-height: 1.45; color: var(--pp-ink2); }
+.sheet ul { margin: 0 0 10px; padding-left: 16px; }
+.sheet li { font-size: 11px; line-height: 1.5; color: var(--pp-ink2); }
+.sheet-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.sheet-wait { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--pp-ink2); padding: 6px 0; }
+.sheet-sim { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--pp-sep); }
+.sheet-sim small { display: block; font: 500 9px "SF Mono", ui-monospace, monospace; color: var(--pp-ink3); margin-bottom: 6px; }
+
+/* ---------- recovery notification (illustrative system UI) ---------- */
+.notif {
+  /* WEB-FREEDOM: macOS notification banner drawn for illustration only —
+     the real one is system UI; eul just posts it (doc §2.5). */
+  position: absolute; top: 36px; right: 14px; z-index: 40;
+  width: 290px; border-radius: 12px; padding: 11px 13px;
+  background: rgba(48, 48, 54, 0.88);
+  backdrop-filter: blur(30px);
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  color: #f4f4f6;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.notif .n-icon {
+  width: 30px; height: 30px; flex: none; border-radius: 7px;
+  background: #1d1d1f; display: flex; align-items: center; justify-content: center;
+}
+.notif b { display: block; font-size: 12px; font-weight: 650; }
+.notif span { display: block; font-size: 11px; color: rgba(244, 244, 246, 0.65); line-height: 1.4; margin-top: 1px; }

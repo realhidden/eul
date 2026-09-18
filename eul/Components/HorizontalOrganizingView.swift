@@ -69,8 +69,8 @@ struct HorizontalOrganizingView<Element: JSONCodabble & Equatable & Hashable, El
                     }
                     .padding(.vertical, 4)
                     .padding(.horizontal, 12)
-                    .background(Color.controlBackground)
-                    .cornerRadius(4)
+                    .background(Color.primary.opacity(0.08))
+                    .cornerRadius(7)
                     .offset(x: self.dragging == element ? self.offsetWidth : 0)
                     .zIndex(self.dragging == element ? 1 : 0)
                     .contentShape(Rectangle())
@@ -106,8 +106,7 @@ struct HorizontalOrganizingView<Element: JSONCodabble & Equatable & Hashable, El
                         }
                         .onEnded { _ in
                             self.dragging = nil
-                        }
-                    )
+                        })
                     .background(GeometryReader { geometry in
                         self.updateFrame(geometry: geometry, index: offset)
                     })
@@ -117,8 +116,8 @@ struct HorizontalOrganizingView<Element: JSONCodabble & Equatable & Hashable, El
             .padding(.vertical, 8)
             .padding(.horizontal, 12)
             .background(
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                    .stroke(Color.border, lineWidth: 1)
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .stroke(Color.primary.opacity(0.12), lineWidth: 1)
             )
             .clipped()
             .coordinateSpace(name: coordinateSpace)
@@ -137,8 +136,8 @@ struct HorizontalOrganizingView<Element: JSONCodabble & Equatable & Hashable, El
                         }
                         .padding(.vertical, 4)
                         .padding(.horizontal, 12)
-                        .background(Color.controlBackground)
-                        .cornerRadius(4)
+                        .background(Color.primary.opacity(0.08))
+                        .cornerRadius(7)
                         .contentShape(Rectangle())
                         .fixedSize()
                         .onTapGesture {
@@ -151,8 +150,8 @@ struct HorizontalOrganizingView<Element: JSONCodabble & Equatable & Hashable, El
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
                 .background(
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .stroke(Color.border, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .stroke(Color.primary.opacity(0.12), lineWidth: 1)
                 )
                 .clipped()
             }

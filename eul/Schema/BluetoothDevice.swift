@@ -6,70 +6,48 @@
 //  Copyright © 2021 Gao Sun. All rights reserved.
 //
 
-import CoreBluetooth
 import Foundation
-import IOBluetooth
-
-struct BluetoothPlist: Codable {
-    struct Cache: Codable {
-        var DeviceAddress: String
-    }
-
-    struct Device: Codable {
-        var BatteryPercentCase: Int?
-        var BatteryPercentLeft: Int?
-        var BatteryPercentRight: Int?
-        var BatteryPercent: Double?
-    }
-
-    var LEPairedDevices: [String]?
-    var CoreBluetoothCache: [String: Cache]?
-    var DeviceCache: [String: Device]?
-}
 
 struct BluetoothDevice: Identifiable {
-    // https://developer.apple.com/forums/thread/77866
-    static let batteryServiceUUID = CBUUID(string: "0x180F")
-    static let batteryCharacteristicsUUID = CBUUID(string: "0x2A19")
-
-    let ioDevice: IOBluetoothDevice
-    var plistDevice: BluetoothPlist.Device?
-    var uuid: UUID?
-    var peripheral: CBPeripheral?
-    var batteryLevel: UInt8?
+    let name: String
+    let address: String
+    let batteryLevel: String?
+    let batteryLevelLeft: String?
+    let batteryLevelRight: String?
+    let batteryLevelCase: String?
 
     var id: String {
         address
     }
 
-    var address: String {
-        ioDevice.addressString
-    }
-
     var displayName: String {
-        ioDevice.nameOrAddress
+        name
     }
 
-    var hasPlistBattery: Bool {
-        plistDevice?.BatteryPercent != nil
-            || plistDevice?.BatteryPercentCase != nil
-            || plistDevice?.BatteryPercentLeft != nil
-            || plistDevice?.BatteryPercentRight != nil
+    var hasBattery: Bool {
+        batteryLevel != nil
+            || batteryLevelLeft != nil
+            || batteryLevelRight != nil
+            || batteryLevelCase != nil
     }
 
-    func copying(
-        ioDevice: IOBluetoothDevice? = nil,
-        plistDevice: BluetoothPlist.Device? = nil,
-        uuid: UUID? = nil,
-        peripheral: CBPeripheral? = nil,
-        batteryLevel: UInt8? = nil
-    ) -> BluetoothDevice {
-        BluetoothDevice(
-            ioDevice: ioDevice ?? self.ioDevice,
-            plistDevice: plistDevice ?? self.plistDevice,
-            uuid: uuid ?? self.uuid,
-            peripheral: peripheral ?? self.peripheral,
-            batteryLevel: batteryLevel ?? self.batteryLevel
-        )
+    var batteryPercent: Int? {
+        guard let str = batteryLevel else { return nil }
+        return Int(str.replacingOccurrences(of: "%", with: ""))
+    }
+
+    var batteryPercentLeft: Int? {
+        guard let str = batteryLevelLeft else { return nil }
+        return Int(str.replacingOccurrences(of: "%", with: ""))
+    }
+
+    var batteryPercentRight: Int? {
+        guard let str = batteryLevelRight else { return nil }
+        return Int(str.replacingOccurrences(of: "%", with: ""))
+    }
+
+    var batteryPercentCase: Int? {
+        guard let str = batteryLevelCase else { return nil }
+        return Int(str.replacingOccurrences(of: "%", with: ""))
     }
 }

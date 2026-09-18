@@ -20,7 +20,8 @@ class MemoryStore: ObservableObject, Refreshable {
     @Published var appMemory: Double = 0
     @Published var cachedFiles: Double = 0
     @Published var temp: Double?
-    @Published var usageHistory: [Double] = []
+    @Published var swapUsed: Double = 0
+    @Published var swapTotal: Double = 0
 
     var used: Double {
         appMemory + wired + compressed
@@ -57,15 +58,29 @@ class MemoryStore: ObservableObject, Refreshable {
     @objc func refresh() {
         (free, active, inactive, wired, compressed, appMemory, cachedFiles) = System.memoryUsage()
         temp = SmcControl.shared.memoryProximityTemperature
-        usageHistory = (usageHistory + [usedPercentage]).suffix(LineChart.defaultMaxPointCount)
+        getSwap()
         writeToContainer()
     }
 
-    func writeToContainer() {
-        Container.set(MemoryEntry(used: used, total: total, temp: temp))
-        if #available(OSX 11, *) {
-            WidgetCenter.shared.reloadTimelines(ofKind: MemoryEntry.kind)
+    private func getSwap() {
+        var usage = xsw_usage()
+        var size = MemoryLayout<xsw_usage>.size
+        guard sysctlbyname("vm.swapusage", &usage, &size, nil, 0) == 0 else {
+            swapUsed = 0
+            swapTotal = 0
+            return
         }
+        // bytes -> GB to match the other memory figures
+        swapUsed = Double(usage.xsu_used) / 1_073_741_824
+        swapTotal = Double(usage.xsu_total) / 1_073_741_824
+    }
+
+    func writeToContainer() {
+        guard WidgetReloader.shouldWrite(kind: MemoryEntry.kind) else {
+            return
+        }
+        Container.set(MemoryEntry(used: used, total: total, temp: temp))
+        WidgetReloader.requestReload(ofKind: MemoryEntry.kind)
     }
 
     init() {

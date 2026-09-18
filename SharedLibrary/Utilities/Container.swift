@@ -7,9 +7,28 @@
 //
 
 import Foundation
+import Security
 
 public enum Container {
-    public static let defaults = UserDefaults(suiteName: "com.gaosun.eul.shared")
+    /// macOS 15 protects app-group containers and verifies ownership by the
+    /// team-ID prefix; an unprefixed group ID reads as ANOTHER app's data and
+    /// every access prompts "eul would like to access data from other apps".
+    /// The entitlements declare $(TeamIdentifierPrefix)com.gaosun.eul.shared,
+    /// so ask our own signature which group we were actually granted — code
+    /// and entitlement can never disagree, and forks under any team work
+    /// unchanged. Unsigned dev builds fall back to the legacy suite.
+    public static let appGroupID: String = {
+        guard
+            let task = SecTaskCreateFromSelf(nil),
+            let value = SecTaskCopyValueForEntitlement(task, "com.apple.security.application-groups" as CFString, nil),
+            let group = (value as? [String])?.first
+        else {
+            return "com.gaosun.eul.shared"
+        }
+        return group
+    }()
+
+    public static let defaults = UserDefaults(suiteName: appGroupID)
     static let pListEncoder = PropertyListEncoder()
     static let pListDecoder = PropertyListDecoder()
 

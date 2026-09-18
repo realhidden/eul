@@ -28,6 +28,7 @@ public extension SharedWidgetEntry {
     }
 
     var isValid: Bool {
-        !outdated && date.timeIntervalSinceNow >= -3
+        // must cover WidgetReloader's coalescing interval plus delivery jitter
+        !outdated && date.timeIntervalSinceNow >= -45
     }
 }

@@ -19,38 +19,12 @@ enum EulComponent: String, CaseIterable, Identifiable, Codable, JSONCodabble, Lo
         "component.\(rawValue.lowercased())".localized()
     }
 
-    var isGraphAvailable: Bool {
-        guard [.CPU, .Memory, .GPU].contains(self) else {
-            return false
-        }
-        return true
-    }
-
     var isDiskSelectionAvailable: Bool {
         self == .Disk
     }
 
     var isNetworkInterfaceSelectionAvailable: Bool {
         self == .Network
-    }
-
-    func getView() -> AnyView {
-        switch self {
-        case .Battery:
-            return AnyView(BatteryView())
-        case .CPU:
-            return AnyView(CpuView())
-        case .Fan:
-            return AnyView(FanView())
-        case .Memory:
-            return AnyView(MemoryView())
-        case .Network:
-            return AnyView(NetworkView())
-        case .Disk:
-            return AnyView(DiskView())
-        case .GPU:
-            return AnyView(GpuView())
-        }
     }
 
     case CPU
@@ -70,24 +44,8 @@ enum EulComponent: String, CaseIterable, Identifiable, Codable, JSONCodabble, Lo
     }
 
     static var defaultComponents: [EulComponent] {
-        allCases.filter { ![.Disk, .GPU].contains($0) }
+        // design §2.8 out-of-box: anchor + CPU + NET; everything else is one
+        // click away in the panel, and the glyph carries health
+        [.CPU, .Network]
     }
-}
-
-protocol EulComponentMenu {
-    var items: [NSMenuItem] { get }
-}
-
-typealias EulComponentMenuBuilder = () -> EulComponentMenu
-
-struct StatusBarConfig {
-    let viewBuilder: SizeChangeViewBuilder
-    let menuBuilder: SizeChangeViewBuilder?
-}
-
-func getStatusBarConfig() -> StatusBarConfig {
-    StatusBarConfig(
-        viewBuilder: { AnyView(StatusBarView(onSizeChange: $0).withGlobalEnvironmentObjects()) },
-        menuBuilder: { AnyView(StatusMenuView(onSizeChange: $0).withGlobalEnvironmentObjects()) }
-    )
 }

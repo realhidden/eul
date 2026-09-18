@@ -40,8 +40,6 @@ public struct ToolTip: ViewModifier {
                             .position(x: 5, y: -15)
                             .zIndex(1)
                     }
-                } else {
-                    EmptyView()
                 }
             })
     }

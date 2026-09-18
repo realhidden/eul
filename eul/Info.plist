@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Allow to display Bluetooth device info</string>
+	<key>NSInputMonitoringUsageDescription</key>
+	<string>Clean Mode disables the keyboard while you wipe it, and re-enables it when you finish.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2020 Gao Sun. All rights reserved.</string>
 	<key>NSMainStoryboardFile</key>

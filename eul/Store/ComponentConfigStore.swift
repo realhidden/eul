@@ -61,8 +61,8 @@ class ComponentConfigStore: ObservableObject {
         }
 
         let value = SharedStore.preference.showIcon
-        EulComponent.allCases.forEach {
-            configDict[$0].showIcon = value
+        for item in EulComponent.allCases {
+            configDict[item].showIcon = value
         }
 
         converted = true

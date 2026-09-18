@@ -30,8 +30,15 @@ enum IOHelper {
             IOObjectRelease(iterator)
         }
 
+        let port: mach_port_t
+        if #available(macOS 12.0, *) {
+            port = kIOMainPortDefault
+        } else {
+            port = kIOMasterPortDefault
+        }
+
         guard IOServiceGetMatchingServices(
-            kIOMasterPortDefault,
+            port,
             IOServiceMatching(service),
             &iterator
         ) == kIOReturnSuccess else {

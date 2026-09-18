@@ -1,0 +1,50 @@
+<section id="moscow" data-screen-label="3 Feature map">
+  <span class="sec-no">03</span>
+  <h2>Feature map — MoSCoW</h2>
+  <p class="sec-lede">Scoped to be shippable by a small community team in months. Subtraction is listed with the same care as addition — the deleted features are design decisions, not regressions.</p>
+
+  <div class="mosc-h"><h4>Must — v2.0 does not ship without these</h4></div>
+  <div class="mosc">
+    <div class="mosc-row"><b>Anchor + strip bar model</b><span>The notch answer; the reason 2.0 exists (§2.2–2.3).</span></div>
+    <div class="mosc-row"><b>Priority collapse + width governor</b><span>Slots drop by user priority before macOS hides anything; numeric width reservation ends bar jitter for good.</span></div>
+    <div class="mosc-row"><b>Health engine</b><span>Thresholds + hysteresis + culprit attribution; turns density into hierarchy — the answer to "nothing tells me what to care about."</span></div>
+    <div class="mosc-row"><b>The panel</b><span>Replaces the dropdown; investigation in ≤2 interactions; keeps the open-only collector contract.</span></div>
+    <div class="mosc-row"><b>Per-core CPU, E/P labeled</b><span>The data exists and is a top ask; lives in the CPU tile's expanded state, not the bar.</span></div>
+    <div class="mosc-row"><b>History sparklines (CPU · GPU · MEM · NET)</b><span>10-minute in-memory ring buffers answer "what just happened?" <span class="tag tag-data">new data</span></span></div>
+    <div class="mosc-row"><b>Recovery flow</b><span>Occlusion detection, the one notification, relaunch-opens-panel, global hotkey (§2.5).</span></div>
+    <div class="mosc-row"><b>Settings rebuild — 3 panes</b><span>General / Menu Bar / Health. Replaces configuration sprawl with decisions (§4.4).</span></div>
+    <div class="mosc-row"><b>Semantic token palette, dark + light</b><span>One palette, both modes, color-blind-safe load colors (§5).</span></div>
+    <div class="mosc-row"><b>Honest App Store build</b><span>Fewer monitors, never error states: no thermal/fan rows exist, health engine runs on remaining signals, one settings footnote explains builds.</span></div>
+    <div class="mosc-row"><b>i18n hardening</b><span>23 languages incl. RTL; no text in graphics; 1.5× expansion budgeted in every layout; numerals tabular everywhere.</span></div>
+  </div>
+
+  <div class="mosc-h"><h4>Should — in v2.0 if the schedule holds</h4></div>
+  <div class="mosc">
+    <div class="mosc-row"><b>Widgets, rebuilt: 2 not 4</b><span>Small "health" + medium "trends," with honest staleness stamps (§6). Configurability moves to 2.x.</span></div>
+    <div class="mosc-row"><b>Fan control — Auto / Manual / Boost</b><span>The TG Pro wedge: temperatures and control in one free, quiet tool. Fenced by P6: helper installed only at the moment of intent (§4.6), absent on fanless Macs and in the App Store build. First should-have cut if the schedule slips — the revamp does not depend on it. <span class="tag tag-infra">new infra</span></span></div>
+    <div class="mosc-row"><b>Bluetooth battery tile</b><span>AirPods L/R/case granularity — data already collected, promoted from dropdown footnote to a panel tile.</span></div>
+    <div class="mosc-row"><b>Process app icons</b><span>NSRunningApplication icons make the process list legible at a glance; cheap, high-value garnish.</span></div>
+    <div class="mosc-row"><b>Uptime + load averages</b><span>In the CPU tile's expanded state; near-zero cost, long-tail ask.</span></div>
+  </div>
+
+  <div class="mosc-h"><h4>Could — v2.x candidates, designed-for but not built</h4></div>
+  <div class="mosc">
+    <div class="mosc-row"><b>Widget configurability</b><span>Choose-your-monitors via WidgetKit intents <span class="tag tag-infra">new infra</span> <span class="tag tag-14">14+</span>.</span></div>
+    <div class="mosc-row"><b>Sensors surface</b><span>The 60+ named Apple Silicon temperature sensors as a power-user panel section.</span></div>
+    <div class="mosc-row"><b>CSV export</b><span>Ring buffers → file, for the measurement-minded minority <span class="tag tag-infra">new infra</span>.</span></div>
+    <div class="mosc-row"><b>Network identity monitors</b><span>Public/local IP, SSID, Rosetta indicator — SSID requires Location permission, so it must remain opt-in <span class="tag tag-data">new data</span> <span class="tag tag-risk">uncertain feasibility</span>.</span></div>
+    <div class="mosc-row"><b>Disk I/O sparkline</b><span>Only if a disk-activity tile earns its place <span class="tag tag-data">new data</span>.</span></div>
+    <div class="mosc-row"><b>Fan curves / smart cooling</b><span>Temperature-triggered automation is technically possible but interventionist-by-default — it ships only after a release of manual control has earned trust. v2.x at most.</span></div>
+    <div class="mosc-row"><b>Panel pop-out</b><span>Pin the panel as a floating window for sustained monitoring sessions; explicitly not the primary surface.</span></div>
+  </div>
+
+  <div class="mosc-h"><h4>Won't — declined, quotably</h4></div>
+  <div class="mosc">
+    <div class="mosc-row"><b>Weather, per-process GPU, iPad companion</b><span>Upstream decisions stand: out of scope, root-requiring, or out of category. (Fan control, formerly on this list, enters scope by maintainer override — see Should.)</span></div>
+    <div class="mosc-row"><b class="del">Per-monitor text-component ordering</b><span>Deleted. Slots have one strong layout; priority order is the only knob (P5).</span></div>
+    <div class="mosc-row"><b class="del">Font design picker</b><span>Deleted. One type system, tabular by law (§5.1).</span></div>
+    <div class="mosc-row"><b class="del">Per-monitor refresh rates</b><span>Deleted. One global cadence (1–10 s); the panel may exceed it while open.</span></div>
+    <div class="mosc-row"><b class="del">The four legacy static widgets</b><span>Deleted, replaced by the two honest ones (§6).</span></div>
+    <div class="mosc-row"><b class="del">The focus-stealing "status bar hidden" alert</b><span>Deleted, replaced by the recovery flow (§2.5).</span></div>
+  </div>
+</section>
