@@ -77,9 +77,16 @@ class PreferenceStore: ObservableObject {
     /// everywhere: bar slot, panel, process rows, Trends widget
     @Published var networkRateInBits = false
 
-    /// drops the CPU/NET caps labels in the strip for the dense-bar minority
-    /// (design §4.7) — one decision, not a layout editor
-    @Published var valueOnlySlots = false
+    /// how much each strip slot spells out (design §4.7) — one decision, not
+    /// a layout editor. Supersedes the 2.0 `valueOnlySlots` bool, which is
+    /// still read once on load so an upgrading user keeps their choice.
+    @Published var slotStyle = Preference.slotStyle.full
+
+    /// true while the strip shows values without their caps labels — the
+    /// smart style drops them too, in favour of the component glyph
+    var valueOnlySlots: Bool {
+        slotStyle != .full
+    }
 
     /// panel tiles hidden via right-click (design §4.7, "battery rows are
     /// noise" story); raw PanelTileKind values
@@ -121,7 +128,7 @@ class PreferenceStore: ObservableObject {
         JSON([
             "temperatureUnit": temperatureUnit.rawValue,
             "networkRateInBits": networkRateInBits,
-            "valueOnlySlots": valueOnlySlots,
+            "slotStyle": slotStyle.rawValue,
             "hiddenTiles": hiddenTiles,
             "language": language,
             "smcRefreshRate": smcRefreshRate,
@@ -199,8 +206,11 @@ class PreferenceStore: ObservableObject {
                 if let value = data["networkRateInBits"].bool {
                     networkRateInBits = value
                 }
-                if let value = data["valueOnlySlots"].bool {
-                    valueOnlySlots = value
+                if let raw = data["slotStyle"].string, let value = Preference.slotStyle(rawValue: raw) {
+                    slotStyle = value
+                } else if data["valueOnlySlots"].bool == true {
+                    // 2.0 preferences predate the style picker
+                    slotStyle = .valueOnly
                 }
                 if let array = data["hiddenTiles"].array {
                     hiddenTiles = array.compactMap { $0.string }

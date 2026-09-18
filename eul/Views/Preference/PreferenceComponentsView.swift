@@ -53,11 +53,19 @@ extension Preference {
                         .foregroundColor(Settings.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Settings.RowDivider()
-                    Settings.ToggleRow(
-                        title: "settings.value_only".localized(),
-                        caption: "settings.value_only.desc".localized(),
-                        isOn: $preference.valueOnlySlots
-                    )
+                    Settings.Row(
+                        title: "settings.slot_style".localized(),
+                        caption: "settings.slot_style.desc".localized()
+                    ) {
+                        Picker("", selection: $preference.slotStyle) {
+                            ForEach(Preference.slotStyle.allCases) {
+                                Text($0.description)
+                            }
+                        }
+                        .labelsHidden()
+                        .controlSize(.small)
+                        .frame(width: 150)
+                    }
                 }
             }
         }
@@ -98,7 +106,7 @@ extension Preference {
 
         private func resetToDefaults() {
             componentsStore.resetToDefaults()
-            preference.valueOnlySlots = false
+            preference.slotStyle = .full
             componentConfigStore[EulComponent.Disk].diskSelection = ""
             componentConfigStore[EulComponent.Network].networkPortSelection = ""
         }
