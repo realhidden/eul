@@ -132,9 +132,6 @@ struct PanelView: View, SizeChangeView {
             // both actions one click away, no submenu; quit is immediate —
             // the helper's revert machinery makes quitting always safe
             HStack(spacing: 6) {
-                headerIcon("sparkles", label: "clean_mode.action".localized(), tint: secondary, background: Color.primary.opacity(0.08)) {
-                    AppDelegate.enterCleanMode()
-                }
                 headerIcon("gearshape", label: "menu.preferences".localized(), tint: secondary, background: Color.primary.opacity(0.08)) {
                     AppDelegate.openPreferences()
                 }

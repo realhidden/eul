@@ -24,7 +24,6 @@ enum SharedStore {
     static let ui = UIStore()
     static let health = HealthStore()
     static let fanControl = FanControlStore()
-    static let cleanMode = CleanModeManager()
     static let components = ComponentsStore<EulComponent>(
         defaultComponents: EulComponent.defaultComponents,
         onDidChange: visibilityCheckClosure

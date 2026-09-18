@@ -220,6 +220,14 @@ class StatusBarManager {
         return screen.visibleFrame.maxY >= screen.frame.maxY - reservedTop
     }
 
+    /// Force the bar to re-evaluate and show the strip with all slots.
+    /// Resets slot limits and triggers a fresh render.
+    func forceShowStrip() {
+        slotLimit = Int.max
+        renderBar()
+        checkVisibilityIfNeeded()
+    }
+
     /// Debounced entry point — called on occlusion changes, component
     /// changes, and at launch (with a grace period against launch-time
     /// false alarms). Always runs: the governor IS the recovery mechanism;
