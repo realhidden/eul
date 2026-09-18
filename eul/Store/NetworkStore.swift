@@ -66,7 +66,7 @@ class NetworkStore: ObservableObject, Refreshable {
             if consecutiveWatchdogFires < 5 {
                 networkUsageHasBeenSet = true
             } else if consecutiveWatchdogFires == 5 {
-                print("network refresh pipeline hung repeatedly, giving up until relaunch")
+                print("⚠️ Network refresh pipeline hung repeatedly (5+ times), giving up until relaunch")
             }
         }
 
