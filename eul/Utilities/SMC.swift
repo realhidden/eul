@@ -509,7 +509,7 @@ public enum TemperatureSensors {
         TemperatureSensor(name: "CPU_0_PROXIMITY",
                           code: FourCharCode(fromStaticString: "TC0P"))
 
-    // Apple Silicon (M-series) temperature sensors
+    /// Apple Silicon (M-series) temperature sensors
     public static let CPU_PCORE = TemperatureSensor(name: "CPU_PCORE",
                                                     code: FourCharCode(fromStaticString: "Tp09"))
     public static let CPU_ECORE = TemperatureSensor(name: "CPU_ECORE",
@@ -552,7 +552,7 @@ public enum TemperatureSensors {
     public static let MEM_SLOTS_PROXIMITY =
         TemperatureSensor(name: "MEM_SLOTS_PROXIMITY",
                           code: FourCharCode(fromStaticString: "TM0P"))
-    // Apple Silicon (M-series) memory proximity temperature sensor
+    /// Apple Silicon (M-series) memory proximity temperature sensor
     public static let MEM_APPLE_SILICON =
         TemperatureSensor(name: "MEM_APPLE_SILICON",
                           code: FourCharCode(fromStaticString: "Ts0C"))

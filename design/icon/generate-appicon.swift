@@ -15,20 +15,47 @@ import SwiftUI
 struct IconView: View {
     let px: CGFloat
 
-    // Apple macOS icon grid: shape is 824/1024 of the canvas
-    private var box: CGFloat { px * 0.8047 }
-    private var cornerRadius: CGFloat { box * 0.225 }
+    /// Apple macOS icon grid: shape is 824/1024 of the canvas
+    private var box: CGFloat {
+        px * 0.8047
+    }
 
-    // small sizes need a bigger mark and a stroke floor to stay legible
-    private var glyphWidth: CGFloat { box * (px <= 32 ? 0.74 : 0.60) }
-    private var unit: CGFloat { glyphWidth / 20 }
-    private var ringRadius: CGFloat { 4.2 * unit }
-    private var pupilRadius: CGFloat { max(1.5 * unit, 0.6) }
-    private var strokeWidth: CGFloat { max(1.5 * unit, 1.1) }
+    private var cornerRadius: CGFloat {
+        box * 0.225
+    }
 
-    private var surfaceTop: Color { Color(.sRGB, red: 0.118, green: 0.118, blue: 0.129) }
-    private var surfaceBottom: Color { Color(.sRGB, red: 0.075, green: 0.075, blue: 0.086) }
-    private var ink: Color { Color(.sRGB, red: 0.913, green: 0.913, blue: 0.922) }
+    /// small sizes need a bigger mark and a stroke floor to stay legible
+    private var glyphWidth: CGFloat {
+        box * (px <= 32 ? 0.74 : 0.60)
+    }
+
+    private var unit: CGFloat {
+        glyphWidth / 20
+    }
+
+    private var ringRadius: CGFloat {
+        4.2 * unit
+    }
+
+    private var pupilRadius: CGFloat {
+        max(1.5 * unit, 0.6)
+    }
+
+    private var strokeWidth: CGFloat {
+        max(1.5 * unit, 1.1)
+    }
+
+    private var surfaceTop: Color {
+        Color(.sRGB, red: 0.118, green: 0.118, blue: 0.129)
+    }
+
+    private var surfaceBottom: Color {
+        Color(.sRGB, red: 0.075, green: 0.075, blue: 0.086)
+    }
+
+    private var ink: Color {
+        Color(.sRGB, red: 0.913, green: 0.913, blue: 0.922)
+    }
 
     private func eye(offsetX: CGFloat, knockout: Bool) -> some View {
         ZStack {

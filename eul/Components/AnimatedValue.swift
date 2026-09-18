@@ -24,6 +24,11 @@ enum Motion {
     static var reduceMotionEnabled: Bool {
         NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }
+
+    /// Disable all animations - values change instantly without tweening
+    static var animationsDisabled: Bool {
+        true
+    }
 }
 
 extension Animation {
@@ -117,7 +122,7 @@ struct RollingValue<Content: View>: View {
                 hasValue = true
                 return
             }
-            if Motion.reduceMotionEnabled {
+            if Motion.animationsDisabled || Motion.reduceMotionEnabled {
                 displayed = newValue
             } else {
                 withAnimation(animation) { displayed = newValue }
@@ -164,7 +169,7 @@ struct CrossfadeText: View {
             .id(shown)
             .transition(.opacity)
             .onChange(of: text) { newValue in
-                if Motion.reduceMotionEnabled {
+                if Motion.animationsDisabled || Motion.reduceMotionEnabled {
                     shown = newValue
                 } else {
                     withAnimation(animation) { shown = newValue }

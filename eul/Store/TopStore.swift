@@ -41,14 +41,12 @@ class TopStore: ObservableObject {
             return
         }
 
-        let refreshRate = preferenceStore.smcRefreshRate
         ramFirstLoaded = false
         ramDataAvailable = false
         ramTopProcesses = []
 
-        // MARK: Parsing command for RAM top processes
-
-        parseTerminalCommand(taskType: .ram, commandString: "top -l 0 -n 6 -stats pid,command,rsize -s \(refreshRate) -orsize 2>/dev/null") { separatorIndex, rows, titleRow in
+        // Use snapshot mode (-l 1) for immediate results instead of live update
+        parseTerminalCommand(taskType: .ram, commandString: "top -l 1 -n 6 -stats pid,command,rsize -orsize 2>/dev/null") { separatorIndex, rows, titleRow in
             if titleRow.contains("pid"), titleRow.contains("mem"), titleRow.contains("command") {
                 let runningApps = NSWorkspace.shared.runningApplications
                 let result: [RamUsage] = ((separatorIndex + 2)..<rows.count).compactMap { index in
@@ -107,14 +105,12 @@ class TopStore: ObservableObject {
             return
         }
 
-        let refreshRate = preferenceStore.smcRefreshRate
         cpuFirstLoaded = false
         cpuDataAvailable = false
         cpuTopProcesses = []
 
-        // MARK: Parsing command for CPU top processes
-
-        parseTerminalCommand(taskType: .cpu, commandString: "top -l 0 -u -n 5 -stats pid,cpu,command -s \(refreshRate) 2>/dev/null") { separatorIndex, rows, titleRow in
+        // Use snapshot mode (-l 1) for immediate results instead of live update
+        parseTerminalCommand(taskType: .cpu, commandString: "top -l 1 -n 5 -stats pid,cpu,command 2>/dev/null") { separatorIndex, rows, titleRow in
             if titleRow.contains("pid"), titleRow.contains("cpu"), titleRow.contains("command") {
                 let runningApps = NSWorkspace.shared.runningApplications
                 let result: [ProcessCpuUsage] = ((separatorIndex + 2)..<rows.count).compactMap { index in

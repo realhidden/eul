@@ -1,5 +1,5 @@
 //
-//  LineChart.swift
+//  LineChart 2.swift
 //  eul
 //
 //  Created by Gao Sun on 2020/11/8.
@@ -24,7 +24,7 @@ struct LineChart: View {
         CGFloat((value - minimumPoint) / (maximumPoint - minimumPoint)) * frame.height
     }
 
-    // https://stackoverflow.com/a/63556358/12514940
+    /// https://stackoverflow.com/a/63556358/12514940
     func path() -> Path {
         guard points.count > 1 else {
             return Path()
@@ -46,8 +46,8 @@ struct LineChart: View {
 
         path.move(to: CGPoint(x: splinedValues[0].x, y: splinedValues[0].y))
 
-        splinedValues.dropFirst().forEach {
-            path.addLine(to: $0)
+        for splinedValue in splinedValues.dropFirst() {
+            path.addLine(to: splinedValue)
         }
 
         return path
