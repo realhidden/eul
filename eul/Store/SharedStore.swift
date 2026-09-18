@@ -49,6 +49,5 @@ extension View {
             .environmentObject(SharedStore.topStore)
             .environmentObject(SharedStore.health)
             .environmentObject(SharedStore.fanControl)
-            .environmentObject(SharedStore.cleanMode)
     }
 }

@@ -181,7 +181,6 @@ extension AppDelegate {
     static func quit() {
         NSApplication.shared.terminate(self)
     }
-
 }
 
 // MARK: Repeating Methods
