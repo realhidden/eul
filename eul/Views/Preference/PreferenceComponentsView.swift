@@ -41,9 +41,7 @@ extension Preference {
                     Settings.RowDivider()
                     HorizontalOrganizingView(componentsStore: componentsStore) { component in
                         HStack(spacing: 6) {
-                            Image(component.rawValue)
-                                .resizable()
-                                .frame(width: 12, height: 12)
+                            ComponentGlyph(component: component, size: 12, opacity: 0.75)
                             Text(component.localizedDescription)
                                 .font(.system(size: 11, weight: .medium))
                         }
@@ -66,8 +64,55 @@ extension Preference {
                         .controlSize(.small)
                         .frame(width: 150)
                     }
+                    slotStylePreview
                 }
             }
+        }
+
+        /// The three styles rendered side by side against LIVE data, so the
+        /// choice is made by looking rather than by reading three labels and
+        /// guessing. Each row forces its own style through the environment;
+        /// the selected one is marked so the list doubles as a legend.
+        private var slotStylePreview: some View {
+            VStack(alignment: .leading, spacing: 7) {
+                Text("settings.slot_style.preview".localized().uppercased())
+                    .font(.system(size: 9, weight: .semibold))
+                    .tracking(0.6)
+                    .foregroundColor(Settings.secondary)
+                ForEach(Preference.slotStyle.allCases) { style in
+                    HStack(alignment: .center, spacing: 10) {
+                        Text(style.description)
+                            .font(.system(size: 10, weight: preference.slotStyle == style ? .semibold : .regular))
+                            .foregroundColor(preference.slotStyle == style ? .primary : Settings.secondary)
+                            .frame(width: 66, alignment: .leading)
+                        HStack(spacing: 10) {
+                            ForEach(componentsStore.activeComponents.prefix(4)) {
+                                StatSlotView(component: $0)
+                            }
+                        }
+                        .environment(\.slotStyleOverride, style)
+                        .frame(height: 22)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.vertical, 3)
+                    .padding(.horizontal, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(Color.primary.opacity(preference.slotStyle == style ? 0.08 : 0))
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        preference.slotStyle = style
+                    }
+                    .pointingHandCursor()
+                }
+            }
+            .padding(EdgeInsets(top: 9, leading: 9, bottom: 9, trailing: 9))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(Color.primary.opacity(0.05))
+            )
         }
 
         private var dataSourcesCard: some View {

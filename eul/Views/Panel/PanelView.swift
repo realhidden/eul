@@ -215,6 +215,7 @@ struct PanelView: View, SizeChangeView {
         let severity = tileSeverity(.CPU)
         return PanelTile(
             label: "component.cpu".localized().uppercased(),
+            glyph: .CPU,
             aux: cpuStore.temp?.temperatureString,
             severity: severity
         ) {
@@ -263,6 +264,7 @@ struct PanelView: View, SizeChangeView {
         let severity = tileSeverity(.Memory)
         return PanelTile(
             label: "component.memory".localized().uppercased(),
+            glyph: .Memory,
             aux: "\("memory.swap".localized()) \(memoryStore.swapUsed.memoryString)",
             severity: severity
         ) {
@@ -368,7 +370,7 @@ struct PanelView: View, SizeChangeView {
         // NetworkPort.description handles the optional port name ("Wi-Fi (en0)")
         let aux = networkStore.currentActivePort.map { $0.description }
         let adapters = networkStore.adapters
-        let tile = PanelTile(label: "component.network".localized().uppercased(), aux: aux) {
+        let tile = PanelTile(label: "component.network".localized().uppercased(), glyph: .Network, aux: aux) {
             HStack(spacing: 2) {
                 Text("↓").foregroundColor(secondary).font(.system(size: 11))
                 rateText(networkStore.inSpeedInByte)
@@ -415,6 +417,7 @@ struct PanelView: View, SizeChangeView {
         }
         return PanelTile(
             label: "component.gpu".localized().uppercased(),
+            glyph: .GPU,
             aux: gpuStore.temperatureAverage?.temperatureString
         ) {
             RollingNumber(gpuStore.usageAverage) { String(format: "%.0f%%", $0) }
@@ -440,6 +443,7 @@ struct PanelView: View, SizeChangeView {
         let severity = tileSeverity(.Disk)
         return PanelTile(
             label: "component.disk".localized().uppercased(),
+            glyph: .Disk,
             aux: diskStore.usagePercentageString,
             severity: severity
         ) {
@@ -480,7 +484,7 @@ struct PanelView: View, SizeChangeView {
         // an unreachable helper means the controls would silently no-op —
         // the tile carries the cue so the repair affordance gets found
         let severity: HealthLevel = fanControl.status == .enabled && fanControl.helperUnreachable ? .elevated : .normal
-        let tile = PanelTile(label: "component.fan".localized().uppercased(), aux: fanModeText, severity: severity) {
+        let tile = PanelTile(label: "component.fan".localized().uppercased(), glyph: .Fan, aux: fanModeText, severity: severity) {
             if !expanded {
                 ForEach(fanStore.fans) { fan in
                     HStack(spacing: 4) {
@@ -548,6 +552,7 @@ struct PanelView: View, SizeChangeView {
         let severity = batterySeverity
         return PanelTile(
             label: "component.battery".localized().uppercased(),
+            glyph: .Battery,
             aux: batteryStore.timeRemaining,
             severity: severity
         ) {

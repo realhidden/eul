@@ -15,6 +15,20 @@ import SwiftUI
 /// (CPU, MEM…), deliberately unlocalized like unit symbols. The value-only
 /// toggle (design §4.7, dense-bar story) drops the labels — one decision,
 /// not a layout editor.
+/// Lets a subtree render slots in a style other than the stored one, so
+/// Settings can show all three at once against live data. Nil everywhere
+/// except that preview, where reading the real preference would defeat it.
+private struct SlotStyleOverrideKey: EnvironmentKey {
+    static let defaultValue: Preference.slotStyle? = nil
+}
+
+extension EnvironmentValues {
+    var slotStyleOverride: Preference.slotStyle? {
+        get { self[SlotStyleOverrideKey.self] }
+        set { self[SlotStyleOverrideKey.self] = newValue }
+    }
+}
+
 struct StatSlotView: View {
     let component: EulComponent
 
@@ -164,10 +178,11 @@ private struct NetworkSlotContainer: View {
     @EnvironmentObject var networkStore: NetworkStore
     @EnvironmentObject var preferenceStore: PreferenceStore
     @EnvironmentObject var healthStore: HealthStore
+    @Environment(\.slotStyleOverride) private var styleOverride
 
     var body: some View {
         let inBits = preferenceStore.networkRateInBits
-        if preferenceStore.slotStyle == .smart {
+        if (styleOverride ?? preferenceStore.slotStyle) == .smart {
             // one line instead of two: the smart style spends the height it
             // saves on the history chart, which is the point of the style
             SmartNetworkSlot(
@@ -207,12 +222,7 @@ struct SmartNetworkSlot: View {
     var body: some View {
         VStack(alignment: .trailing, spacing: 1) {
             HStack(spacing: 3) {
-                Image(EulComponent.Network.rawValue)
-                    .renderingMode(.template)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 11, height: 11)
-                    .opacity(0.6)
+                ComponentGlyph(component: .Network)
                 ZStack(alignment: .trailing) {
                     Text(Self.worstCase).hidden()
                     Text("\(compact(down))/\(compact(up))")
@@ -285,6 +295,7 @@ struct MicroLevel: View {
 
 struct SlotText: View {
     @EnvironmentObject var preferenceStore: PreferenceStore
+    @Environment(\.slotStyleOverride) private var styleOverride
 
     let label: String
     let value: String
@@ -321,12 +332,7 @@ struct SlotText: View {
         VStack(alignment: .trailing, spacing: 1) {
             HStack(spacing: 3) {
                 if let component = component {
-                    Image(component.rawValue)
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 11, height: 11)
-                        .opacity(0.6)
+                    ComponentGlyph(component: component)
                 }
                 valueColumn
             }
@@ -339,7 +345,7 @@ struct SlotText: View {
     }
 
     var body: some View {
-        switch preferenceStore.slotStyle {
+        switch styleOverride ?? preferenceStore.slotStyle {
         case .full:
             HStack(spacing: 5) {
                 Text(label)

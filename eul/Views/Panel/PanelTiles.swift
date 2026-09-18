@@ -14,6 +14,9 @@ import SwiftUI
 /// empty (§2.6).
 struct PanelTile<Content: View>: View {
     var label: String
+    /// the component this tile reports on, drawn as a small glyph ahead of the
+    /// label so the panel and the bar name things the same way
+    var glyph: EulComponent?
     var aux: String?
     var severity: HealthLevel = .normal
     var minHeight: CGFloat? = 86
@@ -23,6 +26,9 @@ struct PanelTile<Content: View>: View {
         let accent = severity.accent
         VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline) {
+                if let glyph = glyph {
+                    ComponentGlyph(component: glyph, size: 10, opacity: 0.45)
+                }
                 Text(label)
                     .font(DesignTokens.Typo.tileLabel)
                     .tracking(0.6)
@@ -46,6 +52,42 @@ struct PanelTile<Content: View>: View {
             RoundedRectangle(cornerRadius: DesignTokens.Panel.tileRadius)
                 .stroke(accent?.opacity(0.7) ?? Color.clear, lineWidth: 1)
         )
+    }
+}
+
+/// A component's glyph, preferring its SF Symbol and falling back to the
+/// bundled template PDF when the running system has no such symbol (see
+/// `EulComponent.symbolName`). Resolution is cached: the check costs an
+/// NSImage lookup, and these render on every status bar tick.
+struct ComponentGlyph: View {
+    let component: EulComponent
+    var size: CGFloat = 11
+    var opacity: Double = 0.6
+
+    private static var resolved = [String: Bool]()
+
+    private static func hasSymbol(_ name: String) -> Bool {
+        if let known = resolved[name] {
+            return known
+        }
+        let exists = NSImage(systemSymbolName: name, accessibilityDescription: nil) != nil
+        resolved[name] = exists
+        return exists
+    }
+
+    private var image: Image {
+        if let name = component.symbolName, Self.hasSymbol(name) {
+            return Image(systemName: name)
+        }
+        return Image(component.rawValue).renderingMode(.template)
+    }
+
+    var body: some View {
+        image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: size, height: size)
+            .opacity(opacity)
     }
 }
 

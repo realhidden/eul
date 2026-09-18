@@ -19,6 +19,32 @@ enum EulComponent: String, CaseIterable, Identifiable, Codable, JSONCodabble, Lo
         "component.\(rawValue.lowercased())".localized()
     }
 
+    /// The SF Symbol that stands for this component, when one exists.
+    ///
+    /// Symbols are weight-matched to the system font, tint themselves, and
+    /// stay crisp at any size — everything a menu bar glyph needs and a
+    /// bitmap cannot give. There is no `gpu` symbol (verified absent as of
+    /// macOS 26), so the GPU keeps its bundled template PDF; `ComponentGlyph`
+    /// falls back to the asset for any name the running system lacks.
+    var symbolName: String? {
+        switch self {
+        case .CPU:
+            return "cpu"
+        case .Memory:
+            return "memorychip"
+        case .GPU:
+            return nil
+        case .Disk:
+            return "internaldrive"
+        case .Network:
+            return "arrow.up.arrow.down"
+        case .Fan:
+            return "fanblades"
+        case .Battery:
+            return "battery.100"
+        }
+    }
+
     var isDiskSelectionAvailable: Bool {
         self == .Disk
     }
