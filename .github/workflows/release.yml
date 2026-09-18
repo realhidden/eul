@@ -38,15 +38,17 @@ jobs:
       # Xcode's own debug runs mask this; a downloaded .app does not.
       - name: Build
         run: |
-          xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx build \
+          xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx \
+            -configuration Release build \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" \
             CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" \
             ENABLE_HARDENED_RUNTIME="NO" \
+            ONLY_ACTIVE_ARCH="NO" ARCHS="x86_64 arm64" \
             -derivedDataPath ./build
 
       - name: Ad-hoc sign
         run: |
-          APP="./build/Build/Products/Debug/eul.app"
+          APP="./build/Build/Products/Release/eul.app"
           codesign --force --deep --sign - "$APP"
           # fail the release rather than publish an app that cannot launch
           codesign --verify --deep --strict --verbose=2 "$APP"
@@ -54,10 +56,17 @@ jobs:
             echo "::error::hardened runtime is set on an ad-hoc signed build; it will not launch"
             exit 1
           fi
+          # the README promises Apple Silicon + Intel; a Debug/active-arch
+          # build silently ships arm64 only
+          lipo -info "$APP/Contents/MacOS/eul"
+          for arch in x86_64 arm64; do
+            lipo -info "$APP/Contents/MacOS/eul" | grep -q "$arch" || {
+              echo "::error::release binary is missing $arch"; exit 1; }
+          done
 
       - name: Package
         run: |
-          cd ./build/Build/Products/Debug
+          cd ./build/Build/Products/Release
           zip -r -y "$GITHUB_WORKSPACE/eul.app.zip" eul.app
 
       - name: Create Release
