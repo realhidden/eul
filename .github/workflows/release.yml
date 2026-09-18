@@ -29,19 +29,31 @@ jobs:
         run: swift run -c release swiftformat ../ --lint
         working-directory: ./BuildTools
 
+      # ENABLE_HARDENED_RUNTIME must be NO for an ad-hoc signed artifact.
+      # Hardened runtime turns on library validation, which requires the
+      # embedded SharedLibrary.framework to share a Team ID with the host —
+      # ad-hoc signatures have none, so dyld aborts before any app code runs:
+      #   Library not loaded: @rpath/SharedLibrary.framework/.../SharedLibrary
+      #   Reason: ... different Team IDs
+      # Xcode's own debug runs mask this; a downloaded .app does not.
       - name: Build
         run: |
           xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx build \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" \
             CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" \
+            ENABLE_HARDENED_RUNTIME="NO" \
             -derivedDataPath ./build
 
       - name: Ad-hoc sign
         run: |
           APP="./build/Build/Products/Debug/eul.app"
           codesign --force --deep --sign - "$APP"
-          # Verify signature
-          codesign --verify --verbose=2 "$APP" || true
+          # fail the release rather than publish an app that cannot launch
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          if codesign -d --verbose=2 "$APP" 2>&1 | grep -q "runtime"; then
+            echo "::error::hardened runtime is set on an ad-hoc signed build; it will not launch"
+            exit 1
+          fi
 
       - name: Package
         run: |
