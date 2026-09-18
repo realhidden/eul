@@ -122,6 +122,75 @@ enum Info {
         }
     }
 
+    /// One address bound to one interface. An adapter commonly has several
+    /// (IPv4 + global IPv6 + link-local IPv6), so this is a flat list keyed by
+    /// device rather than a single address per port.
+    struct InterfaceAddress: Identifiable {
+        var device: String
+        var address: String
+        var isIPv6: Bool
+        var isLoopback: Bool
+
+        var id: String {
+            "\(device)|\(address)"
+        }
+    }
+
+    /// Every address on every up interface, loopback included — getifaddrs
+    /// reports the kernel's actual bindings, which is what `ifconfig` prints
+    /// and what the configd service list (orderedNetworkServices) does not
+    /// carry. Down interfaces are skipped: they have no address to show.
+    static func getInterfaceAddresses() -> [InterfaceAddress] {
+        var head: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&head) == 0, let first = head else {
+            return []
+        }
+        defer {
+            freeifaddrs(head)
+        }
+
+        var result = [InterfaceAddress]()
+        for pointer in sequence(first: first, next: { $0.pointee.ifa_next }) {
+            let flags = Int32(pointer.pointee.ifa_flags)
+            guard flags & IFF_UP == IFF_UP, let sockaddr = pointer.pointee.ifa_addr else {
+                continue
+            }
+
+            let family = sockaddr.pointee.sa_family
+            guard family == UInt8(AF_INET) || family == UInt8(AF_INET6) else {
+                continue
+            }
+
+            var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+            guard getnameinfo(
+                sockaddr,
+                socklen_t(sockaddr.pointee.sa_len),
+                &host,
+                socklen_t(host.count),
+                nil,
+                0,
+                NI_NUMERICHOST
+            ) == 0 else {
+                continue
+            }
+
+            // link-local IPv6 comes back scoped ("fe80::1%en0"); the row
+            // already names the device, so the suffix is redundant noise
+            let address = String(cString: host).components(separatedBy: "%")[0]
+            guard !address.isEmpty else {
+                continue
+            }
+
+            result.append(InterfaceAddress(
+                device: String(cString: pointer.pointee.ifa_name),
+                address: address,
+                isIPv6: family == UInt8(AF_INET6),
+                isLoopback: flags & IFF_LOOPBACK == IFF_LOOPBACK
+            ))
+        }
+        return result
+    }
+
     static func findPort(_ string: String) -> NetworkPort? {
         guard string.hasPrefix("("), string.hasSuffix(")") else {
             return nil
@@ -265,7 +334,7 @@ enum Info {
         }
     }
 
-    static func getNetworkUsage(forDevice: String?, _ onData: @escaping (NetworkUsage, [NetworkPort], NetworkPort?) -> Void) {
+    static func getNetworkUsage(forDevice: String?, _ onData: @escaping (NetworkUsage, [NetworkPort], NetworkPort?, [InterfaceAddress]) -> Void) {
         DispatchQueue.global(qos: .utility).async {
             let services = orderedNetworkServices()
             let activeInterfaces = getActiveInterfaces()
@@ -277,9 +346,10 @@ enum Info {
 
             let device = forDevice ?? currentActivePort?.device ?? "en0"
             let bytes = interfaceBytes(forDevice: device)
+            let addresses = getInterfaceAddresses()
 
             DispatchQueue.main.async {
-                onData(NetworkUsage(inBytes: bytes?.inBytes ?? 0, outBytes: bytes?.outBytes ?? 0), services, currentActivePort)
+                onData(NetworkUsage(inBytes: bytes?.inBytes ?? 0, outBytes: bytes?.outBytes ?? 0), services, currentActivePort, addresses)
             }
         }
     }

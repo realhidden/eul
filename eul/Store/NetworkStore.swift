@@ -19,6 +19,7 @@ class NetworkStore: ObservableObject, Refreshable {
     @Published var networkUsage = Info.NetworkUsage(inBytes: 0, outBytes: 0)
     @Published var ports = [Info.NetworkPort]()
     @Published var currentActivePort: Info.NetworkPort?
+    @Published var interfaceAddresses = [Info.InterfaceAddress]()
 
     @Published var inSpeedInByte: Double = 0
     @Published var outSpeedInByte: Double = 0
@@ -33,6 +34,57 @@ class NetworkStore: ObservableObject, Refreshable {
 
     var outSpeed: String {
         ByteUnit(outSpeedInByte).readableRate(inBits: SharedStore.preference.networkRateInBits)
+    }
+
+    /// Addresses grouped per adapter, in the user's configured service order
+    /// first (so Wi-Fi/Ethernet lead), then anything the service list doesn't
+    /// name — loopback, bridges, VPN utun links — in kernel order.
+    struct Adapter: Identifiable {
+        var device: String
+        /// the service name when configd knows one ("Wi-Fi"), else nil
+        var name: String?
+        var addresses: [Info.InterfaceAddress]
+
+        var id: String {
+            device
+        }
+
+        var title: String {
+            guard let name = name else {
+                return device
+            }
+            return "\(name) (\(device))"
+        }
+    }
+
+    var adapters: [Adapter] {
+        var order = [String]()
+        var grouped = [String: [Info.InterfaceAddress]]()
+        for address in interfaceAddresses {
+            if grouped[address.device] == nil {
+                order.append(address.device)
+            }
+            grouped[address.device, default: []].append(address)
+        }
+
+        let names = Dictionary(ports.map { ($0.device, $0.port) }, uniquingKeysWith: { first, _ in first })
+        let ranked = order.sorted { lhs, rhs in
+            let lhsRank = ports.firstIndex { $0.device == lhs } ?? Int.max
+            let rhsRank = ports.firstIndex { $0.device == rhs } ?? Int.max
+            if lhsRank != rhsRank {
+                return lhsRank < rhsRank
+            }
+            // stable tiebreak for everything configd doesn't rank
+            return (order.firstIndex(of: lhs) ?? 0) < (order.firstIndex(of: rhs) ?? 0)
+        }
+
+        return ranked.map { device in
+            // IPv4 before IPv6 so the address people actually quote leads
+            let addresses = (grouped[device] ?? []).sorted { lhs, rhs in
+                lhs.isIPv6 == rhs.isIPv6 ? lhs.address < rhs.address : !lhs.isIPv6
+            }
+            return Adapter(device: device, name: names[device] ?? nil, addresses: addresses)
+        }
     }
 
     var autoPortDesscription: String {
@@ -75,7 +127,7 @@ class NetworkStore: ObservableObject, Refreshable {
             networkUsageHasBeenSet = true
         }
 
-        Info.getNetworkUsage(forDevice: config.networkPortSelection.nilIfEmpty) { [self] current, ports, currentActivePort in
+        Info.getNetworkUsage(forDevice: config.networkPortSelection.nilIfEmpty) { [self] current, ports, currentActivePort, addresses in
             // delivered on the main queue (see Info.getNetworkUsage); ignore
             // results that arrive after a newer request superseded this one
             guard generation == requestGeneration else {
@@ -104,6 +156,12 @@ class NetworkStore: ObservableObject, Refreshable {
             networkUsage = current
             self.ports = ports
             self.currentActivePort = currentActivePort
+            if addresses.map({ $0.id }) != interfaceAddresses.map({ $0.id }) {
+                // every refresh re-reads them, but addresses change rarely —
+                // only publish on a real change so the panel doesn't re-render
+                // the whole adapter list every few seconds
+                interfaceAddresses = addresses
+            }
             consecutiveWatchdogFires = 0
             writeToContainer()
             networkUsageHasBeenSet = true

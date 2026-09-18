@@ -246,6 +246,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -300,6 +303,11 @@
 "settings.reset" = "Скинути до типових";
 "settings.value_only" = "Лише значення";
 "settings.value_only.desc" = "Прибрати підписи CPU / NET для компактнішої смуги";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "Очі в будь-якому разі залишаються в смузі меню — це вхід до eul.";
 "panel.tile.hide" = "Приховати %@";
 "fan.control.unsigned" = "Ця збірка не підписана — macOS встановлює помічники лише з підписаних застосунків. Підпишіть eul командою розробки, щоб увімкнути керування.";

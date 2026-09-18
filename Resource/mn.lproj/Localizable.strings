@@ -247,6 +247,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -301,6 +304,11 @@
 "settings.reset" = "Анхдагш руу буцаах";
 "settings.value_only" = "Зөвхөн утга";
 "settings.value_only.desc" = "CPU / NET шошгыг хасаж мөрийг нягтруулах";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "Нүднүүд ямар ч тохиолдолд мөрөнд үлдэнэ — eul-ийн орох цэг.";
 "panel.tile.hide" = "%@ нуух";
 "fan.control.unsigned" = "Энэ хувилбар гарын үсэггүй — macOS зөвхөн гарын үсэгтэй апп-уудын туслагчийг суулгана. Удирдлагыг идэвхжүүлэхийн тулд eul-ийг хөгжүүлэлтийн багаар гарын үсэг зуруулна уу.";

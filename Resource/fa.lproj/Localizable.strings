@@ -248,6 +248,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -302,6 +305,11 @@
 "settings.reset" = "بازنشانی به پیش‌فرض";
 "settings.value_only" = "فقط مقدارها";
 "settings.value_only.desc" = "حذف برچسب‌های CPU / NET برای نوار فشرده‌تر";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "چشم‌ها در هر صورت در نوار می‌مانند — آن‌ها ورودی eul هستند.";
 "panel.tile.hide" = "پنهان کردن %@";
 "fan.control.unsigned" = "این نسخه امضا نشده است — macOS فقط کمک‌رسان‌های برنامه‌های امضاشده را نصب می‌کند. برای فعال‌سازی کنترل، eul را با تیم توسعه امضا کنید.";

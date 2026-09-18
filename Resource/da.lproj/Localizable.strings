@@ -237,6 +237,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -291,6 +294,11 @@
 "settings.reset" = "Nulstil til standard";
 "settings.value_only" = "Kun værdier";
 "settings.value_only.desc" = "Fjern CPU / NET-etiketterne for en tættere bjælke";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "Øjnene bliver i bjælken uanset hvad — de er euls indgang.";
 "panel.tile.hide" = "Skjul %@";
 "fan.control.unsigned" = "Denne build er ikke signeret — macOS installerer kun hjælpere fra signerede apps. Signér eul med et udviklingsteam for at aktivere styring.";

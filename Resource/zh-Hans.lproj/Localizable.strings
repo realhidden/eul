@@ -249,6 +249,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -303,6 +306,11 @@
 "settings.reset" = "恢复默认设置";
 "settings.value_only" = "仅显示数值";
 "settings.value_only.desc" = "去掉 CPU / NET 标签，菜单栏更紧凑";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "无论如何，眼睛图标都会留在菜单栏——它是 eul 的入口。";
 "panel.tile.hide" = "隐藏%@";
 "fan.control.unsigned" = "此构建未签名——macOS 只安装来自已签名应用的助手。请使用开发者团队签名 eul 以启用控制。";

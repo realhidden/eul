@@ -247,6 +247,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -301,6 +304,11 @@
 "settings.reset" = "إعادة التعيين إلى الافتراضي";
 "settings.value_only" = "القيم فقط";
 "settings.value_only.desc" = "إزالة تسميات CPU / NET لشريط أكثر كثافة";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "تبقى العيون في الشريط على أي حال — فهي مدخل eul.";
 "panel.tile.hide" = "إخفاء %@";
 "fan.control.unsigned" = "هذا الإصدار غير موقَّع — يثبّت macOS المساعدين من التطبيقات الموقَّعة فقط. وقِّع eul بفريق تطوير لتمكين التحكم.";

@@ -246,6 +246,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -300,6 +303,11 @@
 "settings.reset" = "Restablecer valores predeterminados";
 "settings.value_only" = "Solo valores";
 "settings.value_only.desc" = "Quitar las etiquetas CPU / NET para una barra más compacta";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "Los ojos permanecen en la barra en cualquier caso: son la entrada de eul.";
 "panel.tile.hide" = "Ocultar %@";
 "fan.control.unsigned" = "Esta compilación no está firmada: macOS solo instala ayudantes de apps firmadas. Firma eul con un equipo de desarrollo para activar el control.";

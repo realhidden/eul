@@ -246,6 +246,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -300,6 +303,11 @@
 "settings.reset" = "မူရင်းအတိုင်း ပြန်သတ်မှတ်ရန်";
 "settings.value_only" = "တန်ဖိုးများသာ";
 "settings.value_only.desc" = "ဘားကို ကျစ်လစ်စေရန် CPU / NET တံဆိပ်များကို ဖယ်ရှားပါ";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "မျက်လုံးများသည် မည်သို့ပင်ဖြစ်စေ ဘားတွင် ကျန်ရှိနေမည် — ၎င်းတို့သည် eul ၏ ဝင်ပေါက်ဖြစ်သည်။";
 "panel.tile.hide" = "%@ ကို ဖျောက်ရန်";
 "fan.control.unsigned" = "ဤတည်ဆောက်မှုသည် လက်မှတ်မထိုးထားပါ — macOS သည် လက်မှတ်ထိုးထားသော အက်ပ်များမှ အကူများကိုသာ ထည့်သွင်းသည်။ ထိန်းချုပ်မှုဖွင့်ရန် eul ကို ဖွံ့ဖြိုးရေးအဖွဲ့ဖြင့် လက်မှတ်ထိုးပါ။";

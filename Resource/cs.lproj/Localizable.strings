@@ -246,6 +246,9 @@
 "panel.load" = "load";
 "panel.battery.sub" = "health %@ · %@ cycles";
 "panel.fans.system_managed" = "system managed";
+"panel.network.addresses" = "addresses";
+"panel.network.copied" = "copied";
+"panel.network.copy_hint" = "Click to copy";
 "panel.top_processes" = "Top Processes";
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
@@ -300,6 +303,11 @@
 "settings.reset" = "Obnovit výchozí";
 "settings.value_only" = "Pouze hodnoty";
 "settings.value_only.desc" = "Odebrat popisky CPU / NET pro hustší lištu";
+"settings.slot_style" = "Slot style";
+"settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"slot_style.full" = "Full";
+"slot_style.valueOnly" = "Value only";
+"slot_style.smart" = "Smart";
 "menu_bar.anchor_note" = "Oči v liště zůstávají v každém případě — jsou vstupem do eul.";
 "panel.tile.hide" = "Skrýt %@";
 "fan.control.unsigned" = "Toto sestavení není podepsané — macOS instaluje pomocníky jen z podepsaných aplikací. Podepište eul vývojářským týmem, abyste povolili ovládání.";

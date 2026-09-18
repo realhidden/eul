@@ -58,6 +58,10 @@ struct PanelView: View, SizeChangeView {
     @StateObject private var selfUsage = SelfUsageSampler()
     @State private var cpuExpanded = false
     @State private var fansExpanded = false
+    @State private var networkExpanded = false
+    /// the address most recently copied, so its row can confirm the copy;
+    /// cleared on a delay (see copyAddress)
+    @State private var copiedAddressID: String?
 
     var onSizeChange: ((CGSize) -> Void)?
 
@@ -293,11 +297,73 @@ struct PanelView: View, SizeChangeView {
         }
     }
 
-    private func networkTile() -> some View {
+    /// Copy one address and let its row say so. The panel is narrow enough
+    /// that long IPv6 addresses render truncated, so the click is the only
+    /// reliable way to get the full value out — the confirmation matters.
+    private func copyAddress(_ address: Info.InterfaceAddress) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(address.address, forType: .string)
+        copiedAddressID = address.id
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+            // a newer copy owns the confirmation now — leave it alone
+            if copiedAddressID == address.id {
+                copiedAddressID = nil
+            }
+        }
+    }
+
+    /// One tappable address. A Button (not a tap gesture) so the click is
+    /// consumed here instead of also reaching the tile's expand/collapse
+    /// gesture underneath.
+    private func addressButton(_ address: Info.InterfaceAddress) -> some View {
+        let copied = copiedAddressID == address.id
+        return Button(action: { copyAddress(address) }) {
+            Text(copied ? "panel.network.copied".localized() : address.address)
+                .font(Font.system(size: 11).monospacedDigit())
+                .foregroundColor(copied ? .primary : .primary.opacity(0.85))
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 1)
+                .background(
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.primary.opacity(copied ? 0.15 : 0))
+                )
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PlainButtonStyle())
+        .pointingHandCursor()
+        .help("panel.network.copy_hint".localized())
+        .accessibilityLabel("\(address.device) \(address.address)")
+        .accessibilityHint("panel.network.copy_hint".localized())
+    }
+
+    /// One adapter's addresses: the interface on the left, its bound
+    /// addresses stacked on the right so several on one adapter read as one
+    /// group rather than repeating the device name per row.
+    private func addressRow(_ adapter: NetworkStore.Adapter) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(adapter.title)
+                .font(.system(size: 11))
+                .foregroundColor(secondary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+            Spacer(minLength: 8)
+            VStack(alignment: .trailing, spacing: 1) {
+                ForEach(adapter.addresses) { address in
+                    addressButton(address)
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func networkTile() -> AnyView {
         // NetworkPort.description handles the optional port name ("Wi-Fi (en0)")
         let aux = networkStore.currentActivePort.map { $0.description }
         let historyMax = max(healthStore.networkHistory.max() ?? 1, 1)
-        return PanelTile(label: "component.network".localized().uppercased(), aux: aux) {
+        let adapters = networkStore.adapters
+        let tile = PanelTile(label: "component.network".localized().uppercased(), aux: aux) {
             HStack(spacing: 2) {
                 Text("↓").foregroundColor(secondary).font(.system(size: 11))
                 rateText(networkStore.inSpeedInByte)
@@ -309,7 +375,31 @@ struct PanelView: View, SizeChangeView {
             Sparkline(values: healthStore.networkHistory, maxValue: historyMax, animation: Motion.reduceMotionEnabled ? nil : .eulTween)
                 .frame(height: 22)
                 .padding(.top, 2)
+            if networkExpanded, !adapters.isEmpty {
+                tileDivider()
+                Text("panel.network.addresses".localized().uppercased())
+                    .font(DesignTokens.Typo.tileLabel)
+                    .tracking(0.6)
+                    .foregroundColor(secondary)
+                    .padding(.top, 6)
+                ForEach(adapters) { adapter in
+                    addressRow(adapter)
+                }
+            }
         }
+        // nothing to expand into until the first refresh has landed
+        guard !adapters.isEmpty else {
+            return AnyView(tile)
+        }
+        return AnyView(
+            tile
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    networkExpanded.toggle()
+                }
+                .pointingHandCursor()
+                .a11yExpandButton(label: "component.network".localized())
+        )
     }
 
     private func gpuTile() -> some View {
@@ -541,7 +631,11 @@ struct PanelView: View, SizeChangeView {
             rest.append(hideable(.memory, memoryTile()))
         }
         if !hidden(.network) {
-            rest.append(hideable(.network, networkTile()))
+            if networkExpanded {
+                fullWidth.append(hideable(.network, networkTile()))
+            } else {
+                rest.append(hideable(.network, networkTile()))
+            }
         }
         if !hidden(.gpu) {
             rest.append(hideable(.gpu, gpuTile()))
