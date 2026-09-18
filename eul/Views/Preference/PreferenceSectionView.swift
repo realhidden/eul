@@ -20,6 +20,23 @@ extension Preference {
             rawValue
         }
 
+        /// rail glyph; SF Symbols only, all present since macOS 13
+        var symbolName: String {
+            switch self {
+            case .general:
+                return "gearshape"
+            case .components:
+                return "menubar.rectangle"
+            case .health:
+                return "waveform.path.ecg"
+            }
+        }
+
+        /// one line under the pane title saying what the pane is for
+        var localizedCaption: String {
+            "ui.\(rawValue).caption".localized()
+        }
+
         var localizedDescription: String {
             switch self {
             case .general:
@@ -46,6 +63,10 @@ extension Preference {
                 activeSection = section
             }) {
                 HStack(spacing: 8) {
+                    Image(systemName: section.symbolName)
+                        .font(.system(size: 11, weight: .medium))
+                        .frame(width: 15)
+                        .opacity(isActive ? 0.9 : 0.55)
                     Text(section.localizedDescription)
                         .font(.system(size: 12, weight: isActive ? .semibold : .regular))
                     Spacer()

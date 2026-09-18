@@ -64,6 +64,17 @@ struct ContentView: View {
                 .frame(width: 1)
             ScrollView([.vertical], showsIndicators: false) {
                 VStack(alignment: .leading, spacing: DesignTokens.Panel.spacing) {
+                    // the pane says what it is for before it starts asking
+                    // questions — the rail label alone left "Menu Bar" vs
+                    // "General" ambiguous for the slot/appearance settings
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(uiStore.activeSection.localizedDescription)
+                            .font(.system(size: 20, weight: .semibold))
+                        Text(uiStore.activeSection.localizedCaption)
+                            .font(.system(size: 11.5))
+                            .foregroundColor(Settings.secondary)
+                    }
+                    .padding(.bottom, 2)
                     activePane
                 }
                 .padding(EdgeInsets(top: 36, leading: 16, bottom: 16, trailing: 16))

@@ -296,6 +296,10 @@
 "settings.value_only.desc" = "Fjern CPU / NET-etiketterne for en tættere bjælke";
 "settings.slot_style" = "Slot style";
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
+"settings.slot_style.preview" = "Preview";
+"ui.general.caption" = "Units, appearance, language, and how often eul samples.";
+"ui.components.caption" = "What appears in the menu bar and how it looks.";
+"ui.health.caption" = "Which conditions eul watches for and warns about.";
 "slot_style.full" = "Full";
 "slot_style.valueOnly" = "Value only";
 "slot_style.smart" = "Smart";
