@@ -10,13 +10,14 @@ import Foundation
 
 @available(macOSApplicationExtension 11, *)
 public struct CpuEntry: SharedWidgetEntry {
-    public init(date: Date = Date(), outdated: Bool = false, temp: Double? = nil, usageSystem: Double? = nil, usageUser: Double? = nil, usageNice: Double? = nil) {
+    public init(date: Date = Date(), outdated: Bool = false, temp: Double? = nil, usageSystem: Double? = nil, usageUser: Double? = nil, usageNice: Double? = nil, history: [Double] = []) {
         self.date = date
         self.outdated = outdated
         self.temp = temp
         self.usageSystem = usageSystem
         self.usageUser = usageUser
         self.usageNice = usageNice
+        self.history = history
     }
 
     public init(date: Date, outdated: Bool) {
@@ -34,6 +35,8 @@ public struct CpuEntry: SharedWidgetEntry {
     public var usageSystem: Double?
     public var usageUser: Double?
     public var usageNice: Double?
+    /// recent samples for the card's chart, oldest first
+    public var history: [Double] = []
 
     public var usageString: String {
         guard isValid, let usageSystem = usageSystem, let usageUser = usageUser else {

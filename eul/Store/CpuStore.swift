@@ -166,7 +166,8 @@ class CpuStore: ObservableObject, Refreshable {
             temp: temp,
             usageSystem: usageCPU?.system,
             usageUser: usageCPU?.user,
-            usageNice: usageCPU?.nice
+            usageNice: usageCPU?.nice,
+            history: SharedStore.health.cpuHistory
         ))
         WidgetReloader.requestReload(ofKind: CpuEntry.kind)
     }

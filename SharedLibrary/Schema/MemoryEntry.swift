@@ -10,12 +10,13 @@ import Foundation
 
 @available(macOSApplicationExtension 11, *)
 public struct MemoryEntry: SharedWidgetEntry {
-    public init(date: Date = Date(), outdated: Bool = false, used: Double = 0, total: Double = 0, temp: Double? = nil) {
+    public init(date: Date = Date(), outdated: Bool = false, used: Double = 0, total: Double = 0, temp: Double? = nil, history: [Double] = []) {
         self.date = date
         self.outdated = outdated
         self.used = used
         self.total = total
         self.temp = temp
+        self.history = history
     }
 
     public init(date: Date, outdated: Bool) {
@@ -32,6 +33,8 @@ public struct MemoryEntry: SharedWidgetEntry {
     public var used: Double = 0
     public var total: Double = 0
     public var temp: Double?
+    /// recent samples for the card's chart, oldest first
+    public var history: [Double] = []
 
     var usedPercentage: Double {
         used / total * 100

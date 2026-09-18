@@ -9,11 +9,12 @@
 import Foundation
 
 public struct NetworkEntry: SharedWidgetEntry {
-    public init(date: Date = Date(), outdated: Bool = false, inSpeedInByte: Double = 0, outSpeedInByte: Double = 0) {
+    public init(date: Date = Date(), outdated: Bool = false, inSpeedInByte: Double = 0, outSpeedInByte: Double = 0, history: [Double] = []) {
         self.date = date
         self.outdated = outdated
         self.inSpeedInByte = inSpeedInByte
         self.outSpeedInByte = outSpeedInByte
+        self.history = history
     }
 
     public init(date: Date, outdated: Bool) {
@@ -29,4 +30,6 @@ public struct NetworkEntry: SharedWidgetEntry {
     public var outdated = false
     public var inSpeedInByte: Double = 0
     public var outSpeedInByte: Double = 0
+    /// recent samples for the card's chart, oldest first
+    public var history: [Double] = []
 }

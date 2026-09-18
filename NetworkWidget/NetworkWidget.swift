@@ -22,35 +22,52 @@ struct NetworkWidgetEntryView: View {
 
     var body: some View {
         ZStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Spacer()
-                HStack(spacing: 4) {
-                    Image("Up")
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center, spacing: 5) {
+                    Image("Network")
                         .resizable()
                         .frame(width: 12, height: 12)
-                    Text("network.out".localized())
-                        .font(.system(size: 12, weight: .semibold))
-                        .fixedSize()
+                        .opacity(0.6)
+                    Text("eul")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.secondary)
                     Spacer()
                 }
-                .foregroundColor(Color.secondary)
-                Text(ByteUnit(entry.outSpeedInByte).readable + "/s")
-                    .widgetDisplayText()
-                    .padding(.bottom, 12)
-                HStack(spacing: 4) {
-                    Image("Down")
-                        .resizable()
-                        .frame(width: 12, height: 12)
-                    Text("network.in".localized())
-                        .font(.system(size: 12, weight: .semibold))
-                        .fixedSize()
-                    Spacer()
+                Spacer(minLength: 6)
+                HStack(alignment: .top, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(ByteUnit(entry.inSpeedInByte).readable + "/s")
+                            .widgetDisplayText()
+                        HStack(spacing: 3) {
+                            Image("Down")
+                                .resizable()
+                                .frame(width: 9, height: 9)
+                            Text("network.in".localized())
+                                .font(.system(size: 10))
+                                .fixedSize()
+                        }
+                        .foregroundColor(.thirdary)
+                    }
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(ByteUnit(entry.outSpeedInByte).readable + "/s")
+                            .widgetDisplayText()
+                        HStack(spacing: 3) {
+                            Image("Up")
+                                .resizable()
+                                .frame(width: 9, height: 9)
+                            Text("network.out".localized())
+                                .font(.system(size: 10))
+                                .fixedSize()
+                        }
+                        .foregroundColor(.thirdary)
+                    }
+                    Spacer(minLength: 0)
                 }
-                .foregroundColor(Color.secondary)
-                Text(ByteUnit(entry.inSpeedInByte).readable + "/s")
-                    .widgetDisplayText()
-                Spacer()
+                Spacer(minLength: 8)
+                WidgetBars(values: entry.history)
+                    .frame(height: 32)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
             if !entry.isValid {
                 WidgetNotAvailbleView(text: "widget.not_available".localized())

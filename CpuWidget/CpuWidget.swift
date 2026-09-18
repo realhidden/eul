@@ -22,41 +22,39 @@ struct CpuWidgetEntryView: View {
 
     var body: some View {
         ZStack {
-            VStack(spacing: 8) {
-                Spacer()
-                HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center, spacing: 5) {
                     Image("CPU")
                         .resizable()
                         .frame(width: 12, height: 12)
+                        .opacity(0.6)
+                    Text("eul")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.secondary)
                     Spacer()
+                }
+                Spacer(minLength: 6)
+                Text(entry.usageString)
+                    .widgetTitle()
+                HStack(spacing: 6) {
                     if let temp = entry.temp {
                         Text(temp.formatTemp(unit: preferenceEntry.temperatureUnit))
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(.secondary)
                     }
-                }
-                HStack {
-                    Text(entry.usageString)
-                        .widgetTitle()
-                    Spacer()
-                }
-                .padding(.bottom, 24)
-                HStack {
-                    Group {
-                        if let usageSystem = entry.usageSystem {
-                            WidgetSectionView(title: "cpu.system".localized(), value: String(format: "%.1f%%", usageSystem))
-                        }
-                        if let usageUser = entry.usageUser {
-                            WidgetSectionView(title: "cpu.user".localized(), value: String(format: "%.1f%%", usageUser))
-                        }
-                        if let usageNice = entry.usageNice {
-                            WidgetSectionView(title: "cpu.nice".localized(), value: String(format: "%.1f%%", usageNice))
-                        }
+                    if let usageUser = entry.usageUser, let usageSystem = entry.usageSystem {
+                        Text(String(format: "%@ %.0f%% · %@ %.0f%%", "cpu.user".localized(), usageUser, "cpu.system".localized(), usageSystem))
+                            .font(.system(size: 10))
+                            .foregroundColor(.thirdary)
+                            .lineLimit(1)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                Spacer()
+                .padding(.top, 1)
+                Spacer(minLength: 8)
+                WidgetBars(values: entry.history)
+                    .frame(height: 34)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
             if !entry.isValid {
                 WidgetNotAvailbleView(text: "widget.not_available".localized())

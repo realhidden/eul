@@ -79,7 +79,7 @@ class MemoryStore: ObservableObject, Refreshable {
         guard WidgetReloader.shouldWrite(kind: MemoryEntry.kind) else {
             return
         }
-        Container.set(MemoryEntry(used: used, total: total, temp: temp))
+        Container.set(MemoryEntry(used: used, total: total, temp: temp, history: SharedStore.health.memoryHistory))
         WidgetReloader.requestReload(ofKind: MemoryEntry.kind)
     }
 

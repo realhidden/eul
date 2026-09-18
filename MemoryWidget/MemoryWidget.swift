@@ -22,12 +22,15 @@ struct MemoryWidgetEntryView: View {
 
     var body: some View {
         ZStack {
-            VStack(spacing: 8) {
-                Spacer()
-                HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center, spacing: 5) {
                     Image("Memory")
                         .resizable()
                         .frame(width: 12, height: 12)
+                        .opacity(0.6)
+                    Text("eul")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.secondary)
                     Spacer()
                     if let temp = entry.temp {
                         Text(temp.formatTemp(unit: preferenceEntry.temperatureUnit))
@@ -35,23 +38,21 @@ struct MemoryWidgetEntryView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-                HStack {
-                    Text(entry.usageString)
-                        .widgetTitle()
-                    Spacer()
-                }
-                .padding(.bottom, 24)
+                Spacer(minLength: 6)
+                Text(entry.usageString)
+                    .widgetTitle()
                 if entry.isValid {
-                    HStack {
-                        Group {
-                            WidgetSectionView(title: "memory.usage".localized(), value: entry.used.memoryString)
-                            WidgetSectionView(title: "memory.free".localized(), value: (entry.total - entry.used).memoryString)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+                    Text("\(entry.used.memoryString) / \(entry.total.memoryString)")
+                        .font(.system(size: 10))
+                        .foregroundColor(.thirdary)
+                        .lineLimit(1)
+                        .padding(.top, 1)
                 }
-                Spacer()
+                Spacer(minLength: 8)
+                WidgetBars(values: entry.history)
+                    .frame(height: 34)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
             if !entry.isValid {
                 WidgetNotAvailbleView(text: "widget.not_available".localized())

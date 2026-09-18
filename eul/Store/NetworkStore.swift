@@ -172,7 +172,7 @@ class NetworkStore: ObservableObject, Refreshable {
         guard WidgetReloader.shouldWrite(kind: NetworkEntry.kind) else {
             return
         }
-        Container.set(NetworkEntry(inSpeedInByte: inSpeedInByte, outSpeedInByte: outSpeedInByte))
+        Container.set(NetworkEntry(inSpeedInByte: inSpeedInByte, outSpeedInByte: outSpeedInByte, history: SharedStore.health.networkHistory))
         WidgetReloader.requestReload(ofKind: NetworkEntry.kind)
     }
 
