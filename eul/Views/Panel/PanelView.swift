@@ -221,17 +221,20 @@ struct PanelView: View, SizeChangeView {
             RollingNumber(cpuStore.usage) { String(format: "%.0f%%", $0) }
                 .font(DesignTokens.Typo.hero)
                 .foregroundColor(severity.accent ?? .primary)
-            Sparkline(values: healthStore.cpuHistory, maxValue: 100, color: severity.accent ?? .primary, animation: Motion.reduceMotionEnabled ? nil : .eulTween)
+            PanelBars(values: healthStore.cpuHistory, color: severity.accent ?? .primary)
                 .frame(height: 22)
                 .padding(.top, 2)
             Text(severity != .normal ? healthStore.verdictText : String(format: "panel.cores".localized(), cpuStore.logicalCores))
                 .font(DesignTokens.Typo.sub)
                 .foregroundColor(secondary)
                 .padding(.top, 2)
+            // the per-core grid is the tile's most-asked question ("which
+            // cores?"), so it no longer hides behind the expand — the tap now
+            // only reveals the load averages
+            tileDivider()
+            CoreGrid(usages: cpuStore.coreUsages, labels: cpuStore.coreLabels, accent: severity.accent)
+                .padding(.top, 8)
             if cpuIsExpanded {
-                tileDivider()
-                CoreGrid(usages: cpuStore.coreUsages, labels: cpuStore.coreLabels, accent: severity.accent)
-                    .padding(.top, 8)
                 Text("\("panel.load".localized()) \(cpuStore.loadAverage1MinString) · \(cpuStore.loadAverage5MinString) · \(cpuStore.loadAverage15MinString)\(cpuStore.upTimeString.map { "  ·  \(String(format: "panel.up".localized(), $0))" } ?? "")")
                     .font(DesignTokens.Typo.sub)
                     .foregroundColor(secondary)
@@ -276,6 +279,9 @@ struct PanelView: View, SizeChangeView {
                 .foregroundColor(secondary)
                 .lineLimit(1)
                 .padding(.top, 2)
+            PanelBars(values: healthStore.memoryHistory, color: severity.accent ?? .primary)
+                .frame(height: 16)
+                .padding(.top, 3)
         }
     }
 
@@ -361,7 +367,6 @@ struct PanelView: View, SizeChangeView {
     private func networkTile() -> AnyView {
         // NetworkPort.description handles the optional port name ("Wi-Fi (en0)")
         let aux = networkStore.currentActivePort.map { $0.description }
-        let historyMax = max(healthStore.networkHistory.max() ?? 1, 1)
         let adapters = networkStore.adapters
         let tile = PanelTile(label: "component.network".localized().uppercased(), aux: aux) {
             HStack(spacing: 2) {
@@ -372,7 +377,7 @@ struct PanelView: View, SizeChangeView {
                 Text("↑").foregroundColor(secondary).font(.system(size: 11))
                 rateText(networkStore.outSpeedInByte)
             }
-            Sparkline(values: healthStore.networkHistory, maxValue: historyMax, animation: Motion.reduceMotionEnabled ? nil : .eulTween)
+            PanelBars(values: healthStore.networkHistory)
                 .frame(height: 22)
                 .padding(.top, 2)
             if networkExpanded, !adapters.isEmpty {
@@ -414,6 +419,9 @@ struct PanelView: View, SizeChangeView {
         ) {
             RollingNumber(gpuStore.usageAverage) { String(format: "%.0f%%", $0) }
                 .font(DesignTokens.Typo.hero)
+            PanelBars(values: healthStore.gpuHistory)
+                .frame(height: 16)
+                .padding(.top, 3)
             Spacer(minLength: 0)
             Text(sub)
                 .font(DesignTokens.Typo.sub)
@@ -695,15 +703,15 @@ struct PanelView: View, SizeChangeView {
         switch uiStore.panelLens {
         case .cpu:
             return topStore.cpuTopProcesses.prefix(6).map {
-                AnyView(PanelProcessRow(icon: $0.runningApp?.icon, name: $0.displayName, value: String(format: "%.1f%%", $0.value)))
+                AnyView(PanelProcessRow(icon: $0.runningApp?.icon, name: $0.displayName, value: String(format: "%.1f%%", $0.value), pid: $0.pid))
             }
         case .memory:
             return topStore.ramTopProcesses.prefix(6).map {
-                AnyView(PanelProcessRow(icon: $0.runningApp?.icon, name: $0.displayName, value: ByteUnit(megaBytes: $0.usageAmount).readable))
+                AnyView(PanelProcessRow(icon: $0.runningApp?.icon, name: $0.displayName, value: ByteUnit(megaBytes: $0.usageAmount).readable, pid: $0.pid))
             }
         case .network:
             return networkTopStore.processes.prefix(6).map {
-                AnyView(PanelProcessRow(icon: $0.runningApp?.icon, name: $0.displayName, value: "↓ " + ByteUnit($0.value.inSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits)))
+                AnyView(PanelProcessRow(icon: $0.runningApp?.icon, name: $0.displayName, value: "↓ " + ByteUnit($0.value.inSpeedInByte).readableRate(inBits: preferenceStore.networkRateInBits), pid: $0.pid))
             }
         }
     }
