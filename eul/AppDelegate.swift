@@ -164,6 +164,13 @@ extension AppDelegate {
         NSStatusBar.system.thickness
     }
 
+    /// The Preferences… menu item carries the standard ⌘, but was never
+    /// connected to anything, so the shortcut silently did nothing. It now
+    /// reaches the delegate through the responder chain.
+    @IBAction func showPreferences(_: Any?) {
+        AppDelegate.openPreferences()
+    }
+
     static func openPreferences() {
         let delegate = NSApp.delegate as! AppDelegate
         let window = delegate.window!
