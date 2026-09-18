@@ -33,6 +33,7 @@ class StatusBarManager {
     /// governor's current cap on visible slots; reset whenever the user
     /// reconfigures the pinned set or the screen layout changes
     private var slotLimit = Int.max
+    private var lastDropAt = Date.distantPast
     /// Lock screen, display sleep, and system sleep mark EVERY status-item
     /// window occluded. Without this gate the 3 s confirm windows fire across
     /// those periods (queued notifications + stale timers run at wake while
@@ -309,7 +310,7 @@ class StatusBarManager {
         if strip.isVisible, strip.isOccluded {
             // confirm before acting: lid close, screen lock, and monitor
             // switches all false-positive occlusion briefly
-            confirm(after: 3) { [weak self] in
+            confirm(after: 8) { [weak self] in
                 guard
                     let self = self, self.occlusionVerdictAllowed, !self.isMenuBarLikelyHidden,
                     self.strip.isVisible, self.strip.isOccluded
@@ -350,6 +351,15 @@ class StatusBarManager {
     }
 
     private func dropSlot() {
+        // cooldown: don't drop again within 5 seconds of a previous drop to
+        // prevent rapid feedback loops from parking/placement artifacts
+        if Date().timeIntervalSince(lastDropAt) < 5 {
+            Print("width governor: cooldown, skipping drop")
+            scheduleReprobe()
+            return
+        }
+        lastDropAt = Date()
+
         // an override-pinned strip at zero governed slots IS the floor —
         // there is nothing left to drop, so a persistent occlusion here is
         // the hidden-bar case, not width pressure (otherwise the toggle

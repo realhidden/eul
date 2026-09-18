@@ -38,15 +38,24 @@ class BaseStatusItem: NSObject {
     /// on notched macOS 15: not-visible for items that are plainly in the
     /// bar, visible for items parked offscreen) — the window frame is the
     /// reliable signal. macOS parks an unplaceable item just below the
-    /// screen origin at (0, -height); a placed item sits flush with a
-    /// screen's top edge.
+    /// screen origin at (0, -height); a placed item sits in a screen's menu
+    /// bar band.
+    ///
+    /// The vertical test needs real slack rather than a flush comparison:
+    /// a placed item's window can overhang the screen top (observed on
+    /// macOS 26: maxY is exactly 1 pt above screen.frame.maxY). The former
+    /// `abs(dY) < 1` read that as parked and collapsed the whole strip one
+    /// slot at a time, so the bar emptied itself within minutes. The band is
+    /// still ~3 orders of magnitude tighter than the distance to a genuinely
+    /// parked item, which sits a full screen height below.
     var isOccluded: Bool {
         guard item.isVisible, let window = item.button?.window else {
             return false
         }
         let frame = window.frame
+        let band = max(NSStatusBar.system.thickness, frame.height)
         return !NSScreen.screens.contains { screen in
-            abs(frame.maxY - screen.frame.maxY) < 1
+            abs(frame.maxY - screen.frame.maxY) <= band
                 && frame.minX >= screen.frame.minX - 1
                 && frame.maxX <= screen.frame.maxX + 1
         }
