@@ -1,0 +1,9 @@
+eul
+build/
+tests/test_crypto
+tests/test_json
+tests/test_mqtt
+tests/compat_bin
+tests/compat_keys.txt
+tests/compat_swift_sealed.txt
+tests/compat_c_sealed.txt

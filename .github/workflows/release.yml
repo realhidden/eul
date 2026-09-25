@@ -7,7 +7,46 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Ubuntu 20.04's glibc 2.31 runs on Debian 11+, Ubuntu 20.04+ and Raspberry
+  # Pi OS bullseye+ (Debian 11's own archive is gone since its LTS ended);
+  # dynamic on purpose so NVIDIA's NVML can be loaded at runtime
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            platform: linux/amd64
+          - arch: arm64
+            platform: linux/arm64
+          - arch: armv7
+            platform: linux/arm/v7
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - name: Build and test on glibc 2.31
+        run: |
+          docker run --rm --platform ${{ matrix.platform }} -v "$PWD/linux:/src" -w /src ubuntu:20.04 sh -c '
+            export DEBIAN_FRONTEND=noninteractive &&
+            apt-get update -qq && apt-get install -y -qq gcc make file >/dev/null &&
+            make clean && make CFLAGS="-O2 -Werror" && make test &&
+            ./eul --json > /dev/null && file ./eul'
+
+      - name: Package
+        run: |
+          mkdir -p "dist/eul-linux-${{ matrix.arch }}"
+          cp linux/eul linux/README.md linux/eul-cli.service "dist/eul-linux-${{ matrix.arch }}/"
+          tar -C dist -czf "eul-linux-${{ matrix.arch }}.tar.gz" "eul-linux-${{ matrix.arch }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eul-linux-${{ matrix.arch }}
+          path: eul-linux-${{ matrix.arch }}.tar.gz
+
   release:
+    needs: linux
     runs-on: macos-latest
     permissions:
       contents: write
@@ -69,10 +108,17 @@ jobs:
           cd ./build/Build/Products/Release
           zip -r -y "$GITHUB_WORKSPACE/eul.app.zip" eul.app
 
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: eul-linux-*
+          merge-multiple: true
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: eul.app.zip
+          files: |
+            eul.app.zip
+            eul-linux-*.tar.gz
           generate_release_notes: true
           draft: false
           prerelease: false

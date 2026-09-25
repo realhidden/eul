@@ -31,6 +31,13 @@ A calm system monitor for the macOS menu bar — this fork revives and redesigns
 
 macOS 13+ (Ventura) — every target in the project builds against a 13.0 deployment target. Fan control additionally needs a signed build so the privileged helper can be approved. Universal: Apple Silicon + Intel.
 
+## Linux servers & Raspberry Pi
+
+There is a command line variant for Debian, Ubuntu and the Raspberry Pi:
+one C99 binary, no dependencies, built with `make` — and it speaks the
+same sealed peer protocol, so your servers show up in the Mac menu bar
+(and the other way around). See [`linux/README.md`](linux/README.md).
+
 ## Installation
 
 ### Download

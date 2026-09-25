@@ -32,3 +32,17 @@ jobs:
           xcodebuild -scheme eul -project ./eul.xcodeproj build \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" \
             CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" | xcbeautify
+
+  Linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test (glibc, warnings as errors)
+        run: make -C linux CFLAGS="-O2 -Werror" test
+      - name: Sanitizers
+        run: |
+          make -C linux clean
+          make -C linux CFLAGS="-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all" \
+            LDFLAGS="-fsanitize=address,undefined" test
+          ./linux/eul --json > /dev/null
+          ./linux/eul --once --no-color

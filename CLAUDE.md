@@ -91,3 +91,16 @@ Each widget target shares data through `SharedLibrary/Container` which accepts w
 ### Localization
 
 `Resource/` contains `.lproj` directories with `Localizable.strings` for each language. Strings are localized via `Localize-Swift` using `.localized()` calls throughout the codebase.
+
+## Linux CLI variant
+
+`linux/` holds the terminal monitor for Debian/Ubuntu/RPi: plain C99 +
+POSIX, no dependencies, builds with `make` (glibc and musl, x86_64/arm64/
+armv7). Dashboard/JSON output in `linux/src/main.c`; sampling in
+`linux/src/stats.c` (per-consumer `stats_ctx` — the peer sharer samples on
+its own cadence). It implements the eul-peer protocol from
+`eul/Store/PeerDiscoveryStore.swift` in `linux/src/peer.c` (PBKDF2 → HKDF
+→ ChaChaPoly over plain-TCP MQTT, port 1883 equivalents of the Mac app's
+brokers); crypto primitives live in `linux/src/crypto.c` and must stay
+byte-compatible with CryptoKit — `make -C linux test` runs RFC vectors,
+`make -C linux compat` (macOS only) cross-checks against the Swift side.

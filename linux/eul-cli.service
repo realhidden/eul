@@ -1,0 +1,20 @@
+[Unit]
+Description=eul system monitor (peer sharing)
+Documentation=https://github.com/realhidden/eul
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/eul --headless
+EnvironmentFile=-/etc/default/eul
+Restart=on-failure
+RestartSec=10
+# /proc and /sys are world-readable; no privileges needed
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
