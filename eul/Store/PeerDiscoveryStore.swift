@@ -128,8 +128,23 @@ class PeerDiscoveryStore: ObservableObject {
 
     // MARK: lifecycle
 
+    /// strong but still easy to type by hand on the other Mac: 4 groups of
+    /// 5 from an alphabet without look-alikes (0/o, 1/l/i), ~99 bits
+    static func generateSecret() -> String {
+        let alphabet = Array("abcdefghjkmnpqrstuvwxyz23456789")
+        var generator = SystemRandomNumberGenerator()
+        return (0..<4)
+            .map { _ in String((0..<5).map { _ in alphabet.randomElement(using: &generator)! }) }
+            .joined(separator: "-")
+    }
+
+    /// below this a typed secret is guessable offline from the public topic
+    static let strongSecretLength = 12
+
     private func restart(secret: String) {
         stop()
+        // a stray space from copying the secret over must not split peers
+        let secret = secret.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !secret.isEmpty else {
             return
         }

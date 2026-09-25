@@ -309,6 +309,8 @@
 "settings.peers" = "Mac ใกล้เคียง";
 "settings.peers.secret" = "รหัสลับที่ใช้ร่วมกัน";
 "settings.peers.secret.desc" = "Mac ที่เรียกใช้ eul ด้วยรหัสลับเดียวกันจะแชร์สถิติกัน — บนเครือข่ายท้องถิ่น และผ่านอินเทอร์เน็ตด้วยรีเลย์สาธารณะ ทุกอย่างเข้ารหัสแบบต้นทางถึงปลายทาง";
+"settings.peers.secret.weak" = "รหัสลับที่สั้นอาจถูกเดาได้โดยใครก็ตามที่เฝ้าดูรีเลย์สาธารณะ ใช้ปุ่มสร้างเพื่อรับรหัสที่รัดกุม";
+"settings.peers.generate" = "สร้าง";
 "settings.peers.searching" = "กำลังค้นหา Mac เครื่องอื่น…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "อินเทอร์เน็ต";

@@ -310,6 +310,8 @@
 "settings.peers" = "أجهزة Mac القريبة";
 "settings.peers.secret" = "السر المشترك";
 "settings.peers.secret.desc" = "تتشارك أجهزة Mac التي تشغّل eul بالسر نفسه إحصاءاتها — على الشبكة المحلية، وعبر الإنترنت من خلال مُرحِّل عام. كل شيء مشفّر من طرف إلى طرف.";
+"settings.peers.secret.weak" = "يمكن لأي شخص يراقب المُرحِّل العام تخمين السر القصير. استخدم «إنشاء» للحصول على سر قوي.";
+"settings.peers.generate" = "إنشاء";
 "settings.peers.searching" = "جارٍ البحث عن أجهزة Mac أخرى…";
 "settings.peers.lan" = "محلي";
 "settings.peers.internet" = "الإنترنت";

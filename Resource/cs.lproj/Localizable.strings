@@ -309,6 +309,8 @@
 "settings.peers" = "Macy v okolí";
 "settings.peers.secret" = "Sdílené tajemství";
 "settings.peers.secret.desc" = "Macy s eul a stejným tajemstvím sdílejí své statistiky — v místní síti i přes internet pomocí veřejného relé. Vše je šifrováno end-to-end.";
+"settings.peers.secret.weak" = "Krátké tajemství může uhodnout kdokoli, kdo sleduje veřejné relé. Silné získáte tlačítkem Vygenerovat.";
+"settings.peers.generate" = "Vygenerovat";
 "settings.peers.searching" = "Hledání dalších Maců…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Internet";

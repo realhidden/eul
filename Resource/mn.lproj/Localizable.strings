@@ -310,6 +310,8 @@
 "settings.peers" = "Ойролцоох Mac";
 "settings.peers.secret" = "Нийтлэг нууц үг";
 "settings.peers.secret.desc" = "Ижил нууц үгтэй eul ажиллуулж буй Mac-ууд статистикаа хуваалцана — дотоод сүлжээнд болон нийтийн дамжуулагчаар дамжуулан интернэтээр. Бүгд төгсгөл хоорондын шифрлэлттэй.";
+"settings.peers.secret.weak" = "Богино нууц үгийг нийтийн дамжуулагчийг ажиглаж буй хэн ч таах боломжтой. Хүчтэй нууц үг авахын тулд Үүсгэх-ийг ашиглана уу.";
+"settings.peers.generate" = "Үүсгэх";
 "settings.peers.searching" = "Бусад Mac-ийг хайж байна…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Интернэт";

@@ -310,6 +310,8 @@
 "settings.peers" = "Közeli Macek";
 "settings.peers.secret" = "Közös titok";
 "settings.peers.secret.desc" = "Az azonos titkot használó, eul-t futtató Macek megosztják egymással az adataikat — a helyi hálózaton és az interneten, egy nyilvános továbbítón keresztül. Minden végpontok között titkosított.";
+"settings.peers.secret.weak" = "A rövid titkot bárki kitalálhatja, aki figyeli a nyilvános továbbítót. Erős titokhoz használd a Generálás gombot.";
+"settings.peers.generate" = "Generálás";
 "settings.peers.searching" = "Más Macek keresése…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Internet";

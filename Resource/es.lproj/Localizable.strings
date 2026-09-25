@@ -309,6 +309,8 @@
 "settings.peers" = "Macs cercanos";
 "settings.peers.secret" = "Secreto compartido";
 "settings.peers.secret.desc" = "Los Mac que ejecutan eul con el mismo secreto comparten sus estadísticas: en la red local y por internet a través de un relé público. Todo va cifrado de extremo a extremo.";
+"settings.peers.secret.weak" = "Cualquiera que observe el relé público puede adivinar un secreto corto. Usa Generar para obtener uno seguro.";
+"settings.peers.generate" = "Generar";
 "settings.peers.searching" = "Buscando otros Mac…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Internet";

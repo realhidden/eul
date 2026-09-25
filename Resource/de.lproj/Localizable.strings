@@ -309,6 +309,8 @@
 "settings.peers" = "Macs in der Nähe";
 "settings.peers.secret" = "Gemeinsames Geheimnis";
 "settings.peers.secret.desc" = "Macs mit eul und demselben Geheimnis teilen ihre Werte – im lokalen Netzwerk und über das Internet via öffentlichem Relay. Alles ist Ende-zu-Ende-verschlüsselt.";
+"settings.peers.secret.weak" = "Kurze Geheimnisse kann jeder erraten, der das öffentliche Relay beobachtet. Mit „Erzeugen“ erhältst du ein starkes.";
+"settings.peers.generate" = "Erzeugen";
 "settings.peers.searching" = "Suche nach anderen Macs …";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Internet";

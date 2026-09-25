@@ -311,6 +311,8 @@
 "settings.peers" = "مک‌های نزدیک";
 "settings.peers.secret" = "رمز مشترک";
 "settings.peers.secret.desc" = "مک‌هایی که eul را با رمز یکسان اجرا می‌کنند آمارشان را به اشتراک می‌گذارند — در شبکهٔ محلی و از طریق اینترنت با یک رلهٔ عمومی. همه‌چیز رمزگذاری سرتاسری دارد.";
+"settings.peers.secret.weak" = "هر کسی که رلهٔ عمومی را زیر نظر دارد می‌تواند رمز کوتاه را حدس بزند. برای رمز قوی از «ایجاد» استفاده کنید.";
+"settings.peers.generate" = "ایجاد";
 "settings.peers.searching" = "در حال جستجوی مک‌های دیگر…";
 "settings.peers.lan" = "محلی";
 "settings.peers.internet" = "اینترنت";

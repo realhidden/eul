@@ -302,6 +302,8 @@ Copyright © 2020 Gao Sun. All rights reserved.
 "settings.peers" = "Macar i närheten";
 "settings.peers.secret" = "Delad hemlighet";
 "settings.peers.secret.desc" = "Macar med eul och samma hemlighet delar sin statistik — i det lokala nätverket och över internet via ett offentligt relä. Allt är end-to-end-krypterat.";
+"settings.peers.secret.weak" = "Korta hemligheter kan gissas av alla som bevakar det offentliga reläet. Använd Generera för en stark.";
+"settings.peers.generate" = "Generera";
 "settings.peers.searching" = "Söker efter andra Macar…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Internet";

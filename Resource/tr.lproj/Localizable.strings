@@ -309,6 +309,8 @@
 "settings.peers" = "Yakındaki Mac’ler";
 "settings.peers.secret" = "Paylaşılan gizli anahtar";
 "settings.peers.secret.desc" = "Aynı gizli anahtarla eul çalıştıran Mac’ler istatistiklerini paylaşır — yerel ağda ve herkese açık bir aktarıcı üzerinden internette. Her şey uçtan uca şifrelenir.";
+"settings.peers.secret.weak" = "Kısa gizli anahtarlar, herkese açık aktarıcıyı izleyen herkes tarafından tahmin edilebilir. Güçlü bir tane için Oluştur’u kullanın.";
+"settings.peers.generate" = "Oluştur";
 "settings.peers.searching" = "Diğer Mac’ler aranıyor…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "İnternet";

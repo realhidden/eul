@@ -173,16 +173,33 @@ extension Preference {
             return parts.joined(separator: " · ")
         }
 
+        private var isSecretWeak: Bool {
+            let length = preference.sharedSecret.trimmingCharacters(in: .whitespacesAndNewlines).count
+            return length > 0 && length < PeerDiscoveryStore.strongSecretLength
+        }
+
         private var peersCard: some View {
             Settings.Card(title: "settings.peers".localized()) {
                 Settings.Row(
                     title: "settings.peers.secret".localized(),
                     caption: "settings.peers.secret.desc".localized()
                 ) {
-                    TextField("", text: $preference.sharedSecret)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .controlSize(.small)
-                        .frame(width: 150)
+                    HStack(spacing: 8) {
+                        TextField("", text: $preference.sharedSecret)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .font(.system(size: 11, design: .monospaced))
+                            .controlSize(.small)
+                            .frame(width: 190)
+                        Settings.QuietButton(title: "settings.peers.generate".localized()) {
+                            preference.sharedSecret = PeerDiscoveryStore.generateSecret()
+                        }
+                    }
+                }
+                if isSecretWeak {
+                    Text("settings.peers.secret.weak".localized())
+                        .font(.system(size: 10.5))
+                        .foregroundColor(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 if !preference.sharedSecret.isEmpty {
                     Settings.RowDivider()

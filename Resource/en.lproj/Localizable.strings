@@ -312,6 +312,8 @@
 "settings.peers" = "Nearby Macs";
 "settings.peers.secret" = "Shared secret";
 "settings.peers.secret.desc" = "Macs running eul with the same secret share their stats — on the local network, and over the internet through a public relay. Everything is end-to-end encrypted.";
+"settings.peers.secret.weak" = "Short secrets can be guessed by anyone watching the public relay. Use Generate for a strong one.";
+"settings.peers.generate" = "Generate";
 "settings.peers.searching" = "Looking for other Macs…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Internet";

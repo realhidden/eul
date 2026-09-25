@@ -300,6 +300,8 @@
 "settings.peers" = "Macs i nærheden";
 "settings.peers.secret" = "Delt hemmelighed";
 "settings.peers.secret.desc" = "Macs med eul og samme hemmelighed deler deres statistik — på det lokale netværk og over internettet via et offentligt relæ. Alt er end-to-end-krypteret.";
+"settings.peers.secret.weak" = "Korte hemmeligheder kan gættes af alle, der overvåger det offentlige relæ. Brug Generér for at få en stærk.";
+"settings.peers.generate" = "Generér";
 "settings.peers.searching" = "Søger efter andre Macs…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Internet";

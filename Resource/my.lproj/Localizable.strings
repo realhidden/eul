@@ -309,6 +309,8 @@
 "settings.peers" = "အနီးရှိ Mac များ";
 "settings.peers.secret" = "မျှဝေထားသော လျှို့ဝှက်ချက်";
 "settings.peers.secret.desc" = "တူညီသော လျှို့ဝှက်ချက်ဖြင့် eul ကို run နေသော Mac များသည် local network ပေါ်တွင်နှင့် public relay မှတစ်ဆင့် အင်တာနက်ပေါ်တွင် စာရင်းအချက်အလက်များကို မျှဝေပါသည်။ အားလုံးကို end-to-end စာဝှက်ထားပါသည်။";
+"settings.peers.secret.weak" = "တိုတောင်းသော လျှို့ဝှက်ချက်ကို public relay ကို စောင့်ကြည့်နေသူ မည်သူမဆို ခန့်မှန်းနိုင်ပါသည်။ ခိုင်မာသော လျှို့ဝှက်ချက်အတွက် ဖန်တီးရန် ကို သုံးပါ။";
+"settings.peers.generate" = "ဖန်တီးရန်";
 "settings.peers.searching" = "အခြား Mac များကို ရှာနေသည်…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "အင်တာနက်";

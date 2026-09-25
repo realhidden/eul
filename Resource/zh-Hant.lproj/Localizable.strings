@@ -310,6 +310,8 @@
 "settings.peers" = "附近的 Mac";
 "settings.peers.secret" = "共享密鑰";
 "settings.peers.secret.desc" = "使用相同密鑰執行 eul 的 Mac 會共享彼此的統計資料——在區域網路中，以及透過公共中繼在網際網路上。所有資料皆為端對端加密。";
+"settings.peers.secret.weak" = "較短的密鑰可能被監看公共中繼的任何人猜出。請使用「產生」取得強密鑰。";
+"settings.peers.generate" = "產生";
 "settings.peers.searching" = "正在尋找其他 Mac…";
 "settings.peers.lan" = "區域網路";
 "settings.peers.internet" = "網際網路";

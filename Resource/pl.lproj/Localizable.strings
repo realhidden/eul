@@ -309,6 +309,8 @@
 "settings.peers" = "Pobliskie Maki";
 "settings.peers.secret" = "Wspólny sekret";
 "settings.peers.secret.desc" = "Maki z eul i tym samym sekretem udostępniają sobie statystyki — w sieci lokalnej i przez internet za pośrednictwem publicznego przekaźnika. Wszystko jest szyfrowane end-to-end.";
+"settings.peers.secret.weak" = "Krótki sekret może odgadnąć każdy, kto obserwuje publiczny przekaźnik. Użyj Generuj, aby uzyskać silny.";
+"settings.peers.generate" = "Generuj";
 "settings.peers.searching" = "Szukanie innych Maków…";
 "settings.peers.lan" = "LAN";
 "settings.peers.internet" = "Internet";
