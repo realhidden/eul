@@ -253,6 +253,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Dieser Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -307,9 +308,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Macs in der Nähe";
+"settings.peers.enabled" = "Werte mit anderen Macs teilen";
 "settings.peers.secret" = "Gemeinsames Geheimnis";
-"settings.peers.secret.desc" = "Macs mit eul und demselben Geheimnis teilen ihre Werte – im lokalen Netzwerk und über das Internet via öffentlichem Relay. Alles ist Ende-zu-Ende-verschlüsselt.";
-"settings.peers.secret.weak" = "Kurze Geheimnisse kann jeder erraten, der das öffentliche Relay beobachtet. Mit „Erzeugen“ erhältst du ein starkes.";
+"settings.peers.secret.desc" = "Gleiches Geheimnis auf jedem Mac. Ende-zu-Ende-verschlüsselt.";
+"settings.peers.secret.weak" = "Kurze Geheimnisse sind erratbar. Nutze „Erzeugen“.";
 "settings.peers.generate" = "Erzeugen";
 "settings.peers.searching" = "Suche nach anderen Macs …";
 "settings.peers.lan" = "LAN";

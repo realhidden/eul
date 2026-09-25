@@ -255,6 +255,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "این مک";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -309,9 +310,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "مک‌های نزدیک";
+"settings.peers.enabled" = "اشتراک آمار با مک‌های دیگر";
 "settings.peers.secret" = "رمز مشترک";
-"settings.peers.secret.desc" = "مک‌هایی که eul را با رمز یکسان اجرا می‌کنند آمارشان را به اشتراک می‌گذارند — در شبکهٔ محلی و از طریق اینترنت با یک رلهٔ عمومی. همه‌چیز رمزگذاری سرتاسری دارد.";
-"settings.peers.secret.weak" = "هر کسی که رلهٔ عمومی را زیر نظر دارد می‌تواند رمز کوتاه را حدس بزند. برای رمز قوی از «ایجاد» استفاده کنید.";
+"settings.peers.secret.desc" = "رمز یکسان روی هر مک. رمزگذاری سرتاسری.";
+"settings.peers.secret.weak" = "رمز کوتاه قابل حدس است. از «ایجاد» استفاده کنید.";
 "settings.peers.generate" = "ایجاد";
 "settings.peers.searching" = "در حال جستجوی مک‌های دیگر…";
 "settings.peers.lan" = "محلی";

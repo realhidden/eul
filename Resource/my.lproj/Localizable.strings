@@ -253,6 +253,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "ဤ Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -307,9 +308,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "အနီးရှိ Mac များ";
+"settings.peers.enabled" = "အခြား Mac များနှင့် စာရင်းအချက်အလက် မျှဝေရန်";
 "settings.peers.secret" = "မျှဝေထားသော လျှို့ဝှက်ချက်";
-"settings.peers.secret.desc" = "တူညီသော လျှို့ဝှက်ချက်ဖြင့် eul ကို run နေသော Mac များသည် local network ပေါ်တွင်နှင့် public relay မှတစ်ဆင့် အင်တာနက်ပေါ်တွင် စာရင်းအချက်အလက်များကို မျှဝေပါသည်။ အားလုံးကို end-to-end စာဝှက်ထားပါသည်။";
-"settings.peers.secret.weak" = "တိုတောင်းသော လျှို့ဝှက်ချက်ကို public relay ကို စောင့်ကြည့်နေသူ မည်သူမဆို ခန့်မှန်းနိုင်ပါသည်။ ခိုင်မာသော လျှို့ဝှက်ချက်အတွက် ဖန်တီးရန် ကို သုံးပါ။";
+"settings.peers.secret.desc" = "Mac တိုင်းတွင် တူညီသော လျှို့ဝှက်ချက်။ End-to-end စာဝှက်ထားသည်။";
+"settings.peers.secret.weak" = "တိုသော လျှို့ဝှက်ချက်ကို ခန့်မှန်းနိုင်သည်။ ဖန်တီးရန် ကို သုံးပါ။";
 "settings.peers.generate" = "ဖန်တီးရန်";
 "settings.peers.searching" = "အခြား Mac များကို ရှာနေသည်…";
 "settings.peers.lan" = "LAN";

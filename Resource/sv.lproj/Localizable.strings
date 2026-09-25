@@ -246,6 +246,7 @@ Copyright © 2020 Gao Sun. All rights reserved.
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Den här Macen";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -300,9 +301,10 @@ Copyright © 2020 Gao Sun. All rights reserved.
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Macar i närheten";
+"settings.peers.enabled" = "Dela statistik med andra Macar";
 "settings.peers.secret" = "Delad hemlighet";
-"settings.peers.secret.desc" = "Macar med eul och samma hemlighet delar sin statistik — i det lokala nätverket och över internet via ett offentligt relä. Allt är end-to-end-krypterat.";
-"settings.peers.secret.weak" = "Korta hemligheter kan gissas av alla som bevakar det offentliga reläet. Använd Generera för en stark.";
+"settings.peers.secret.desc" = "Samma hemlighet på varje Mac. End-to-end-krypterat.";
+"settings.peers.secret.weak" = "Korta hemligheter kan gissas. Använd Generera.";
 "settings.peers.generate" = "Generera";
 "settings.peers.searching" = "Söker efter andra Macar…";
 "settings.peers.lan" = "LAN";

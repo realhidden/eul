@@ -253,6 +253,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Bu Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -307,9 +308,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Yakındaki Mac’ler";
+"settings.peers.enabled" = "İstatistikleri diğer Mac’lerle paylaş";
 "settings.peers.secret" = "Paylaşılan gizli anahtar";
-"settings.peers.secret.desc" = "Aynı gizli anahtarla eul çalıştıran Mac’ler istatistiklerini paylaşır — yerel ağda ve herkese açık bir aktarıcı üzerinden internette. Her şey uçtan uca şifrelenir.";
-"settings.peers.secret.weak" = "Kısa gizli anahtarlar, herkese açık aktarıcıyı izleyen herkes tarafından tahmin edilebilir. Güçlü bir tane için Oluştur’u kullanın.";
+"settings.peers.secret.desc" = "Her Mac’te aynı gizli anahtar. Uçtan uca şifreli.";
+"settings.peers.secret.weak" = "Kısa anahtarlar tahmin edilebilir. Oluştur’u kullanın.";
 "settings.peers.generate" = "Oluştur";
 "settings.peers.searching" = "Diğer Mac’ler aranıyor…";
 "settings.peers.lan" = "LAN";

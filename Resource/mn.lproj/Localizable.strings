@@ -254,6 +254,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Энэ Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -308,9 +309,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Ойролцоох Mac";
+"settings.peers.enabled" = "Бусад Mac-тай статистик хуваалцах";
 "settings.peers.secret" = "Нийтлэг нууц үг";
-"settings.peers.secret.desc" = "Ижил нууц үгтэй eul ажиллуулж буй Mac-ууд статистикаа хуваалцана — дотоод сүлжээнд болон нийтийн дамжуулагчаар дамжуулан интернэтээр. Бүгд төгсгөл хоорондын шифрлэлттэй.";
-"settings.peers.secret.weak" = "Богино нууц үгийг нийтийн дамжуулагчийг ажиглаж буй хэн ч таах боломжтой. Хүчтэй нууц үг авахын тулд Үүсгэх-ийг ашиглана уу.";
+"settings.peers.secret.desc" = "Mac бүр дээр ижил нууц үг. Төгсгөл хоорондын шифрлэлттэй.";
+"settings.peers.secret.weak" = "Богино нууц үгийг таах боломжтой. Үүсгэх-ийг ашиглана уу.";
 "settings.peers.generate" = "Үүсгэх";
 "settings.peers.searching" = "Бусад Mac-ийг хайж байна…";
 "settings.peers.lan" = "LAN";

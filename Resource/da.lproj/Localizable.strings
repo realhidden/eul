@@ -244,6 +244,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Denne Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -298,9 +299,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Macs i nærheden";
+"settings.peers.enabled" = "Del statistik med andre Macs";
 "settings.peers.secret" = "Delt hemmelighed";
-"settings.peers.secret.desc" = "Macs med eul og samme hemmelighed deler deres statistik — på det lokale netværk og over internettet via et offentligt relæ. Alt er end-to-end-krypteret.";
-"settings.peers.secret.weak" = "Korte hemmeligheder kan gættes af alle, der overvåger det offentlige relæ. Brug Generér for at få en stærk.";
+"settings.peers.secret.desc" = "Samme hemmelighed på hver Mac. End-to-end-krypteret.";
+"settings.peers.secret.weak" = "Korte hemmeligheder kan gættes. Brug Generér.";
 "settings.peers.generate" = "Generér";
 "settings.peers.searching" = "Søger efter andre Macs…";
 "settings.peers.lan" = "LAN";

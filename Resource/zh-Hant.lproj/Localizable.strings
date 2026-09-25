@@ -254,6 +254,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "這台 Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -308,9 +309,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "附近的 Mac";
+"settings.peers.enabled" = "與其他 Mac 共享統計資料";
 "settings.peers.secret" = "共享密鑰";
-"settings.peers.secret.desc" = "使用相同密鑰執行 eul 的 Mac 會共享彼此的統計資料——在區域網路中，以及透過公共中繼在網際網路上。所有資料皆為端對端加密。";
-"settings.peers.secret.weak" = "較短的密鑰可能被監看公共中繼的任何人猜出。請使用「產生」取得強密鑰。";
+"settings.peers.secret.desc" = "每台 Mac 使用相同密鑰。端對端加密。";
+"settings.peers.secret.weak" = "短密鑰容易被猜出。請使用「產生」。";
 "settings.peers.generate" = "產生";
 "settings.peers.searching" = "正在尋找其他 Mac…";
 "settings.peers.lan" = "區域網路";

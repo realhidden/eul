@@ -180,28 +180,29 @@ extension Preference {
 
         private var peersCard: some View {
             Settings.Card(title: "settings.peers".localized()) {
-                Settings.Row(
-                    title: "settings.peers.secret".localized(),
-                    caption: "settings.peers.secret.desc".localized()
-                ) {
-                    HStack(spacing: 8) {
-                        TextField("", text: $preference.sharedSecret)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .font(.system(size: 11, design: .monospaced))
-                            .controlSize(.small)
-                            .frame(width: 190)
-                        Settings.QuietButton(title: "settings.peers.generate".localized()) {
-                            preference.sharedSecret = PeerDiscoveryStore.generateSecret()
+                Settings.ToggleRow(title: "settings.peers.enabled".localized(), isOn: $preference.peerSyncEnabled)
+                Settings.RowDivider()
+                // the field gets the full row, the caption goes underneath —
+                // beside a 190pt field it wrapped into a tall column
+                VStack(alignment: .leading, spacing: 4) {
+                    Settings.Row(title: "settings.peers.secret".localized()) {
+                        HStack(spacing: 8) {
+                            TextField("", text: $preference.sharedSecret)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .font(.system(size: 11, design: .monospaced))
+                                .controlSize(.small)
+                                .frame(width: 190)
+                            Settings.QuietButton(title: "settings.peers.generate".localized()) {
+                                preference.sharedSecret = PeerDiscoveryStore.generateSecret()
+                            }
                         }
                     }
-                }
-                if isSecretWeak {
-                    Text("settings.peers.secret.weak".localized())
+                    Text((isSecretWeak ? "settings.peers.secret.weak" : "settings.peers.secret.desc").localized())
                         .font(.system(size: 10.5))
-                        .foregroundColor(.orange)
+                        .foregroundColor(isSecretWeak ? .orange : Settings.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                if !preference.sharedSecret.isEmpty {
+                if preference.peerSyncEnabled, !preference.sharedSecret.isEmpty {
                     Settings.RowDivider()
                     if peerDiscovery.peers.isEmpty {
                         Text("settings.peers.searching".localized())

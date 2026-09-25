@@ -54,6 +54,7 @@ struct PanelView: View, SizeChangeView {
     @EnvironmentObject var networkTopStore: NetworkTopStore
     @EnvironmentObject var preferenceStore: PreferenceStore
     @EnvironmentObject var fanControl: FanControlStore
+    @EnvironmentObject var peerDiscovery: PeerDiscoveryStore
 
     @StateObject private var selfUsage = SelfUsageSampler()
     @State private var cpuExpanded = false
@@ -62,6 +63,14 @@ struct PanelView: View, SizeChangeView {
     /// the address most recently copied, so its row can confirm the copy;
     /// cleared on a delay (see copyAddress)
     @State private var copiedAddressID: String?
+    /// the peer picked in the footer; nil is this Mac. Reset on every close
+    /// so the panel always opens on the local machine
+    @State private var remotePeerID: String?
+
+    /// nil also when the picked peer has since gone away
+    private var remotePeer: PeerDiscoveryStore.Peer? {
+        remotePeerID.flatMap { id in peerDiscovery.peers.first { $0.id == id } }
+    }
 
     var onSizeChange: ((CGSize) -> Void)?
 
@@ -117,16 +126,30 @@ struct PanelView: View, SizeChangeView {
         .accessibilityLabel(Text(label))
     }
 
+    /// a remote peer has no verdict of ours to show — its name takes the
+    /// title, its uptime and path the subtitle
     private var titleRow: some View {
-        HStack(spacing: 10) {
-            EyesGlyph(state: healthStore.glyphState, width: 17)
+        let title: String
+        let subtitle: String
+        if let peer = remotePeer {
+            title = peer.name
+            let path = (peer.via.contains(.lan) ? "settings.peers.lan" : "settings.peers.internet").localized()
+            subtitle = [peer.stats.uptime.map { String(format: "panel.up".localized(), $0) }, path]
+                .compactMap { $0 }
+                .joined(separator: " · ")
+        } else {
+            title = healthStore.verdictText
+            subtitle = subtitleText
+        }
+        return HStack(spacing: 10) {
+            EyesGlyph(state: remotePeer == nil ? healthStore.glyphState : .normal, width: 17)
             VStack(alignment: .leading, spacing: 1) {
-                Text(healthStore.verdictText)
+                Text(title)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(verdictColor)
+                    .foregroundColor(remotePeer == nil ? verdictColor : .primary)
                     .fixedSize(horizontal: false, vertical: true)
-                if !subtitleText.isEmpty {
-                    Text(subtitleText)
+                if !subtitle.isEmpty {
+                    Text(subtitle)
                         .font(.system(size: 11))
                         .foregroundColor(secondary)
                         .lineLimit(1)
@@ -760,6 +783,31 @@ struct PanelView: View, SizeChangeView {
 
     // MARK: footer
 
+    /// which Mac the panel shows — this one, or a peer sharing the secret
+    private var sourcePicker: some View {
+        Menu {
+            Toggle("panel.source.local".localized(), isOn: Binding(
+                get: { remotePeer == nil },
+                set: { _ in remotePeerID = nil }
+            ))
+            Divider()
+            ForEach(peerDiscovery.peers) { peer in
+                Toggle(peer.name, isOn: Binding(
+                    get: { remotePeer?.id == peer.id },
+                    set: { _ in remotePeerID = peer.id }
+                ))
+            }
+        } label: {
+            Text(remotePeer?.name ?? "panel.source.local".localized())
+                .lineLimit(1)
+        }
+        .menuStyle(BorderlessButtonMenuStyle())
+        .controlSize(.small)
+        .frame(maxWidth: 120)
+        .fixedSize(horizontal: true, vertical: false)
+        .pointingHandCursor()
+    }
+
     private var footer: some View {
         VStack(spacing: 0) {
             Rectangle()
@@ -767,8 +815,12 @@ struct PanelView: View, SizeChangeView {
                 .frame(height: 1)
                 .padding(.top, 10)
             HStack {
-                Text(String(format: "panel.updated_every".localized(), "\(preferenceStore.smcRefreshRate) s"))
-                Spacer()
+                Text(String(format: "panel.updated_every".localized(), "\(remotePeer == nil ? preferenceStore.smcRefreshRate : Int(PeerDiscoveryStore.interval)) s"))
+                Spacer(minLength: 6)
+                if !peerDiscovery.peers.isEmpty {
+                    sourcePicker
+                    Spacer(minLength: 6)
+                }
                 Text(String(format: "panel.self_usage".localized(), selfUsage.percentString))
             }
             .font(DesignTokens.Typo.sub)
@@ -780,8 +832,12 @@ struct PanelView: View, SizeChangeView {
     var body: some View {
         VStack(spacing: 0) {
             header
-            tileGrid
-            processSection
+            if let peer = remotePeer {
+                PanelRemoteTiles(peer: peer)
+            } else {
+                tileGrid
+                processSection
+            }
             footer
         }
         .padding(DesignTokens.Panel.padding)
@@ -800,6 +856,8 @@ struct PanelView: View, SizeChangeView {
         .onReceive(uiStore.$menuOpened) { opened in
             if opened {
                 bluetoothStore.fetchAsync()
+            } else {
+                remotePeerID = nil
             }
         }
         .id(preferenceStore.language)

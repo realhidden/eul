@@ -127,6 +127,9 @@ class PreferenceStore: ObservableObject {
     /// Macs running eul with the same secret discover each other on the
     /// local network (PeerDiscoveryStore); empty turns discovery off
     @Published var sharedSecret = ""
+    /// the explicit on/off for peer sharing; the secret alone no longer
+    /// turns it on
+    @Published var peerSyncEnabled = false
 
     var json: JSON {
         JSON([
@@ -142,6 +145,7 @@ class PreferenceStore: ObservableObject {
             "appearance": appearanceMode.rawValue,
             "upgradeMethod": upgradeMethod.rawValue,
             "sharedSecret": sharedSecret,
+            "peerSyncEnabled": peerSyncEnabled,
 
         ])
     }
@@ -243,6 +247,12 @@ class PreferenceStore: ObservableObject {
                 }
                 if let raw = data["sharedSecret"].string {
                     sharedSecret = raw
+                }
+                if let value = data["peerSyncEnabled"].bool {
+                    peerSyncEnabled = value
+                } else {
+                    // 2.2 synced whenever a secret was set — keep it syncing
+                    peerSyncEnabled = !sharedSecret.isEmpty
                 }
             } catch {
                 print("Unable to get preference data from user defaults")

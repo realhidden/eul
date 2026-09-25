@@ -253,6 +253,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "この Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -307,9 +308,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "近くのMac";
+"settings.peers.enabled" = "他の Mac と統計を共有";
 "settings.peers.secret" = "共有シークレット";
-"settings.peers.secret.desc" = "同じシークレットで eul を実行している Mac 同士が統計情報を共有します — ローカルネットワーク上と、公開リレー経由のインターネット上で。すべてエンドツーエンドで暗号化されます。";
-"settings.peers.secret.weak" = "短いシークレットは、公開リレーを監視している人に推測される可能性があります。「生成」で強力なものを作成してください。";
+"settings.peers.secret.desc" = "各 Mac で同じシークレット。エンドツーエンド暗号化。";
+"settings.peers.secret.weak" = "短いシークレットは推測されます。「生成」を使ってください。";
 "settings.peers.generate" = "生成";
 "settings.peers.searching" = "他の Mac を検索中…";
 "settings.peers.lan" = "LAN";

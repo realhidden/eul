@@ -253,6 +253,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Ten Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -307,9 +308,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Pobliskie Maki";
+"settings.peers.enabled" = "Udostępniaj statystyki innym Makom";
 "settings.peers.secret" = "Wspólny sekret";
-"settings.peers.secret.desc" = "Maki z eul i tym samym sekretem udostępniają sobie statystyki — w sieci lokalnej i przez internet za pośrednictwem publicznego przekaźnika. Wszystko jest szyfrowane end-to-end.";
-"settings.peers.secret.weak" = "Krótki sekret może odgadnąć każdy, kto obserwuje publiczny przekaźnik. Użyj Generuj, aby uzyskać silny.";
+"settings.peers.secret.desc" = "Ten sam sekret na każdym Macu. Szyfrowanie end-to-end.";
+"settings.peers.secret.weak" = "Krótki sekret da się odgadnąć. Użyj Generuj.";
 "settings.peers.generate" = "Generuj";
 "settings.peers.searching" = "Szukanie innych Maków…";
 "settings.peers.lan" = "LAN";

@@ -254,6 +254,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Ez a Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -308,9 +309,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Közeli Macek";
+"settings.peers.enabled" = "Adatok megosztása más Macekkel";
 "settings.peers.secret" = "Közös titok";
-"settings.peers.secret.desc" = "Az azonos titkot használó, eul-t futtató Macek megosztják egymással az adataikat — a helyi hálózaton és az interneten, egy nyilvános továbbítón keresztül. Minden végpontok között titkosított.";
-"settings.peers.secret.weak" = "A rövid titkot bárki kitalálhatja, aki figyeli a nyilvános továbbítót. Erős titokhoz használd a Generálás gombot.";
+"settings.peers.secret.desc" = "Minden Macen ugyanaz a titok. Végpontok között titkosítva.";
+"settings.peers.secret.weak" = "A rövid titok kitalálható. Használd a Generálás gombot.";
 "settings.peers.generate" = "Generálás";
 "settings.peers.searching" = "Más Macek keresése…";
 "settings.peers.lan" = "LAN";

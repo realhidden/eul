@@ -35,6 +35,20 @@ class PeerDiscoveryStore: ObservableObject {
         var temperatureUnit: TemperatureUnit
         var networkIn: Double
         var networkOut: Double
+        // below: added in 2.3 for the panel's remote view — optional so 2.2
+        // peers still decode, and still read ours
+        /// per-core usage %, in CpuStore.coreLabels order
+        var cores: [Int]?
+        /// first letter of each core label (P/E/C), for the core grid clusters
+        var coreKinds: String?
+        /// GB
+        var memoryApp: Double?
+        var memoryWired: Double?
+        var memoryCompressed: Double?
+        var memoryTotal: Double?
+        var diskFree: UInt64?
+        var diskTotal: UInt64?
+        var uptime: String?
 
         func temperature(in unit: TemperatureUnit) -> Double? {
             guard let value = temperature else {
@@ -60,6 +74,14 @@ class PeerDiscoveryStore: ObservableObject {
         var stats: Stats
         var via: Set<Transport>
         var lastSeen: Date
+        /// sender clock of the newest snapshot, to drop the duplicate that
+        /// arrives over the other transport (and anything out of order)
+        var lastSentAt = Date.distantPast
+        /// built from received snapshots, for the panel's bar charts
+        var cpuHistory: [Double] = []
+        var memoryHistory: [Double] = []
+        var gpuHistory: [Double] = []
+        var networkHistory: [Double] = []
     }
 
     @Published private(set) var peers: [Peer] = []
@@ -80,12 +102,16 @@ class PeerDiscoveryStore: ObservableObject {
 
     private static let serviceType = "_eul-peer._udp"
     private static let tokenKey = "t"
-    private static let interval: TimeInterval = 5
+    static let interval: TimeInterval = 5
+    /// 10 minutes of snapshots
+    private static let historyLength = 120
     /// three missed snapshots and the peer is gone
     private static let expiry: TimeInterval = 16
     /// replayed snapshots older than this are dropped
     private static let maxAge: TimeInterval = 60
-    /// free, open brokers — tried in order, moving on when one fails
+    /// free, open brokers — all joined at once: two peers that each fell back
+    /// to a different broker would otherwise never meet. Snapshots arrive
+    /// once per broker; `lastSentAt` keeps just the first
     private static let brokers = [
         MQTTClient.Broker(host: "broker.emqx.io", port: 8883),
         MQTTClient.Broker(host: "broker.hivemq.com", port: 8883),
@@ -109,12 +135,16 @@ class PeerDiscoveryStore: ObservableObject {
     private var outbound: [String: NWConnection] = [:]
     /// flows from LAN peers, as the listener accepts them
     private var inbound: [ObjectIdentifier: NWConnection] = [:]
-    private var relay: MQTTClient?
+    private var relays: [MQTTClient] = []
 
     init() {
         // the settings field changes the secret per keystroke — settle
         // before tearing down and re-registering everything
-        cancellable = SharedStore.preference.$sharedSecret
+        let preference = SharedStore.preference
+        cancellable = Publishers.CombineLatest(preference.$sharedSecret, preference.$peerSyncEnabled)
+            .map { secret, enabled in
+                enabled ? secret : ""
+            }
             .removeDuplicates()
             .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
             .sink { [weak self] in
@@ -154,12 +184,14 @@ class PeerDiscoveryStore: ObservableObject {
         advertise(token: keys.lanToken)
         browse(token: keys.lanToken)
 
-        let relay = MQTTClient(brokers: Self.brokers, topic: keys.topic)
-        relay.onMessage = { [weak self] in
-            self?.receive($0, via: .relay)
+        relays = Self.brokers.map { broker in
+            let relay = MQTTClient(brokers: [broker], topic: keys.topic)
+            relay.onMessage = { [weak self] in
+                self?.receive($0, via: .relay)
+            }
+            relay.start()
+            return relay
         }
-        relay.start()
-        self.relay = relay
 
         timer = Timer.scheduledTimer(withTimeInterval: Self.interval, repeats: true) { [weak self] _ in
             self?.tick()
@@ -169,8 +201,8 @@ class PeerDiscoveryStore: ObservableObject {
     private func stop() {
         timer?.invalidate()
         timer = nil
-        relay?.stop()
-        relay = nil
+        relays.forEach { $0.stop() }
+        relays = []
         listener?.cancel()
         listener = nil
         browser?.cancel()
@@ -195,7 +227,7 @@ class PeerDiscoveryStore: ObservableObject {
         for value in outbound.values {
             value.send(content: payload, completion: .idempotent)
         }
-        relay?.publish(payload)
+        relays.forEach { $0.publish(payload) }
     }
 
     // MARK: snapshots
@@ -223,15 +255,26 @@ class PeerDiscoveryStore: ObservableObject {
     }
 
     private func currentStats() -> Stats {
+        let cpu = SharedStore.cpu
         let memory = SharedStore.memory
+        let hasMemory = memory.total > 0
         return Stats(
-            cpu: SharedStore.cpu.usage,
-            memory: memory.total > 0 ? memory.usedPercentage : nil,
+            cpu: cpu.usage,
+            memory: hasMemory ? memory.usedPercentage : nil,
             gpu: SharedStore.gpu.usageAverage,
-            temperature: SharedStore.cpu.temp,
+            temperature: cpu.temp,
             temperatureUnit: SmcControl.shared.tempUnit,
             networkIn: SharedStore.network.inSpeedInByte,
-            networkOut: SharedStore.network.outSpeedInByte
+            networkOut: SharedStore.network.outSpeedInByte,
+            cores: cpu.coreUsages.isEmpty ? nil : cpu.coreUsages.map { Int($0.rounded()) },
+            coreKinds: cpu.coreLabels.isEmpty ? nil : cpu.coreLabels.map { String($0.prefix(1)) }.joined(),
+            memoryApp: hasMemory ? memory.appMemory : nil,
+            memoryWired: hasMemory ? memory.wired : nil,
+            memoryCompressed: hasMemory ? memory.compressed : nil,
+            memoryTotal: hasMemory ? memory.total : nil,
+            diskFree: SharedStore.disk.freeBytes,
+            diskTotal: SharedStore.disk.ceilingBytes,
+            uptime: cpu.upTimeString
         )
     }
 
@@ -260,10 +303,23 @@ class PeerDiscoveryStore: ObservableObject {
         }
 
         var peer = table[snapshot.id] ?? Peer(id: snapshot.id, name: snapshot.name, stats: snapshot.stats, via: [], lastSeen: Date())
-        peer.name = snapshot.name
-        peer.stats = snapshot.stats
         peer.via.insert(transport)
         peer.lastSeen = Date()
+        if snapshot.sentAt > peer.lastSentAt {
+            peer.lastSentAt = snapshot.sentAt
+            peer.name = snapshot.name
+            peer.stats = snapshot.stats
+            func push(_ buffer: inout [Double], _ value: Double) {
+                buffer.append(value)
+                if buffer.count > Self.historyLength {
+                    buffer.removeFirst(buffer.count - Self.historyLength)
+                }
+            }
+            push(&peer.cpuHistory, snapshot.stats.cpu ?? 0)
+            push(&peer.memoryHistory, snapshot.stats.memory ?? 0)
+            push(&peer.gpuHistory, snapshot.stats.gpu ?? 0)
+            push(&peer.networkHistory, snapshot.stats.networkIn)
+        }
         table[snapshot.id] = peer
         publishPeers()
     }

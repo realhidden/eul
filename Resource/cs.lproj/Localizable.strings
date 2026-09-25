@@ -253,6 +253,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Tento Mac";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -307,9 +308,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Macy v okolí";
+"settings.peers.enabled" = "Sdílet statistiky s dalšími Macy";
 "settings.peers.secret" = "Sdílené tajemství";
-"settings.peers.secret.desc" = "Macy s eul a stejným tajemstvím sdílejí své statistiky — v místní síti i přes internet pomocí veřejného relé. Vše je šifrováno end-to-end.";
-"settings.peers.secret.weak" = "Krátké tajemství může uhodnout kdokoli, kdo sleduje veřejné relé. Silné získáte tlačítkem Vygenerovat.";
+"settings.peers.secret.desc" = "Stejné tajemství na každém Macu. Šifrováno end-to-end.";
+"settings.peers.secret.weak" = "Krátké tajemství lze uhodnout. Použijte Vygenerovat.";
 "settings.peers.generate" = "Vygenerovat";
 "settings.peers.searching" = "Hledání dalších Maců…";
 "settings.peers.lan" = "LAN";

@@ -253,6 +253,7 @@
 "panel.collecting" = "Collecting…";
 "panel.updated_every" = "Updated every %@";
 "panel.self_usage" = "eul is using %@ CPU";
+"panel.source.local" = "Этот Мак";
 "notification.hidden.title" = "eul is hidden";
 "notification.hidden.body" = "Your menu bar is full. Open eul to choose what to show.";
 "ui.menu_bar" = "Menu Bar";
@@ -307,9 +308,10 @@
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Маки поблизости";
+"settings.peers.enabled" = "Делиться статистикой с другими Маками";
 "settings.peers.secret" = "Общий секрет";
-"settings.peers.secret.desc" = "Маки с eul и одинаковым секретом обмениваются статистикой — в локальной сети и через интернет с помощью публичного ретранслятора. Всё защищено сквозным шифрованием.";
-"settings.peers.secret.weak" = "Короткий секрет может угадать любой, кто наблюдает за публичным ретранслятором. Нажмите «Создать», чтобы получить надёжный.";
+"settings.peers.secret.desc" = "Один и тот же секрет на каждом Маке. Сквозное шифрование.";
+"settings.peers.secret.weak" = "Короткий секрет можно угадать. Нажмите «Создать».";
 "settings.peers.generate" = "Создать";
 "settings.peers.searching" = "Поиск других Маков…";
 "settings.peers.lan" = "LAN";
