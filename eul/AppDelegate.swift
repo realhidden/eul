@@ -63,6 +63,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         SmcControl.shared.subscribe()
         StatusBarManager.shared.checkVisibilityIfNeeded()
         GlobalHotKey.register()
+        // advertise from launch, not from the first Settings visit
+        _ = SharedStore.peerDiscovery
         // clicking the "eul is hidden" notification must lead somewhere:
         // it opens the panel centered, same as relaunch and the hotkey.
         // Guarded like RecoveryNotifier — UN APIs throw for unbundled builds.

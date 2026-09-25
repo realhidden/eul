@@ -307,6 +307,10 @@
 "settings.slot_style" = "Slot style";
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
+"settings.peers" = "أجهزة Mac القريبة";
+"settings.peers.secret" = "السر المشترك";
+"settings.peers.secret.desc" = "تعثر أجهزة Mac التي تشغّل eul بالسر نفسه على بعضها في الشبكة المحلية.";
+"settings.peers.searching" = "جارٍ البحث عن أجهزة Mac أخرى…";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

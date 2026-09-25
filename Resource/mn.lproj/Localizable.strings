@@ -307,6 +307,10 @@
 "settings.slot_style" = "Slot style";
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
+"settings.peers" = "Ойролцоох Mac";
+"settings.peers.secret" = "Нийтлэг нууц үг";
+"settings.peers.secret.desc" = "Ижил нууц үгтэй eul ажиллуулж буй Mac-ууд дотоод сүлжээнд бие биеэ олно.";
+"settings.peers.searching" = "Бусад Mac-ийг хайж байна…";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

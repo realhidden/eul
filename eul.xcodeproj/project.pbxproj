@@ -49,6 +49,7 @@
 		7C1FA41A24A712BB00CA7F71 /* SmcStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C68E083255664F500595F83 /* SmcStruct.swift */; };
 		7C1FA40924A712BB00CA7F71 /* FanHelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FA40324A712BB00CA7F71 /* FanHelperProtocol.swift */; };
 		7C1FA40A24A712BB00CA7F71 /* FanControlStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FA40B24A712BB00CA7F71 /* FanControlStore.swift */; };
+		E0B1D15C0000000000000001 /* PeerDiscoveryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B1D15C0000000000000002 /* PeerDiscoveryStore.swift */; };
 		7C1FA40C24A712BB00CA7F71 /* FanControlViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C1FA40D24A712BB00CA7F71 /* FanControlViews.swift */; };
 		7C1FA40E24A712BB00CA7F71 /* com.gaosun.eul.helper in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7C1FA40124A712BB00CA7F71 /* com.gaosun.eul.helper */; };
 		7C1FA40F24A712BB00CA7F71 /* com.gaosun.eul.helper.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7C1FA40424A712BB00CA7F71 /* com.gaosun.eul.helper.plist */; };
@@ -445,6 +446,7 @@
 		7C1FA40324A712BB00CA7F71 /* FanHelperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanHelperProtocol.swift; sourceTree = "<group>"; };
 		7C1FA40424A712BB00CA7F71 /* com.gaosun.eul.helper.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = com.gaosun.eul.helper.plist; sourceTree = "<group>"; };
 		7C1FA40B24A712BB00CA7F71 /* FanControlStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanControlStore.swift; sourceTree = "<group>"; };
+		E0B1D15C0000000000000002 /* PeerDiscoveryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerDiscoveryStore.swift; sourceTree = "<group>"; };
 		7C1FA40D24A712BB00CA7F71 /* FanControlViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanControlViews.swift; sourceTree = "<group>"; };
 		7C1FA42024A712BB00CA7F71 /* EulWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EulWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C1FA42124A712BB00CA7F71 /* EulWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EulWidgets.swift; sourceTree = "<group>"; };
@@ -1006,6 +1008,7 @@
 				6C1FA41124AA1DC100CA7F71 /* MemoryStore.swift */,
 				6C7DB6D024E0300E00133B06 /* NetworkStore.swift */,
 				6C387DC6253B08F100CBB81B /* NetworkTopStore.swift */,
+				E0B1D15C0000000000000002 /* PeerDiscoveryStore.swift */,
 				6C7DB6DB24E7FFE300133B06 /* PreferenceStore.swift */,
 				6C192532256D5984006B0D73 /* SharedStore.swift */,
 				6C457391253AC69E00BB2584 /* UIStore.swift */,
@@ -1569,6 +1572,7 @@
 				6C1FA4C524A712BB00CA7F71 /* GlobalHotKey.swift in Sources */,
 				7C1FA40924A712BB00CA7F71 /* FanHelperProtocol.swift in Sources */,
 				7C1FA40A24A712BB00CA7F71 /* FanControlStore.swift in Sources */,
+				E0B1D15C0000000000000001 /* PeerDiscoveryStore.swift in Sources */,
 				7C1FA40C24A712BB00CA7F71 /* FanControlViews.swift in Sources */,
 				6C1FA3FA24A70E6700CA7F71 /* CpuStore.swift in Sources */,
 				6C19253F256FEBE5006B0D73 /* LocalizedStringConvertible.swift in Sources */,

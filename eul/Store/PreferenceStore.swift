@@ -124,6 +124,10 @@ class PreferenceStore: ObservableObject {
     @Published var checkUpdateFailed = true
     @Published var appearanceMode = Preference.appearance.auto
 
+    /// Macs running eul with the same secret discover each other on the
+    /// local network (PeerDiscoveryStore); empty turns discovery off
+    @Published var sharedSecret = ""
+
     var json: JSON {
         JSON([
             "temperatureUnit": temperatureUnit.rawValue,
@@ -137,6 +141,7 @@ class PreferenceStore: ObservableObject {
             "checkStatusItemVisibility": checkStatusItemVisibility,
             "appearance": appearanceMode.rawValue,
             "upgradeMethod": upgradeMethod.rawValue,
+            "sharedSecret": sharedSecret,
 
         ])
     }
@@ -235,6 +240,9 @@ class PreferenceStore: ObservableObject {
                 }
                 if let raw = data["upgradeMethod"].string, let value = UpgradeMethod(rawValue: raw) {
                     upgradeMethod = value
+                }
+                if let raw = data["sharedSecret"].string {
+                    sharedSecret = raw
                 }
             } catch {
                 print("Unable to get preference data from user defaults")

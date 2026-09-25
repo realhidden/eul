@@ -19,6 +19,7 @@ extension Preference {
     struct GeneralView: View {
         @ObservedObject var launchAtLogin = LaunchAtLogin.observable
         @EnvironmentObject var preference: PreferenceStore
+        @EnvironmentObject var peerDiscovery: PeerDiscoveryStore
 
         // MARK: app card
 
@@ -151,6 +152,36 @@ extension Preference {
             }
         }
 
+        // MARK: peers card
+
+        private var peersCard: some View {
+            Settings.Card(title: "settings.peers".localized()) {
+                Settings.Row(
+                    title: "settings.peers.secret".localized(),
+                    caption: "settings.peers.secret.desc".localized()
+                ) {
+                    TextField("", text: $preference.sharedSecret)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .controlSize(.small)
+                        .frame(width: 150)
+                }
+                if !preference.sharedSecret.isEmpty {
+                    Settings.RowDivider()
+                    if peerDiscovery.peers.isEmpty {
+                        Text("settings.peers.searching".localized())
+                            .font(.system(size: 10.5))
+                            .foregroundColor(Settings.secondary)
+                            .padding(.vertical, 5)
+                    }
+                    ForEach(peerDiscovery.peers) { peer in
+                        Text(peer.name)
+                            .font(.system(size: 12.5))
+                            .padding(.vertical, 5)
+                    }
+                }
+            }
+        }
+
         // MARK: hidden tiles (restore lives here; hiding is point-of-use)
 
         private var hiddenTileKinds: [PanelTileKind] {
@@ -190,6 +221,7 @@ extension Preference {
                 appCard
                 displayCard
                 unitsCard
+                peersCard
                 if !hiddenTileKinds.isEmpty {
                     hiddenTilesCard
                 }

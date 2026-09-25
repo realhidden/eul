@@ -306,6 +306,10 @@
 "settings.slot_style" = "Slot style";
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
+"settings.peers" = "Mac à proximité";
+"settings.peers.secret" = "Secret partagé";
+"settings.peers.secret.desc" = "Les Mac exécutant eul avec le même secret se trouvent sur le réseau local.";
+"settings.peers.searching" = "Recherche d’autres Mac…";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

@@ -306,6 +306,10 @@
 "settings.slot_style" = "Slot style";
 "settings.slot_style.desc" = "How much each menu bar slot spells out.";
 "settings.slot_style.preview" = "Preview";
+"settings.peers" = "Mac ใกล้เคียง";
+"settings.peers.secret" = "รหัสลับที่ใช้ร่วมกัน";
+"settings.peers.secret.desc" = "Mac ที่เรียกใช้ eul ด้วยรหัสลับเดียวกันจะค้นพบกันบนเครือข่ายท้องถิ่น";
+"settings.peers.searching" = "กำลังค้นหา Mac เครื่องอื่น…";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";
