@@ -311,8 +311,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "附近的 Mac";
 "settings.peers.secret" = "共享密钥";
-"settings.peers.secret.desc" = "使用相同密钥运行 eul 的 Mac 会在本地网络中互相发现。";
+"settings.peers.secret.desc" = "使用相同密钥运行 eul 的 Mac 会共享各自的统计数据——在本地网络中，以及通过公共中继在互联网上。所有数据均端到端加密。";
 "settings.peers.searching" = "正在查找其他 Mac…";
+"settings.peers.lan" = "局域网";
+"settings.peers.internet" = "互联网";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

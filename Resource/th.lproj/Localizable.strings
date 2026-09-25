@@ -308,8 +308,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Mac ใกล้เคียง";
 "settings.peers.secret" = "รหัสลับที่ใช้ร่วมกัน";
-"settings.peers.secret.desc" = "Mac ที่เรียกใช้ eul ด้วยรหัสลับเดียวกันจะค้นพบกันบนเครือข่ายท้องถิ่น";
+"settings.peers.secret.desc" = "Mac ที่เรียกใช้ eul ด้วยรหัสลับเดียวกันจะแชร์สถิติกัน — บนเครือข่ายท้องถิ่น และผ่านอินเทอร์เน็ตด้วยรีเลย์สาธารณะ ทุกอย่างเข้ารหัสแบบต้นทางถึงปลายทาง";
 "settings.peers.searching" = "กำลังค้นหา Mac เครื่องอื่น…";
+"settings.peers.lan" = "LAN";
+"settings.peers.internet" = "อินเทอร์เน็ต";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

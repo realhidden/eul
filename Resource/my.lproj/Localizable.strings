@@ -308,8 +308,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "အနီးရှိ Mac များ";
 "settings.peers.secret" = "မျှဝေထားသော လျှို့ဝှက်ချက်";
-"settings.peers.secret.desc" = "တူညီသော လျှို့ဝှက်ချက်ဖြင့် eul ကို run နေသော Mac များသည် local network ပေါ်တွင် တစ်ခုနှင့်တစ်ခု ရှာတွေ့ပါသည်။";
+"settings.peers.secret.desc" = "တူညီသော လျှို့ဝှက်ချက်ဖြင့် eul ကို run နေသော Mac များသည် local network ပေါ်တွင်နှင့် public relay မှတစ်ဆင့် အင်တာနက်ပေါ်တွင် စာရင်းအချက်အလက်များကို မျှဝေပါသည်။ အားလုံးကို end-to-end စာဝှက်ထားပါသည်။";
 "settings.peers.searching" = "အခြား Mac များကို ရှာနေသည်…";
+"settings.peers.lan" = "LAN";
+"settings.peers.internet" = "အင်တာနက်";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

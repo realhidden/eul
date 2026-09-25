@@ -308,8 +308,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "近くのMac";
 "settings.peers.secret" = "共有シークレット";
-"settings.peers.secret.desc" = "同じシークレットで eul を実行している Mac がローカルネットワーク上で互いを見つけます。";
+"settings.peers.secret.desc" = "同じシークレットで eul を実行している Mac 同士が統計情報を共有します — ローカルネットワーク上と、公開リレー経由のインターネット上で。すべてエンドツーエンドで暗号化されます。";
 "settings.peers.searching" = "他の Mac を検索中…";
+"settings.peers.lan" = "LAN";
+"settings.peers.internet" = "インターネット";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

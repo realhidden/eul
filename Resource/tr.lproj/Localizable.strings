@@ -308,8 +308,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Yakındaki Mac’ler";
 "settings.peers.secret" = "Paylaşılan gizli anahtar";
-"settings.peers.secret.desc" = "Aynı gizli anahtarla eul çalıştıran Mac’ler yerel ağda birbirini bulur.";
+"settings.peers.secret.desc" = "Aynı gizli anahtarla eul çalıştıran Mac’ler istatistiklerini paylaşır — yerel ağda ve herkese açık bir aktarıcı üzerinden internette. Her şey uçtan uca şifrelenir.";
 "settings.peers.searching" = "Diğer Mac’ler aranıyor…";
+"settings.peers.lan" = "LAN";
+"settings.peers.internet" = "İnternet";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

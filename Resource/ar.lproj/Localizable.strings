@@ -309,8 +309,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "أجهزة Mac القريبة";
 "settings.peers.secret" = "السر المشترك";
-"settings.peers.secret.desc" = "تعثر أجهزة Mac التي تشغّل eul بالسر نفسه على بعضها في الشبكة المحلية.";
+"settings.peers.secret.desc" = "تتشارك أجهزة Mac التي تشغّل eul بالسر نفسه إحصاءاتها — على الشبكة المحلية، وعبر الإنترنت من خلال مُرحِّل عام. كل شيء مشفّر من طرف إلى طرف.";
 "settings.peers.searching" = "جارٍ البحث عن أجهزة Mac أخرى…";
+"settings.peers.lan" = "محلي";
+"settings.peers.internet" = "الإنترنت";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

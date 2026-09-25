@@ -308,8 +308,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Pobliskie Maki";
 "settings.peers.secret" = "Wspólny sekret";
-"settings.peers.secret.desc" = "Maki z eul i tym samym sekretem odnajdują się w sieci lokalnej.";
+"settings.peers.secret.desc" = "Maki z eul i tym samym sekretem udostępniają sobie statystyki — w sieci lokalnej i przez internet za pośrednictwem publicznego przekaźnika. Wszystko jest szyfrowane end-to-end.";
 "settings.peers.searching" = "Szukanie innych Maków…";
+"settings.peers.lan" = "LAN";
+"settings.peers.internet" = "Internet";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

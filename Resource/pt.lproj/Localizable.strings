@@ -308,8 +308,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Macs próximos";
 "settings.peers.secret" = "Segredo partilhado";
-"settings.peers.secret.desc" = "Macs com o eul e o mesmo segredo encontram-se na rede local.";
+"settings.peers.secret.desc" = "Macs com o eul e o mesmo segredo partilham as suas estatísticas — na rede local e pela Internet através de um relay público. Tudo é cifrado ponto a ponto.";
 "settings.peers.searching" = "A procurar outros Macs…";
+"settings.peers.lan" = "LAN";
+"settings.peers.internet" = "Internet";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

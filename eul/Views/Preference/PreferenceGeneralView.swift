@@ -154,6 +154,25 @@ extension Preference {
 
         // MARK: peers card
 
+        private func statsLine(_ stats: PeerDiscoveryStore.Stats) -> String {
+            var parts: [String] = []
+            if let cpu = stats.cpu {
+                parts.append(String(format: "CPU %.0f%%", cpu))
+            }
+            if let memory = stats.memory {
+                parts.append(String(format: "MEM %.0f%%", memory))
+            }
+            if let gpu = stats.gpu {
+                parts.append(String(format: "GPU %.0f%%", gpu))
+            }
+            if let temperature = stats.temperature(in: preference.temperatureUnit) {
+                parts.append(temperature.temperatureString)
+            }
+            let inBits = preference.networkRateInBits
+            parts.append("↓\(ByteUnit(stats.networkIn).readableRate(inBits: inBits)) ↑\(ByteUnit(stats.networkOut).readableRate(inBits: inBits))")
+            return parts.joined(separator: " · ")
+        }
+
         private var peersCard: some View {
             Settings.Card(title: "settings.peers".localized()) {
                 Settings.Row(
@@ -174,9 +193,11 @@ extension Preference {
                             .padding(.vertical, 5)
                     }
                     ForEach(peerDiscovery.peers) { peer in
-                        Text(peer.name)
-                            .font(.system(size: 12.5))
-                            .padding(.vertical, 5)
+                        Settings.Row(title: peer.name, caption: statsLine(peer.stats)) {
+                            Text((peer.via.contains(.lan) ? "settings.peers.lan" : "settings.peers.internet").localized())
+                                .font(.system(size: 10.5))
+                                .foregroundColor(Settings.secondary)
+                        }
                     }
                 }
             }

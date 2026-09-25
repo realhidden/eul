@@ -309,8 +309,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Közeli Macek";
 "settings.peers.secret" = "Közös titok";
-"settings.peers.secret.desc" = "Az azonos titkot használó, eul-t futtató Macek megtalálják egymást a helyi hálózaton.";
+"settings.peers.secret.desc" = "Az azonos titkot használó, eul-t futtató Macek megosztják egymással az adataikat — a helyi hálózaton és az interneten, egy nyilvános továbbítón keresztül. Minden végpontok között titkosított.";
 "settings.peers.searching" = "Más Macek keresése…";
+"settings.peers.lan" = "LAN";
+"settings.peers.internet" = "Internet";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

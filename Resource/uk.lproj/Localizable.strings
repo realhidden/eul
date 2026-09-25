@@ -308,8 +308,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "Маки поблизу";
 "settings.peers.secret" = "Спільний секрет";
-"settings.peers.secret.desc" = "Маки з eul і однаковим секретом знаходять один одного в локальній мережі.";
+"settings.peers.secret.desc" = "Маки з eul і однаковим секретом обмінюються статистикою — у локальній мережі та через інтернет за допомогою публічного ретранслятора. Усе захищено наскрізним шифруванням.";
 "settings.peers.searching" = "Пошук інших Маків…";
+"settings.peers.lan" = "LAN";
+"settings.peers.internet" = "Інтернет";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";

@@ -310,8 +310,10 @@
 "settings.slot_style.preview" = "Preview";
 "settings.peers" = "مک‌های نزدیک";
 "settings.peers.secret" = "رمز مشترک";
-"settings.peers.secret.desc" = "مک‌هایی که eul را با رمز یکسان اجرا می‌کنند یکدیگر را در شبکهٔ محلی پیدا می‌کنند.";
+"settings.peers.secret.desc" = "مک‌هایی که eul را با رمز یکسان اجرا می‌کنند آمارشان را به اشتراک می‌گذارند — در شبکهٔ محلی و از طریق اینترنت با یک رلهٔ عمومی. همه‌چیز رمزگذاری سرتاسری دارد.";
 "settings.peers.searching" = "در حال جستجوی مک‌های دیگر…";
+"settings.peers.lan" = "محلی";
+"settings.peers.internet" = "اینترنت";
 "ui.general.caption" = "Units, appearance, language, and how often eul samples.";
 "ui.components.caption" = "What appears in the menu bar and how it looks.";
 "ui.health.caption" = "Which conditions eul watches for and warns about.";
