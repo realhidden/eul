@@ -113,12 +113,21 @@ jobs:
           pattern: eul-linux-*
           merge-multiple: true
 
+      # gh, not softprops/action-gh-release: in v2.3.0 that action raced
+      # itself into a duplicate draft and two of the tarballs went with it
       - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            eul.app.zip
-            eul-linux-*.tar.gz
-          generate_release_notes: true
-          draft: false
-          prerelease: false
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          FILES="eul.app.zip $(ls eul-linux-*.tar.gz)"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" $FILES --clobber
+          else
+            gh release create "$TAG" $FILES --generate-notes --verify-tag
+          fi
+          # fail loudly if anything is missing from what was published
+          for f in $FILES; do
+            gh release view "$TAG" --json assets --jq '.assets[].name' | grep -qx "$f" || {
+              echo "::error::$f is missing from release $TAG"; exit 1; }
+          done
