@@ -2,11 +2,9 @@
   <img src="Resource/Assets.xcassets/AppIcon.appiconset/eul@256px.png" height=96 />
 </p>
 
-# eul
+# eul 2.0
 
-A calm system monitor for the macOS menu bar, with a terminal twin for
-Linux. It stays quiet while things are fine, and when something needs
-attention, exactly that number turns amber or red.
+A calm system monitor for the macOS menu bar — this fork revives and redesigns [gao-sun/eul](https://github.com/gao-sun/eul) for modern macOS and Apple Silicon, rebuilt around one idea: **glanceable when things are fine, useful when they aren't.**
 
 <p align="center">
   <img src="design/screenshots/menubar-smart.png" width="620" alt="The eul menu bar strip in its smart slot style" />
@@ -16,193 +14,69 @@ attention, exactly that number turns amber or red.
   <img src="design/screenshots/panel.png" width="390" alt="The eul investigation panel" />
 </p>
 
-- **Menu bar strip:** your pinned metrics in one strip, in three styles
-  (full, value only, smart). When the bar gets crowded it collapses slot by
-  slot instead of vanishing.
-- **Panel:** click the strip for a verdict, metric tiles with history
-  charts, and top processes by CPU, memory and network. eul reports its own
-  CPU use every time it opens.
-- **Health engine:** sustained thermal pressure, memory pressure, a nearly
-  full disk or a runaway process tints exactly the responsible metric.
-- **Nearby Macs:** Macs and Linux boxes with the same secret share their
-  stats, end-to-end encrypted, over the LAN and the internet. Pick one in
-  the panel footer to see its tiles. → [How it works](#nearby-macs)
-- **Fan control:** a privileged helper with hardware clamps. Fans revert to
-  Auto whenever eul isn't running. Needs a build [signed with your own
-  team](#build-from-source).
-- **Widgets:** health and trends widgets that say how old their data is.
-- **eul for Linux:** a dependency-free terminal monitor for servers and the
-  Raspberry Pi that joins the same peer network. →
-  [`linux/README.md`](linux/README.md)
+## Highlights
 
-What changed release by release: [CHANGELOG.md](CHANGELOG.md).
+- **One entry point in the bar.** Your pinned metrics render as a single strip; when the menu bar gets crowded, a width governor collapses it slot by slot down to the eyes — eul never silently disappears.
+- **An investigation panel, not a dropdown.** Click the strip for a top-down read: verdict, metric tiles with history charts, top processes by CPU / memory / network (with PIDs), and eul's own footprint reported on every open.
+- **A health engine instead of a Christmas tree.** Surfaces stay monochrome until a *sustained* signal trips — thermal pressure, memory pressure, disk almost full, runaway process — then exactly the responsible metric tints amber or red, in the bar and in the panel.
+- **Fan control with a real safety model.** A privileged helper (macOS 13+, approved by you in System Settings) drives the fans: linked by default with one stepped slider, Auto / Manual / Boost per fan if you unlink. Targets are clamped to hardware limits, macOS can always cool past your setting, and fans revert to Auto whenever eul isn't running — enforced by the helper's own dead-man watchdog, not by good intentions.
+- **Honest widgets.** Health and Trends widgets that say how old their data is instead of pretending to be live.
+- **Native, cheap sampling.** Metrics come from syscalls, not shelled-out tools; container writes and widget reloads are skipped when nothing consumes them; refresh cadence (1–10 s) is one slider with its energy cost stated next to it.
+- **Three slot styles, previewed live.** *Full* spells out `CPU 63%`, *Value only* drops the label, and *Smart* trades it for the component's glyph and tucks a history histogram under each number. Settings renders all three against live data, so you pick by looking rather than by reading three words.
+- **One chart language everywhere.** The same zero-based histogram draws in the bar, the panel and the widgets. Zero-based on purpose: scaling a chart to its own window minimum makes an idle GPU look busy, which is the opposite of what a chart is for.
+- **Your addresses, one click away.** The network tile expands to every adapter and its bound addresses — loopback included — ordered by your configured service order. Click one to copy it.
+- **Personalization without a layout editor.** Hide tiles you don't care about (right-click), °C/°F and MB/s ⇄ Mb/s units, 23 languages.
 
-## Install
+## OS Requirement
 
-### macOS
+macOS 13+ (Ventura) — every target in the project builds against a 13.0 deployment target. Fan control additionally needs a signed build so the privileged helper can be approved. Universal: Apple Silicon + Intel.
 
-Requires macOS 13 (Ventura) or later. Universal: Apple Silicon + Intel.
+## Linux servers & Raspberry Pi
 
-1. Download [`eul.app.zip`](https://github.com/realhidden/eul/releases/latest/download/eul.app.zip)
-   from the latest release, unzip it, and move `eul.app` to `/Applications`.
-2. Remove the quarantine flag (see below), then open eul.
+There is a command line variant for Debian, Ubuntu and the Raspberry Pi:
+one C99 binary, no dependencies, built with `make` — and it speaks the
+same sealed peer protocol, so your servers show up in the Mac menu bar
+(and the other way around). See [`linux/README.md`](linux/README.md).
 
-#### Remove quarantine
+## Installation
 
-Release builds are **ad-hoc signed and not notarized**, so macOS blocks
-them on first launch. Run in Terminal:
+### Download
+
+Download [`eul.app.zip` from the latest release](https://github.com/chrsomle/eul/releases/latest/download/eul.app.zip), unzip, and drag `eul.app` into `/Applications`.
+
+The release build is development-signed, not notarized — on first launch macOS will balk: right-click `eul.app` → **Open** (or allow it under System Settings → Privacy & Security).
+
+### Build from source
 
 ```bash
-xattr -r -d com.apple.quarantine /Applications/eul.app
-```
+git clone https://github.com/chrsomle/eul.git && cd eul
 
-This resolves:
-- *"eul.app" is damaged and can't be opened*
-- *Apple could not verify "eul.app" is free of malware*
-
-Without Terminal: try to open eul once, then go to System Settings →
-Privacy & Security and click **Open Anyway**. On macOS 15 and later,
-right-click → Open no longer bypasses the check.
-
-#### Sign locally (optional)
-
-If you have an Apple Developer certificate, you can re-sign the download:
-
-```bash
-# list available identities
-security find-identity -v -p codesigning
-
-# sign with yours
-codesign --force --deep --sign "Developer ID Application: Your Name (TEAMID)" /Applications/eul.app
-
-# verify
-codesign --verify --deep --strict /Applications/eul.app
-```
-
-Everything works in the ad-hoc build except **fan control**. macOS only
-installs privileged helpers from apps signed by a real team, and the helper
-must be signed by the same team, so fan control needs a
-[build from source](#build-from-source) with your team ID.
-
-### Linux
-
-Debian 11+, Ubuntu 20.04+ and Raspberry Pi OS on x86_64, arm64 or armv7:
-
-```bash
-curl -L https://github.com/realhidden/eul/releases/latest/download/eul-linux-arm64.tar.gz | tar xz
-sudo install eul-linux-arm64/eul /usr/local/bin/
-eul
-```
-
-Swap `arm64` for `x86_64` or `armv7` (32-bit Raspberry Pi OS). Options,
-systemd setup and building from source: [`linux/README.md`](linux/README.md).
-
-## Nearby Macs
-
-Every machine running eul with the same secret appears on every other one.
-The secret can't be read from anything that goes over the network.
-
-**Set up**
-
-1. **Mac:** Settings → General → **Share stats with other Macs**. Turn it
-   on and press **Generate**, or type a secret. Use the same secret on
-   every machine.
-2. **Linux:** run `eul --share <secret> --peers` for the dashboard, or
-   `--headless` under systemd.
-3. **Pick a machine:** peers are listed in the settings card. In the panel
-   footer, pick one to see its CPU (per core), memory, GPU, network and
-   disk. The panel is back on this Mac the next time it opens.
-
-**How it travels**
-
-| Path | Transport | Used by |
-|---|---|---|
-| LAN | Bonjour `_eul-peer._udp`, direct UDP | Macs |
-| Internet | public MQTT brokers (`broker.emqx.io`, `broker.hivemq.com`, `test.mosquitto.org`), all joined at once | Macs (TLS), Linux (TCP) |
-
-Each machine sends one snapshot every 5 s. A peer that has been silent for
-about 16 s drops off the list.
-
-**What protects it**
-
-- **Keys:** the secret is stretched with PBKDF2-SHA256 (200,000 rounds),
-  then split with HKDF into three independent values: the Bonjour token,
-  the broker topic and a ChaChaPoly key.
-- **Encryption:** every snapshot, including the machine's name, is
-  encrypted and authenticated. Tampered messages, our own echoes and
-  anything older than 60 s are dropped.
-- **What an observer sees:** anyone on the broker or the network sees a
-  topic name, message sizes and timing. They can't read the stats or forge
-  them.
-- **Weak spot:** a *short* typed secret could be guessed offline from the
-  public topic name. **Generate** gives about 99 bits, and Settings warns
-  under 12 characters.
-
-## Build from source
-
-```bash
-git clone https://github.com/realhidden/eul.git && cd eul
-
-# unsigned: everything except fan control
-xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx build \
-  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" \
-  CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO"
-
-# signed with your team: fan control too (a free Apple Developer account works)
 xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx -configuration Release build \
   CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=<your team id> -allowProvisioningUpdates
 ```
 
-Copy the built `eul.app` from DerivedData to `/Applications`.
+Copy the built `eul.app` from DerivedData into `/Applications`. A real signing team (free Apple Developer account works) is required for fan control — macOS refuses to register privileged helpers from unsigned apps. Everything else runs fine unsigned:
 
-Linux: `make -C linux && sudo make -C linux install`.
+```bash
+xcodebuild -scheme eul -project ./eul.xcodeproj -sdk macosx build \
+  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" \
+  CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO"
+```
 
 ## Development
 
-- **Formatting:** SwiftUI throughout. CI builds the app and checks the
-  format, so run the formatter before committing:
-  ```bash
-  cd BuildTools && swift run -c release swiftformat ../ --lint   # check
-  cd BuildTools && swift run -c release swiftformat ..           # fix
-  ```
-- **Widgets:** the extensions aren't part of the `eul` scheme, so build
-  each by its own scheme (see [CLAUDE.md](CLAUDE.md)).
-- **Linux:** `make -C linux test` runs the unit tests, and
-  `make -C linux compat` (macOS only) cross-checks the peer protocol
-  against CryptoKit.
-- **Design:** direction and component specs are in
-  [`design/handoff`](design/handoff). The app icon is generated from code
-  in [`design/icon`](design/icon).
+SwiftUI throughout, no test target — CI builds and lint-checks formatting. Run the formatter before committing:
 
-### Releasing
+```bash
+cd BuildTools && swift run -c release swiftformat ../ --lint   # check
+cd BuildTools && swift run -c release swiftformat ..           # fix
+```
 
-1. Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in
-   `eul.xcodeproj/project.pbxproj` and commit.
-2. Tag the release and start the workflow:
+The design direction and component specs live in [`design/handoff`](design/handoff). The app icon is generated from code: [`design/icon/generate-appicon.swift`](design/icon/generate-appicon.swift).
 
-   ```bash
-   git tag -a v2.3.0 -m v2.3.0 && git push origin v2.3.0
-   gh workflow run release.yml -R realhidden/eul --ref v2.3.0
-   ```
+## Acknowledgements
 
-The workflow builds the universal ad-hoc signed `eul.app.zip` and the three
-Linux tarballs, publishes them, and fails if any asset is missing.
-
-## Languages
-
-23 languages: 简体中文, 繁體中文, English, العربية, Deutsch, Русский, Español,
-Português, Монгол, 한국어, 日本語, Français, Українська, Svenska, Čeština,
-Italiano, မြန်မာဘာသာ, Magyar, ไทย, Türkçe, فارسی, Polski, Dansk.
-
-## Credits
-
-- **gao-sun:** created eul ([gao-sun/eul](https://github.com/gao-sun/eul)).
-- **chrsomle:** the 2.0 redesign ([chrsomle/eul](https://github.com/chrsomle/eul)).
-- **Other forks:** fixes from miaoweiwei, sclarkca and StoneOlo.
-- **Localisation community:** contributors below.
-
-The pre-2.3 README is kept as [README.old.md](README.old.md). MIT licensed,
-see [LICENSE](LICENSE).
+eul was created by [gao-sun](https://github.com/gao-sun) — this fork stands on that work and keeps its localization community's contributions.
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -259,3 +133,18 @@ see [LICENSE](LICENSE).
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## Language Support
+
+```swift
+let languages = [
+  "简体中文", "English", "العربية",
+  "Deutsch", "Русский", "Español",
+  "Português", "Монгол", "한국어",
+  "日本語", "Français", "Українська",
+  "Svenska", "Čeština", "Italiano",
+  "繁體中文", "မြန်မာဘာသာ", "Magyar",
+  "ไทย", "Türkçe", "فارسی",
+  "Polski", "Dansk",
+];
+```
